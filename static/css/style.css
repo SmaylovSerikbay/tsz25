@@ -752,12 +752,21 @@ body {
         font-size: 1.2rem;
     }
 
-    .desktop-nav {
-        display: none;
+    .desktop-nav,
+    .nav-link,
+    .nav-dropdown {
+        display: none !important;
     }
 
     .mobile-menu-toggle {
         display: flex;
+    }
+}
+
+@media (min-width: 769px) {
+    .mobile-menu,
+    .mobile-menu-toggle {
+        display: none !important;
     }
 }
 
