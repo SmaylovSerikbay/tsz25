@@ -323,6 +323,136 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Order Form Functionality
     initializeOrderForm();
+
+    // Base Template Functionality
+    let lastScroll = 0;
+    let scrollTimeout;
+
+    window.addEventListener('scroll', function() {
+        clearTimeout(scrollTimeout);
+        
+        scrollTimeout = setTimeout(function() {
+            const currentScroll = window.pageYOffset;
+            
+            if (currentScroll > lastScroll && currentScroll > 100) {
+                // Scrolling down
+                header.classList.add('hide');
+            } else {
+                // Scrolling up
+                header.classList.remove('hide');
+            }
+            
+            lastScroll = currentScroll;
+        }, 50);
+    });
+
+    // Mobile menu functionality
+    const mobileMenuToggle = document.querySelector('.mobile-menu-toggle');
+    const nav = document.querySelector('.nav');
+    let menuOverlay;
+
+    function createOverlay() {
+        if (!menuOverlay) {
+            menuOverlay = document.createElement('div');
+            menuOverlay.className = 'menu-overlay';
+            document.body.appendChild(menuOverlay);
+
+            menuOverlay.addEventListener('click', closeMenu);
+        }
+    }
+
+    function toggleMenu() {
+        const isOpen = nav.classList.contains('active');
+        
+        if (isOpen) {
+            closeMenu();
+        } else {
+            openMenu();
+        }
+    }
+
+    function openMenu() {
+        nav.classList.add('active');
+        mobileMenuToggle.classList.add('active');
+        document.body.style.overflow = 'hidden';
+        createOverlay();
+        menuOverlay.classList.add('active');
+    }
+
+    function closeMenu() {
+        nav.classList.remove('active');
+        mobileMenuToggle.classList.remove('active');
+        document.body.style.overflow = '';
+        if (menuOverlay) {
+            menuOverlay.classList.remove('active');
+        }
+    }
+
+    if (mobileMenuToggle) {
+        mobileMenuToggle.addEventListener('click', toggleMenu);
+    }
+
+    // Dropdown menu functionality
+    const dropdowns = document.querySelectorAll('.nav-dropdown');
+
+    dropdowns.forEach(dropdown => {
+        const toggle = dropdown.querySelector('.nav-dropdown-toggle');
+        const menu = dropdown.querySelector('.nav-dropdown-menu');
+        
+        if (toggle && menu) {
+            toggle.addEventListener('click', function(e) {
+                e.stopPropagation();
+                
+                // Close other dropdowns
+                dropdowns.forEach(d => {
+                    if (d !== dropdown) {
+                        d.querySelector('.nav-dropdown-menu')?.classList.remove('active');
+                    }
+                });
+                
+                menu.classList.toggle('active');
+            });
+        }
+    });
+
+    // Close dropdowns when clicking outside
+    document.addEventListener('click', function(e) {
+        if (!e.target.closest('.nav-dropdown')) {
+            document.querySelectorAll('.nav-dropdown-menu').forEach(menu => {
+                menu.classList.remove('active');
+            });
+        }
+    });
+
+    // Message alerts functionality
+    function showNotification(message, type = 'info') {
+        const messagesContainer = document.querySelector('.messages');
+        
+        if (!messagesContainer) {
+            const container = document.createElement('div');
+            container.className = 'messages';
+            document.querySelector('.main').insertAdjacentElement('afterbegin', container);
+        }
+        
+        const alert = document.createElement('div');
+        alert.className = `message-alert ${type}`;
+        alert.innerHTML = `
+            ${message}
+            <button class="close-message" onclick="this.parentElement.remove()">
+                <i class="ri-close-line"></i>
+            </button>
+        `;
+        
+        messagesContainer.appendChild(alert);
+        
+        // Auto-remove after 5 seconds
+        setTimeout(() => {
+            alert.remove();
+        }, 5000);
+    }
+
+    // Make showNotification available globally
+    window.showNotification = showNotification;
 });
 
 // Profile Page Functionality
