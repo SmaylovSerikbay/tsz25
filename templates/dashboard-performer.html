@@ -847,14 +847,43 @@
   <header class="header">
     <div class="container">
       <a href="{% url 'main:index' %}" class="logo">Той со звездой</a>
-      <nav class="nav">
+      <nav class="nav desktop-nav">
         <a href="{% url 'main:index' %}" class="nav-link">Главная</a>
         <a href="{% url 'main:catalog' %}" class="nav-link">Исполнители</a>
         <a href="{% url 'main:dashboard' %}" class="nav-link">Личный кабинет</a>
         <a href="{% url 'main:logout' %}" class="nav-link">Выйти</a>
       </nav>
+      <button class="mobile-menu-toggle" onclick="toggleMobileMenu()">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
     </div>
   </header>
+
+  <!-- Mobile Menu -->
+  <div class="mobile-menu">
+    <div class="mobile-menu-content">
+      <nav class="mobile-nav">
+        <a href="{% url 'main:index' %}" class="mobile-nav-link">
+          <i class="ri-home-line"></i>
+          Главная
+        </a>
+        <a href="{% url 'main:catalog' %}" class="mobile-nav-link">
+          <i class="ri-user-star-line"></i>
+          Исполнители
+        </a>
+        <a href="{% url 'main:dashboard' %}" class="mobile-nav-link">
+          <i class="ri-dashboard-line"></i>
+          Личный кабинет
+        </a>
+        <a href="{% url 'main:logout' %}" class="mobile-nav-link">
+          <i class="ri-logout-box-line"></i>
+          Выйти
+        </a>
+      </nav>
+    </div>
+  </div>
 
   <main class="main">
     <div class="container">
@@ -1193,6 +1222,35 @@
   </footer>
 
   <script>
+    // Mobile Menu Functions
+    function toggleMobileMenu() {
+      const mobileMenu = document.querySelector('.mobile-menu');
+      const mobileMenuToggle = document.querySelector('.mobile-menu-toggle');
+      
+      mobileMenu.classList.toggle('active');
+      mobileMenuToggle.classList.toggle('active');
+      
+      if (mobileMenu.classList.contains('active')) {
+        document.body.style.overflow = 'hidden';
+      } else {
+        document.body.style.overflow = 'auto';
+      }
+    }
+
+    // Close mobile menu when clicking outside
+    document.addEventListener('click', function(event) {
+      const mobileMenu = document.querySelector('.mobile-menu');
+      const mobileMenuToggle = document.querySelector('.mobile-menu-toggle');
+      
+      if (mobileMenu.classList.contains('active') && 
+          !event.target.closest('.mobile-menu-content') && 
+          !event.target.closest('.mobile-menu-toggle')) {
+        mobileMenu.classList.remove('active');
+        mobileMenuToggle.classList.remove('active');
+        document.body.style.overflow = 'auto';
+      }
+    });
+
     // All JavaScript functions from the reference template
     function openModal(modalId) {
       document.getElementById(modalId).style.display = 'block';
