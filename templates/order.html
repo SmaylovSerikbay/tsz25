@@ -1,0 +1,546 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Создать заявку — Той со звездой</title>
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+  <style>
+    .order-form {
+      max-width: 800px;
+      margin: 40px auto;
+      background: white;
+      border-radius: 20px;
+      padding: 32px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+    }
+
+    .order-header {
+      margin-bottom: 32px;
+    }
+
+    .order-header h1 {
+      font-size: 1.8rem;
+      margin: 0 0 8px 0;
+    }
+
+    .order-header p {
+      color: #666;
+      margin: 0;
+    }
+
+    .form-section {
+      margin-bottom: 32px;
+    }
+
+    .form-section h2 {
+      font-size: 1.4rem;
+      margin: 0 0 20px 0;
+      padding-bottom: 12px;
+      border-bottom: 2px solid #e3e8ff;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 20px;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      width: 100%;
+    }
+
+    .form-group.full {
+      grid-column: 1 / -1;
+    }
+
+    .form-label {
+      font-weight: 500;
+      color: #1a1a1a;
+      font-size: 0.9rem;
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    .form-input {
+      width: 100%;
+      padding: 12px;
+      border: 2px solid #e3e8ff;
+      border-radius: 12px;
+      font-size: 1rem;
+      font-family: 'Montserrat', sans-serif;
+      transition: all 0.2s;
+      box-sizing: border-box;
+      height: 45px;
+    }
+
+    .form-input:focus {
+      border-color: #2e6cff;
+      outline: none;
+    }
+
+    textarea.form-input {
+      height: auto;
+      min-height: 100px;
+      resize: vertical;
+    }
+
+    select.form-input {
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23666' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 12px center;
+      background-size: 16px;
+      padding-right: 40px;
+    }
+
+    .services-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+      margin-top: 16px;
+    }
+
+    .service-card {
+      background: #FFFFFF;
+      border: 1px solid #E5E7EB;
+      border-radius: 12px;
+      padding: 24px;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+    }
+
+    .service-card:hover {
+      border-color: var(--primary-color);
+    }
+
+    .service-card.selected {
+      background: #F8FAFF;
+      border: 1px solid var(--primary-color);
+    }
+
+    .service-icon {
+      width: 24px;
+      height: 24px;
+      color: var(--primary-color);
+      margin-bottom: 16px;
+    }
+
+    .service-card h3 {
+      margin: 0 0 4px 0;
+      font-size: 1rem;
+      font-weight: 600;
+      color: #111827;
+    }
+
+    .service-card p {
+      margin: 0;
+      font-size: 0.875rem;
+      color: #6B7280;
+    }
+
+    .budget-range {
+      display: flex;
+      gap: 16px;
+      align-items: center;
+    }
+
+    .budget-range span {
+      color: #666;
+    }
+
+    .btn-group {
+      display: flex;
+      gap: 16px;
+      margin-top: 32px;
+    }
+
+    .btn {
+      padding: 12px 24px;
+      border-radius: 12px;
+      font-weight: 500;
+      transition: all 0.2s;
+      cursor: pointer;
+      border: none;
+      font-family: 'Montserrat', sans-serif;
+      min-width: 150px;
+      text-align: center;
+    }
+
+    .btn.accent {
+      background: var(--primary-color);
+      color: white;
+    }
+
+    .btn.outline {
+      border: 2px solid var(--primary-color);
+      color: var(--primary-color);
+      background: none;
+    }
+
+    @media (max-width: 768px) {
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .btn-group {
+        flex-direction: column;
+      }
+
+      .btn {
+        width: 100%;
+      }
+
+      .order-form {
+        margin: 20px;
+        padding: 20px;
+      }
+
+      .services-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (max-width: 480px) {
+      .services-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Обновляем стили хедера и футера */
+    .header {
+      background: white;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .header .container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 16px;
+    }
+
+    .nav {
+      display: flex;
+      gap: 24px;
+    }
+
+    .nav-link {
+      color: #1a1a1a;
+      text-decoration: none;
+      font-weight: 500;
+      transition: color 0.2s;
+    }
+
+    .nav-link:hover {
+      color: var(--primary-color);
+    }
+
+    .footer {
+      background: white;
+      padding: 48px 0 24px;
+      margin-top: 48px;
+      border-top: 1px solid #e5e7eb;
+    }
+
+    .footer-content {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 48px;
+      margin-bottom: 32px;
+    }
+
+    .footer-section h3 {
+      font-size: 1.2rem;
+      font-weight: 600;
+      margin-bottom: 16px;
+      color: #1a1a1a;
+    }
+
+    .footer-section p {
+      color: #666;
+      line-height: 1.6;
+    }
+
+    .social-links {
+      display: flex;
+      gap: 16px;
+      margin-top: 12px;
+    }
+
+    .social-links a {
+      color: var(--primary-color);
+      font-size: 1.5rem;
+      transition: opacity 0.2s;
+    }
+
+    .social-links a:hover {
+      opacity: 0.8;
+    }
+
+    .footer-bottom {
+      text-align: center;
+      padding-top: 24px;
+      border-top: 1px solid #e5e7eb;
+      color: #666;
+    }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div class="container">
+      <a href="{% url 'main:index' %}" class="logo">Той со звездой</a>
+      <nav class="nav">
+        <a href="{% url 'main:index' %}" class="nav-link">Главная</a>
+        <a href="{% url 'main:catalog' %}" class="nav-link">Исполнители</a>
+        <a href="{% url 'main:dashboard' %}" class="nav-link">Личный кабинет</a>
+        <a href="{% url 'main:logout' %}" class="nav-link">Выйти</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="main">
+    <div class="container">
+      <div class="order-form">
+        <div class="order-header">
+          <h1>{% if is_edit %}Редактирование заказа{% else %}Создание заказа{% endif %}</h1>
+          <p>{% if is_edit %}Измените информацию о вашем мероприятии{% else %}Заполните информацию о вашем мероприятии{% endif %}</p>
+        </div>
+
+        <form method="post" action="{% if is_edit %}{% url 'main:edit_order' order.id %}{% else %}{% url 'main:create_order' %}{% endif %}">
+          {% csrf_token %}
+          
+          {% if form.errors %}
+          <div class="messages">
+            {% for field in form %}
+              {% for error in field.errors %}
+                <div class="message error">{{ error }}</div>
+              {% endfor %}
+            {% endfor %}
+            {% for error in form.non_field_errors %}
+              <div class="message error">{{ error }}</div>
+            {% endfor %}
+          </div>
+          {% endif %}
+
+          <!-- Информация о мероприятии -->
+          <div class="form-section">
+            <h2>Информация о мероприятии</h2>
+            <div class="form-grid">
+              <div class="form-group">
+                <label class="form-label" for="{{ form.title.id_for_label }}">Название заказа</label>
+                {{ form.title }}
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="{{ form.event_type.id_for_label }}">Тип мероприятия</label>
+                {{ form.event_type }}
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="{{ form.event_date.id_for_label }}">Дата мероприятия</label>
+                {{ form.event_date }}
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="{{ form.city.id_for_label }}">Город</label>
+                {{ form.city }}
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="{{ form.guest_count.id_for_label }}">Количество гостей</label>
+                {{ form.guest_count }}
+              </div>
+              <div class="form-group full">
+                <label class="form-label" for="{{ form.venue.id_for_label }}">Место проведения (если известно)</label>
+                {{ form.venue }}
+              </div>
+            </div>
+          </div>
+
+          <!-- Требуемые услуги -->
+          <div class="form-section">
+            <h2>Требуемые услуги</h2>
+            <p style="color: #6B7280; margin: 8px 0 16px;">Выберите услуги, которые вам необходимы</p>
+            <div class="services-grid">
+              <div class="service-card" onclick="toggleService(this, 'host')">
+                <svg class="service-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M12 14C13.66 14 15 12.66 15 11V5C15 3.34 13.66 2 12 2C10.34 2 9 3.34 9 5V11C9 12.66 10.34 14 12 14Z" fill="currentColor"/>
+                  <path d="M17.91 11C17.91 11 17.64 13.8 15.86 15.57C14.66 16.77 13.38 17.27 12.06 17.27C10.74 17.27 9.46 16.77 8.26 15.57C6.48 13.79 6.21 11 6.21 11" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                  <path d="M12 17V22M8 22H16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+                <h3>Ведущий</h3>
+                <p>Тамада, MC</p>
+              </div>
+              <div class="service-card" onclick="toggleService(this, 'restaurant')">
+                <svg class="service-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M19 9H5C3.89543 9 3 9.89543 3 11V20C3 21.1046 3.89543 22 5 22H19C20.1046 22 21 21.1046 21 20V11C21 9.89543 20.1046 9 19 9Z" stroke="currentColor" stroke-width="2"/>
+                  <path d="M8 2L8 6M12 2V6M16 2V6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                  <path d="M3 15H21" stroke="currentColor" stroke-width="2"/>
+                </svg>
+                <h3>Ресторан</h3>
+                <p>Банкетный зал</p>
+              </div>
+              <div class="service-card" onclick="toggleService(this, 'photo')">
+                <svg class="service-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <rect x="3" y="6" width="18" height="14" rx="2" stroke="currentColor" stroke-width="2"/>
+                  <path d="M3 14L7.58579 9.41421C7.96086 9.03914 8.46957 8.82843 9 8.82843C9.53043 8.82843 10.0391 9.03914 10.4142 9.41421L15.5858 14.5858C15.9609 14.9609 16.4696 15.1716 17 15.1716C17.5304 15.1716 18.0391 14.9609 18.4142 14.5858L21 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                  <circle cx="16" cy="10" r="1" fill="currentColor"/>
+                </svg>
+                <h3>Фотограф</h3>
+                <p>Фотосъемка</p>
+              </div>
+              <div class="service-card" onclick="toggleService(this, 'video')">
+                <svg class="service-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <rect x="2" y="6" width="15" height="12" rx="2" stroke="currentColor" stroke-width="2"/>
+                  <path d="M17 9L22 7V17L17 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <h3>Видеограф</h3>
+                <p>Видеосъемка</p>
+              </div>
+              <div class="service-card" onclick="toggleService(this, 'music')">
+                <svg class="service-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M9 18V6L21 3V15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  <circle cx="6" cy="18" r="3" stroke="currentColor" stroke-width="2"/>
+                  <circle cx="18" cy="15" r="3" stroke="currentColor" stroke-width="2"/>
+                </svg>
+                <h3>Музыканты</h3>
+                <p>Живая музыка</p>
+              </div>
+              <div class="service-card" onclick="toggleService(this, 'dance')">
+                <svg class="service-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+                  <circle cx="8" cy="9" r="1" fill="currentColor"/>
+                  <circle cx="16" cy="9" r="1" fill="currentColor"/>
+                  <path d="M8 15C8 15 9.5 17 12 17C14.5 17 16 15 16 15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+                <h3>Шоу-программа</h3>
+                <p>Танцоры, артисты</p>
+              </div>
+            </div>
+            <input type="hidden" name="services" id="selectedServices">
+          </div>
+
+          <!-- Бюджет -->
+          <div class="form-section">
+            <h2>Бюджет</h2>
+            <div class="form-grid">
+              <div class="form-group">
+                <label class="form-label" for="{{ form.budget_min.id_for_label }}">Минимальный бюджет (₸)</label>
+                {{ form.budget_min }}
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="{{ form.budget_max.id_for_label }}">Максимальный бюджет (₸)</label>
+                {{ form.budget_max }}
+              </div>
+            </div>
+          </div>
+
+          <!-- Дополнительная информация -->
+          <div class="form-section">
+            <h2>Дополнительная информация</h2>
+            <div class="form-group">
+              <label class="form-label" for="{{ form.description.id_for_label }}">Пожелания и комментарии</label>
+              {{ form.description }}
+            </div>
+          </div>
+
+          <div class="btn-group">
+            <button type="submit" class="btn accent">{% if is_edit %}Сохранить изменения{% else %}Создать заявку{% endif %}</button>
+            <a href="{% if is_edit %}{% url 'main:order_detail' order.id %}{% else %}{% url 'main:dashboard' %}{% endif %}" class="btn outline">Отмена</a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    // Выбранные услуги
+    const selectedServices = new Set(
+        {% if is_edit and order.services %}
+            {{ order.services|safe }}
+        {% else %}
+            []
+        {% endif %}
+    );
+
+    function toggleService(element, service) {
+      element.classList.toggle('selected');
+      if (selectedServices.has(service)) {
+        selectedServices.delete(service);
+      } else {
+        selectedServices.add(service);
+      }
+        // Обновляем значение скрытого поля
+        document.getElementById('selectedServices').value = JSON.stringify(Array.from(selectedServices));
+    }
+
+    // Инициализация выбранных услуг при редактировании
+    document.addEventListener('DOMContentLoaded', function() {
+        if (selectedServices.size > 0) {
+            selectedServices.forEach(service => {
+                const serviceCard = document.querySelector(`.service-card[onclick*="${service}"]`);
+                if (serviceCard) {
+                    serviceCard.classList.add('selected');
+                }
+            });
+            // Устанавливаем начальное значение скрытого поля
+            document.getElementById('selectedServices').value = JSON.stringify(Array.from(selectedServices));
+        }
+    });
+
+    // Проверяем наличие услуг перед отправкой формы
+    document.querySelector('form').addEventListener('submit', function(event) {
+      if (selectedServices.size === 0) {
+            event.preventDefault();
+        alert('Пожалуйста, выберите хотя бы одну услугу');
+        }
+    });
+
+    // Устанавливаем минимальную дату
+    document.addEventListener('DOMContentLoaded', function() {
+        const dateInput = document.querySelector('input[type="date"]');
+        const today = new Date();
+        const tomorrow = new Date(today);
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        dateInput.min = tomorrow.toISOString().split('T')[0];
+    });
+  </script>
+
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-content">
+        <div class="footer-section">
+          <h3>О нас</h3>
+          <p>Той со звездой - платформа для поиска профессиональных исполнителей для вашего мероприятия.</p>
+        </div>
+        <div class="footer-section">
+          <h3>Контакты</h3>
+          <p>Email: info@toisozvezdoi.kz</p>
+          <p>Телефон: +7 (777) 777-77-77</p>
+        </div>
+        <div class="footer-section">
+          <h3>Мы в соцсетях</h3>
+          <div class="social-links">
+            <a href="#"><i class="ri-instagram-line"></i></a>
+            <a href="#"><i class="ri-facebook-line"></i></a>
+            <a href="#"><i class="ri-whatsapp-line"></i></a>
+          </div>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>© 2024 Той со звездой. Все права защищены.</p>
+      </div>
+    </div>
+  </footer>
+</body>
+</html> 

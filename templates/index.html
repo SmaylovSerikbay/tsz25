@@ -1,0 +1,103 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Той со звездой - Главная{% endblock %}
+
+{% block content %}
+<div class="hero">
+    <div class="container">
+        <h1>Найдите лучших исполнителей для вашего мероприятия</h1>
+        <p>Фотографы, видеографы, музыканты и другие профессионалы для вашего праздника</p>
+        {% if not user.is_authenticated %}
+            <div class="hero-buttons">
+                <a href="{% url 'main:auth' %}" class="btn accent">Войти</a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<div class="features">
+    <div class="container">
+        <h2>Почему выбирают нас</h2>
+        <div class="features-grid">
+            <div class="feature">
+                <i class="ri-shield-check-line"></i>
+                <h3>Проверенные исполнители</h3>
+                <p>Мы тщательно проверяем каждого исполнителя перед публикацией</p>
+            </div>
+            <div class="feature">
+                <i class="ri-star-line"></i>
+                <h3>Честные отзывы</h3>
+                <p>Только реальные отзывы от клиентов</p>
+            </div>
+            <div class="feature">
+                <i class="ri-secure-payment-line"></i>
+                <h3>Безопасная оплата</h3>
+                <p>Гарантия возврата средств</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if latest_performers %}
+<div class="latest-performers">
+    <div class="container">
+        <h2>Новые исполнители</h2>
+        <div class="performers-grid">
+            {% for performer in latest_performers %}
+            <div class="performer-card">
+                <div class="performer-photo">
+                    {% if performer.profile_photo %}
+                        <img src="{{ performer.profile_photo.url }}" alt="{{ performer.get_full_name }}">
+                    {% else %}
+                        <img src="{% static 'images/default-avatar.png' %}" alt="Default avatar">
+                    {% endif %}
+                </div>
+                <div class="performer-info">
+                    <h3>{{ performer.get_full_name }}</h3>
+                    <p class="performer-type">{{ performer.get_service_type_display }}</p>
+                    <div class="performer-location">
+                        <i class="ri-map-pin-line"></i>
+                        <span>{{ performer.city }}</span>
+                    </div>
+                    <a href="{% url 'main:view_profile' performer.id %}" class="btn outline">Посмотреть профиль</a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<div class="categories">
+    <div class="container">
+        <h2>Категории исполнителей</h2>
+        <div class="categories-grid">
+            <a href="{% url 'main:catalog' %}?category=photographer" class="category">
+                <i class="ri-camera-line"></i>
+                <h3>Фотографы</h3>
+            </a>
+            <a href="{% url 'main:catalog' %}?category=videographer" class="category">
+                <i class="ri-video-line"></i>
+                <h3>Видеографы</h3>
+            </a>
+            <a href="{% url 'main:catalog' %}?category=musician" class="category">
+                <i class="ri-music-2-line"></i>
+                <h3>Музыканты</h3>
+            </a>
+            <a href="{% url 'main:catalog' %}?category=decorator" class="category">
+                <i class="ri-palette-line"></i>
+                <h3>Декораторы</h3>
+            </a>
+            <a href="{% url 'main:catalog' %}?category=makeup" class="category">
+                <i class="ri-brush-line"></i>
+                <h3>Визажисты</h3>
+            </a>
+            <a href="{% url 'main:catalog' %}?category=host" class="category">
+                <i class="ri-mic-line"></i>
+                <h3>Ведущие</h3>
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %} 

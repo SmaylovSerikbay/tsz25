@@ -1,0 +1,892 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="profile-container">
+  <!-- Profile Header -->
+  <div class="profile-header">
+    {% if profile_user.profile_photo %}
+      <img src="{{ profile_user.profile_photo.url }}" alt="Фото профиля" class="profile-photo">
+    {% else %}
+      <img src="{% static 'images/default-avatar.jpg' %}" alt="Фото по умолчанию" class="profile-photo">
+    {% endif %}
+    <div class="profile-info">
+      <h1 class="profile-name">{{ profile_user.get_full_name }}</h1>
+      <p class="profile-bio">{{ profile_user.bio }}</p>
+      <div class="profile-meta">
+        <div class="meta-item">
+          <i class="ri-map-pin-line"></i>
+          <span>{{ profile_user.city }}</span>
+        </div>
+        {% if profile_user.user_type == 'performer' %}
+        <div class="meta-item">
+          <i class="ri-star-fill" style="color: #ffc107;"></i>
+          <span>{{ profile_user.rating|floatformat:1 }} ({{ profile_user.reviews_received.count }} отзывов)</span>
+        </div>
+        <div class="meta-item">
+          <i class="ri-calendar-check-line"></i>
+          <span>{{ profile_user.completed_orders_count }} мероприятий</span>
+        </div>
+        {% endif %}
+      </div>
+
+      {% if is_own_profile %}
+      <button class="btn accent" onclick="openEditProfileModal()">
+        <i class="ri-edit-line"></i> Редактировать профиль
+      </button>
+      {% endif %}
+    </div>
+  </div>
+
+  {% if is_own_profile and user.user_type == 'performer' %}
+  <!-- Subscription Section -->
+  <div class="section">
+    <div class="section-header">
+      <h2 class="section-title">Тарифные планы</h2>
+    </div>
+    <div class="subscription-plans">
+      {% for plan in subscription_plans %}
+      <div class="plan-card">
+        <h3 class="plan-name">{{ plan.name }}</h3>
+        <div class="plan-price">{{ plan.price }} ₸</div>
+        <div class="plan-duration">{{ plan.duration }}</div>
+        <form action="{% url 'main:process_subscription' %}" method="POST">
+          {% csrf_token %}
+          <input type="hidden" name="plan_id" value="{{ plan.id }}">
+          <button type="submit" class="btn accent">Оплатить</button>
+        </form>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+  {% if profile_user.user_type == 'performer' %}
+  <!-- Portfolio Section -->
+  <div class="section">
+    <div class="section-header">
+      <h2 class="section-title">Портфолио</h2>
+      {% if is_own_profile %}
+      <button class="btn outline" onclick="openPortfolioModal()">
+        <i class="ri-add-line"></i> Добавить
+      </button>
+      {% endif %}
+    </div>
+    <div class="portfolio-grid">
+      {% for photo in profile_user.portfolio.all %}
+      <div class="portfolio-item">
+        <img src="{{ photo.image.url }}" alt="Портфолио {{ forloop.counter }}">
+        {% if is_own_profile %}
+        <form action="{% url 'main:delete_portfolio_photo' photo.id %}" method="POST" class="delete-photo">
+          {% csrf_token %}
+          <button type="submit" class="btn-icon delete">
+            <i class="ri-delete-bin-line"></i>
+          </button>
+        </form>
+        {% endif %}
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- Tariffs Section -->
+  <div class="section">
+    <div class="section-header">
+      <h2 class="section-title">Тарифы</h2>
+    </div>
+    <div class="tariff-list">
+      {% for tariff in tariffs %}
+      <div class="tariff-card">
+        <div class="tariff-info">
+          <h4>{{ tariff.name }}</h4>
+          <div class="tariff-price">от {{ tariff.price }} ₸</div>
+          {% if tariff.description %}
+          <div class="tariff-description">{{ tariff.description }}</div>
+          {% endif %}
+        </div>
+      </div>
+      {% empty %}
+      <p>Тарифы не добавлены</p>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- Reviews Section -->
+  <div class="section">
+    <div class="section-header">
+      <h2 class="section-title">Отзывы</h2>
+    </div>
+    <div class="reviews-list">
+      {% for review in profile_user.reviews_received.all %}
+      <div class="review-card">
+        <div class="review-header">
+          <div class="reviewer-info">
+            <div class="reviewer-name">{{ review.from_user.get_full_name }}</div>
+            <div class="review-date">{{ review.created_at|date:"d.m.Y" }}</div>
+          </div>
+          <div class="review-rating">
+            {% for i in "12345"|make_list %}
+              {% if forloop.counter <= review.rating %}
+                <i class="ri-star-fill"></i>
+              {% endif %}
+            {% endfor %}
+          </div>
+        </div>
+        <p class="review-text">{{ review.comment }}</p>
+      </div>
+      {% empty %}
+      <p>Пока нет отзывов</p>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+</div>
+
+<!-- Edit Profile Modal -->
+<div id="editProfileModal" class="modal">
+  <div class="modal-content">
+    <button class="modal-close" onclick="closeModal('editProfileModal')">
+      <i class="ri-close-line"></i>
+    </button>
+    <div class="modal-header">
+      <h2 class="modal-title">Редактировать профиль</h2>
+    </div>
+    <form action="" method="POST" enctype="multipart/form-data">
+      {% csrf_token %}
+      <div class="form-grid">
+        <div class="form-group">
+          <label class="form-label">Имя</label>
+          <input type="text" name="first_name" class="form-input" value="{{ user.first_name }}" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Фамилия</label>
+          <input type="text" name="last_name" class="form-input" value="{{ user.last_name }}" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Email</label>
+          <input type="email" name="email" class="form-input" value="{{ user.email }}">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Город</label>
+          <input type="text" name="city" class="form-input" value="{{ user.city }}" required>
+        </div>
+      </div>
+
+      {% if user.user_type == 'performer' %}
+      <div class="form-group">
+        <label class="form-label">Название компании</label>
+        <input type="text" name="company_name" class="form-input" value="{{ user.company_name }}">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Тип услуг</label>
+        <select name="service_type" class="form-input">
+          <option value="photo" {% if user.service_type == 'photo' %}selected{% endif %}>Фотограф</option>
+          <option value="video" {% if user.service_type == 'video' %}selected{% endif %}>Видеограф</option>
+          <option value="music" {% if user.service_type == 'music' %}selected{% endif %}>Музыкант</option>
+          <option value="host" {% if user.service_type == 'host' %}selected{% endif %}>Ведущий</option>
+          <option value="dance" {% if user.service_type == 'dance' %}selected{% endif %}>Шоу-программа</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">О себе</label>
+        <textarea name="bio" class="form-input" rows="4">{{ user.bio }}</textarea>
+      </div>
+      {% endif %}
+
+      <div class="form-group">
+        <label class="form-label">Фото профиля</label>
+        <input type="file" name="profile_photo" class="form-input" accept="image/*">
+      </div>
+
+      <div class="form-footer">
+        <button type="submit" class="btn accent">Сохранить</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<style>
+.profile-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 32px;
+}
+
+.profile-header {
+  background: white;
+  border-radius: 20px;
+  padding: 32px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+  margin-bottom: 32px;
+  display: flex;
+  gap: 32px;
+  align-items: flex-start;
+}
+
+.profile-photo {
+  width: 180px;
+  height: 180px;
+  border-radius: 20px;
+  object-fit: cover;
+}
+
+.profile-info {
+  flex: 1;
+}
+
+.profile-name {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin-bottom: 12px;
+}
+
+.profile-bio {
+  color: #666;
+  line-height: 1.6;
+  margin-bottom: 20px;
+  font-size: 1.1rem;
+}
+
+.profile-meta {
+  display: flex;
+  gap: 24px;
+  margin-bottom: 24px;
+}
+
+.meta-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #666;
+}
+
+.meta-item i {
+  color: var(--primary-color);
+  font-size: 1.2rem;
+}
+
+.availability {
+  background: #f8f9fa;
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 24px;
+}
+
+.availability-title {
+  font-weight: 600;
+  color: #1a1a1a;
+  margin-bottom: 12px;
+}
+
+.dates-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 12px;
+}
+
+.date-item {
+  text-align: center;
+  padding: 8px;
+  border-radius: 8px;
+  font-size: 0.9rem;
+}
+
+.date-item.free {
+  background: #e8f5e9;
+  color: #1aaf5d;
+}
+
+.date-item.busy {
+  background: #ffe5e5;
+  color: #e74c3c;
+}
+
+.section {
+  background: white;
+  border-radius: 20px;
+  padding: 32px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+  margin-bottom: 32px;
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.section-title {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #1a1a1a;
+}
+
+.portfolio-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 20px;
+}
+
+.portfolio-item {
+  position: relative;
+  border-radius: 12px;
+  overflow: hidden;
+  aspect-ratio: 16/9;
+}
+
+.portfolio-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s;
+}
+
+.portfolio-item:hover img {
+  transform: scale(1.05);
+}
+
+.tariffs-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 20px;
+}
+
+.tariff-card {
+  background: #f8f9fa;
+  border-radius: 12px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.tariff-name {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin-bottom: 8px;
+}
+
+.tariff-price {
+  color: var(--primary-color);
+  font-weight: 600;
+  font-size: 1.4rem;
+  margin-bottom: 12px;
+}
+
+.reviews-list {
+  display: grid;
+  gap: 20px;
+}
+
+.review-card {
+  background: #f8f9fa;
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 20px;
+}
+
+.review-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.reviewer-name {
+  font-weight: 600;
+  color: #1a1a1a;
+  font-size: 1.1rem;
+}
+
+.review-rating {
+  color: var(--primary-color);
+  font-size: 1.2rem;
+}
+
+.review-text {
+  color: #666;
+  line-height: 1.6;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 24px;
+  border-radius: 12px;
+  font-weight: 500;
+  text-decoration: none;
+  transition: all 0.2s;
+  cursor: pointer;
+}
+
+.btn.accent {
+  background: var(--primary-color);
+  color: white;
+  border: none;
+}
+
+.btn.accent:hover {
+  background: var(--primary-dark);
+}
+
+.btn.outline {
+  border: 2px solid var(--primary-color);
+  color: var(--primary-color);
+  background: white;
+}
+
+.btn.outline:hover {
+  background: var(--primary-light);
+}
+
+@media (max-width: 768px) {
+  .profile-header {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 24px;
+  }
+
+  .profile-meta {
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .section {
+    padding: 24px;
+  }
+
+  .tariffs-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.modal {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+  overflow-y: auto;
+}
+
+.modal-content {
+  background: white;
+  border-radius: 20px;
+  max-width: 800px;
+  margin: 40px auto;
+  padding: 32px;
+  position: relative;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.1);
+}
+
+.modal-close {
+  position: absolute;
+  top: 24px;
+  right: 24px;
+  background: none;
+  border: none;
+  font-size: 24px;
+  color: #666;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 50%;
+  transition: all 0.2s;
+}
+
+.modal-close:hover {
+  background: #f5f5f5;
+  color: #1a1a1a;
+}
+
+.tariffs-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin-top: 12px;
+}
+
+.tariff-select-card {
+  position: relative;
+  border: 2px solid #e3e8ff;
+  border-radius: 12px;
+  padding: 16px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.tariff-select-card input[type="radio"] {
+  position: absolute;
+  opacity: 0;
+}
+
+.tariff-select-card label {
+  cursor: pointer;
+  display: block;
+}
+
+.tariff-select-card:hover {
+  border-color: #2e6cff;
+  background: #f5f8ff;
+}
+
+.tariff-select-card input[type="radio"]:checked + label {
+  color: #2e6cff;
+}
+
+.tariff-select-card input[type="radio"]:checked + label .tariff-name {
+  color: #2e6cff;
+}
+
+.tariff-select-card input[type="radio"]:checked + label .tariff-price {
+  color: #2e6cff;
+  font-weight: 700;
+}
+
+.tariff-name {
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.tariff-price {
+  color: #1a1a1a;
+  font-size: 1.1rem;
+  margin-bottom: 8px;
+}
+
+.tariff-description {
+  color: #666;
+  font-size: 0.9rem;
+}
+
+.calendar-wrapper {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.calendar-day {
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.2s;
+  background: #f8f9fa;
+}
+
+.calendar-day:hover:not(.busy) {
+  background: #f5f8ff;
+  color: #2e6cff;
+}
+
+.calendar-day.busy {
+  background: #ffe5e5;
+  color: #e74c3c;
+  cursor: not-allowed;
+}
+
+.calendar-day.selected {
+  background: #2e6cff;
+  color: white;
+}
+
+.form-group {
+  margin-bottom: 24px;
+}
+
+.form-label {
+  font-weight: 500;
+  color: #1a1a1a;
+  margin-bottom: 8px;
+  display: block;
+}
+
+.form-input {
+  width: 100%;
+  padding: 12px;
+  border: 2px solid #e3e8ff;
+  border-radius: 12px;
+  font-family: inherit;
+  font-size: 1rem;
+  transition: all 0.2s;
+}
+
+.form-input:focus {
+  border-color: #2e6cff;
+  outline: none;
+}
+
+.subscription-plans {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 24px;
+  margin-top: 24px;
+}
+
+.plan-card {
+  background: white;
+  border-radius: 16px;
+  padding: 24px;
+  text-align: center;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+  transition: transform 0.2s;
+}
+
+.plan-card:hover {
+  transform: translateY(-4px);
+}
+
+.plan-name {
+  font-size: 1.4rem;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin-bottom: 12px;
+}
+
+.plan-price {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #2e6cff;
+  margin-bottom: 8px;
+}
+
+.plan-duration {
+  color: #666;
+  margin-bottom: 24px;
+}
+</style>
+
+<script>
+let currentDate = new Date();
+const maxMonthsAhead = 6; // Максимальное количество месяцев вперед для бронирования
+let currentPerformerId = {{ profile_user.id }};
+
+function validateBookingForm(event) {
+  const tariff = document.querySelector('input[name="tariff"]:checked');
+  const eventDate = document.getElementById('eventDate').value;
+  const details = document.querySelector('textarea[name="details"]').value.trim();
+
+  if (!tariff) {
+    alert('Пожалуйста, выберите тариф');
+    event.preventDefault();
+    return false;
+  }
+
+  if (!eventDate) {
+    alert('Пожалуйста, выберите дату мероприятия');
+    event.preventDefault();
+    return false;
+  }
+
+  if (!details) {
+    alert('Пожалуйста, опишите детали мероприятия');
+    event.preventDefault();
+    return false;
+  }
+
+  return true;
+}
+
+function openBookingModal() {
+  // Загружаем существующие заявки пользователя
+  fetch('{% url "main:get_user_orders" %}')
+    .then(response => response.json())
+    .then(data => {
+      const select = document.getElementById('existingRequests');
+      select.innerHTML = '<option value="">Выберите заявку...</option>';
+      
+      data.orders.forEach(order => {
+        const option = document.createElement('option');
+        option.value = order.id;
+        option.textContent = `${order.title} (${order.event_date})`;
+        select.appendChild(option);
+      });
+    });
+    
+  document.getElementById('bookingModal').style.display = 'block';
+  document.body.style.overflow = 'hidden';
+  initializeBookingCalendar();
+}
+
+function openEditProfileModal() {
+  document.getElementById('editProfileModal').style.display = 'block';
+  document.body.style.overflow = 'hidden';
+}
+
+function closeModal(modalId) {
+  document.getElementById(modalId).style.display = 'none';
+  document.body.style.overflow = 'auto';
+}
+
+function toggleBookingType(type) {
+  const existingBlock = document.getElementById('existingRequestBlock');
+  const newBlock = document.getElementById('newRequestBlock');
+  
+  if (type === 'existing') {
+    existingBlock.style.display = 'block';
+    newBlock.style.display = 'none';
+  } else {
+    existingBlock.style.display = 'none';
+    newBlock.style.display = 'block';
+  }
+}
+
+function attachToExistingOrder() {
+  const orderId = document.getElementById('existingRequests').value;
+  if (!orderId) {
+    alert('Пожалуйста, выберите заявку');
+    return;
+  }
+  
+  fetch(`/api/orders/${orderId}/attach/${currentPerformerId}/`, {
+    method: 'POST',
+    headers: {
+      'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+    }
+  })
+  .then(response => response.json())
+  .then(data => {
+    if (data.success) {
+      window.location.href = `/order/${orderId}/`;
+    } else {
+      alert('Произошла ошибка при прикреплении исполнителя');
+    }
+  });
+}
+
+function prevMonth() {
+  currentDate.setMonth(currentDate.getMonth() - 1);
+  initializeBookingCalendar();
+}
+
+function nextMonth() {
+  // Проверяем, не превышает ли следующий месяц лимит
+  const nextDate = new Date(currentDate);
+  nextDate.setMonth(nextDate.getMonth() + 1);
+  
+  const maxDate = new Date();
+  maxDate.setMonth(maxDate.getMonth() + maxMonthsAhead);
+  
+  if (nextDate <= maxDate) {
+    currentDate.setMonth(currentDate.getMonth() + 1);
+    initializeBookingCalendar();
+  }
+}
+
+function updateMonthTitle() {
+  const months = [
+    'Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь',
+      'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'
+  ];
+  const monthTitle = document.getElementById('currentMonth');
+  monthTitle.textContent = `${months[currentDate.getMonth()]} ${currentDate.getFullYear()}`;
+}
+
+function initializeBookingCalendar() {
+  const calendar = document.getElementById('bookingCalendar');
+  const today = new Date();
+  today.setHours(0, 0, 0, 0); // Reset time part
+  
+  const busyDates = new Set([
+    {% for date in busy_dates %}
+      '{{ date.date|date:"Y-m-d" }}'{% if not forloop.last %},{% endif %}
+    {% endfor %}
+  ]);
+
+  // Обновляем заголовок с текущим месяцем
+  updateMonthTitle();
+
+  // Очищаем календарь
+  calendar.innerHTML = '';
+
+  // Добавляем заголовки дней недели
+  const weekdays = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
+  weekdays.forEach(day => {
+    const dayHeader = document.createElement('div');
+    dayHeader.textContent = day;
+    dayHeader.style.textAlign = 'center';
+    dayHeader.style.fontWeight = '500';
+    dayHeader.style.color = '#666';
+    calendar.appendChild(dayHeader);
+  });
+
+  // Получаем первый день месяца
+  const firstDay = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
+  let firstDayIndex = firstDay.getDay() || 7; // Convert Sunday (0) to 7
+  firstDayIndex--; // Adjust to 0-based index
+
+  // Добавляем пустые ячейки в начале
+  for (let i = 0; i < firstDayIndex; i++) {
+    const emptyCell = document.createElement('div');
+    calendar.appendChild(emptyCell);
+  }
+
+  // Получаем последний день месяца
+  const lastDay = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);
+
+  // Функция для форматирования даты в YYYY-MM-DD
+  function formatDate(date, day) {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const dayStr = String(day).padStart(2, '0');
+    return `${year}-${month}-${dayStr}`;
+  }
+
+  // Добавляем дни месяца
+  for (let day = 1; day <= lastDay.getDate(); day++) {
+    const date = new Date(currentDate.getFullYear(), currentDate.getMonth(), day);
+    const dateString = formatDate(date, day);
+    const dayCell = document.createElement('div');
+    dayCell.className = 'calendar-day';
+    dayCell.textContent = day;
+    
+    // Проверяем, является ли дата прошедшей или занятой
+    const isPastDate = date.getTime() < today.getTime();
+    const isBusyDate = busyDates.has(dateString);
+    
+    if (isBusyDate) {
+      dayCell.classList.add('busy');
+      dayCell.title = 'Исполнитель занят в этот день';
+    } else if (isPastDate) {
+      dayCell.classList.add('busy');
+      dayCell.title = 'Эта дата уже прошла';
+    } else {
+      dayCell.onclick = () => selectDate(dayCell, dateString);
+    }
+
+    calendar.appendChild(dayCell);
+  }
+}
+
+function selectDate(cell, dateString) {
+  // Убираем выделение с предыдущей выбранной даты
+  const previousSelected = document.querySelector('.calendar-day.selected');
+  if (previousSelected) {
+    previousSelected.classList.remove('selected');
+  }
+
+  // Выделяем новую дату
+  cell.classList.add('selected');
+  document.getElementById('eventDate').value = dateString;
+}
+
+// Закрытие модального окна при клике вне его содержимого
+window.onclick = function(event) {
+  if (event.target.classList.contains('modal')) {
+    closeModal(event.target.id);
+  }
+};
+</script>
+{% endblock %} 

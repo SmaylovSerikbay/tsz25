@@ -1,0 +1,112 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Той со звездой - платформа для поиска профессиональных исполнителей для вашего мероприятия">
+    <meta name="keywords" content="свадьба, фотограф, видеограф, ведущий, музыканты, организация мероприятий">
+    <meta name="theme-color" content="#4070f4">
+    <title>{% block title %}Той со звездой{% endblock %}</title>
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="{% static 'images/favicon.png' %}">
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+    
+    <!-- Styles -->
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <a href="{% url 'main:index' %}" class="logo">
+                <span class="logo-text">Той со звездой</span>
+            </a>
+            <nav class="nav">
+                <a href="{% url 'main:index' %}" class="nav-link">Главная</a>
+                <a href="{% url 'main:catalog' %}" class="nav-link">Исполнители</a>
+                {% if user.is_authenticated %}
+                    {% if user.user_type == 'customer' %}
+                        <a href="{% url 'main:create_order' %}" class="nav-link">Создать заявку</a>
+                    {% endif %}
+                    <a href="{% url 'main:dashboard' %}" class="nav-link">Личный кабинет</a>
+                    <div class="nav-dropdown">
+                        <button class="nav-dropdown-toggle">
+                            {% if user.profile_photo %}
+                                <img src="{{ user.profile_photo.url }}" alt="{{ user.get_full_name }}" class="nav-avatar">
+                            {% else %}
+                                <i class="ri-user-line"></i>
+                            {% endif %}
+                        </button>
+                        <div class="nav-dropdown-menu">
+                            <a href="{% url 'main:profile_settings' %}">Настройки</a>
+                            <a href="{% url 'main:logout' %}">Выйти</a>
+                        </div>
+                    </div>
+                {% else %}
+                    <a href="{% url 'main:auth' %}" class="btn accent">Войти по номеру телефона</a>
+                {% endif %}
+            </nav>
+            <button class="mobile-menu-toggle">
+                <i class="ri-menu-line"></i>
+            </button>
+        </div>
+    </header>
+
+    <main class="main">
+        {% if messages %}
+            <div class="container">
+                <div class="messages">
+                    {% for message in messages %}
+                        <div class="message-alert {{ message.tags }}">
+                            {{ message }}
+                            <button class="close-message" onclick="this.parentElement.remove()">
+                                <i class="ri-close-line"></i>
+                            </button>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        {% endif %}
+
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>О нас</h3>
+                    <p>Той со звездой - платформа для поиска профессиональных исполнителей для вашего мероприятия</p>
+                </div>
+                <div class="footer-section">
+                    <h3>Контакты</h3>
+                    <p>Email: info@tsz-wedding.kz</p>
+                    <p>Телефон: +7 (777) 777-77-77</p>
+                </div>
+                <div class="footer-section">
+                    <h3>Соцсети</h3>
+                    <div class="social-links">
+                        <a href="#" target="_blank"><i class="ri-instagram-line"></i></a>
+                        <a href="#" target="_blank"><i class="ri-facebook-line"></i></a>
+                        <a href="#" target="_blank"><i class="ri-whatsapp-line"></i></a>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>© 2024 Той со звездой. Все права защищены.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="{% static 'js/main.js' %}"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html> 

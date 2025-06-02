@@ -1,0 +1,254 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Настройки профиля — Той со звездой{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="settings-container">
+        <h1 class="page-title">Настройки профиля</h1>
+        
+        {% if messages %}
+        <div class="messages">
+            {% for message in messages %}
+            <div class="message {{ message.tags }}">{{ message }}</div>
+            {% endfor %}
+        </div>
+        {% endif %}
+        
+        <form method="post" enctype="multipart/form-data" class="settings-form">
+            {% csrf_token %}
+            
+            <div class="form-section">
+                <h2>Основная информация</h2>
+                
+                <div class="form-group">
+                    <label>Фото профиля</label>
+                    <div class="profile-photo-upload">
+                        {% if user.profile_photo %}
+                        <img src="{{ user.profile_photo.url }}" alt="Текущее фото профиля" class="current-photo">
+                        {% else %}
+                        <img src="{% static 'images/default-avatar.jpg' %}" alt="Фото по умолчанию" class="current-photo">
+                        {% endif %}
+                        <input type="file" name="profile_photo" accept="image/*" class="form-input">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Имя</label>
+                    <input type="text" name="first_name" value="{{ user.first_name }}" class="form-input" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Фамилия</label>
+                    <input type="text" name="last_name" value="{{ user.last_name }}" class="form-input" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" name="email" value="{{ user.email }}" class="form-input">
+                </div>
+
+                <div class="form-group">
+                    <label>Город</label>
+                    <input type="text" name="city" value="{{ user.city }}" class="form-input" required>
+                </div>
+            </div>
+
+            {% if user.user_type == 'performer' %}
+            <div class="form-section">
+                <h2>Информация об услугах</h2>
+
+                <div class="form-group">
+                    <label>Название компании/бренда</label>
+                    <input type="text" name="company_name" value="{{ user.company_name }}" class="form-input">
+                </div>
+
+                <div class="form-group">
+                    <label>Тип услуги</label>
+                    <select name="service_type" class="form-input" required>
+                        <option value="">Выберите тип услуги</option>
+                        <option value="photographer" {% if user.service_type == 'photographer' %}selected{% endif %}>Фотограф</option>
+                        <option value="videographer" {% if user.service_type == 'videographer' %}selected{% endif %}>Видеограф</option>
+                        <option value="musician" {% if user.service_type == 'musician' %}selected{% endif %}>Музыкант</option>
+                        <option value="decorator" {% if user.service_type == 'decorator' %}selected{% endif %}>Декоратор</option>
+                        <option value="makeup" {% if user.service_type == 'makeup' %}selected{% endif %}>Визажист</option>
+                        <option value="host" {% if user.service_type == 'host' %}selected{% endif %}>Ведущий</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>О себе</label>
+                    <textarea name="bio" class="form-input" rows="4">{{ user.bio }}</textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>Описание услуг</label>
+                    <textarea name="services_description" class="form-input" rows="4">{{ user.services_description }}</textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>Опыт работы</label>
+                    <textarea name="experience" class="form-input" rows="4">{{ user.experience }}</textarea>
+                </div>
+            </div>
+            {% endif %}
+
+            <div class="form-section">
+                <h2>Настройки уведомлений</h2>
+                
+                <div class="form-group">
+                    <label class="checkbox-label">
+                        <input type="checkbox" name="email_notifications" {% if user.email_notifications %}checked{% endif %}>
+                        Получать уведомления по email
+                    </label>
+                </div>
+
+                <div class="form-group">
+                    <label class="checkbox-label">
+                        <input type="checkbox" name="whatsapp_notifications" {% if user.whatsapp_notifications %}checked{% endif %}>
+                        Получать уведомления в WhatsApp
+                    </label>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn accent">Сохранить изменения</button>
+                {% if user.user_type == 'performer' %}
+                <a href="{% url 'main:view_profile' user.id %}" class="btn outline">Предпросмотр профиля</a>
+                {% endif %}
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+.settings-container {
+    max-width: 800px;
+    margin: 40px auto;
+    padding: 0 20px;
+}
+
+.page-title {
+    font-size: 2rem;
+    margin-bottom: 30px;
+    color: #1a1a1a;
+}
+
+.form-section {
+    background: white;
+    border-radius: 16px;
+    padding: 24px;
+    margin-bottom: 24px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.form-section h2 {
+    font-size: 1.2rem;
+    margin-bottom: 20px;
+    color: #1a1a1a;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+    color: #1a1a1a;
+}
+
+.form-input {
+    width: 100%;
+    padding: 12px;
+    border: 2px solid #e3e8ff;
+    border-radius: 12px;
+    font-size: 1rem;
+    transition: all 0.2s;
+}
+
+.form-input:focus {
+    border-color: #2e6cff;
+    outline: none;
+}
+
+textarea.form-input {
+    min-height: 100px;
+    resize: vertical;
+}
+
+.profile-photo-upload {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.current-photo {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+}
+
+.form-actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 24px;
+}
+
+.btn {
+    padding: 12px 24px;
+    border-radius: 12px;
+    font-weight: 500;
+    font-size: 1rem;
+    text-decoration: none;
+    cursor: pointer;
+    border: none;
+    transition: all 0.2s;
+}
+
+.btn.accent {
+    background: #2e6cff;
+    color: white;
+}
+
+.btn.outline {
+    border: 2px solid #2e6cff;
+    color: #2e6cff;
+    background: white;
+}
+
+.btn:hover {
+    transform: translateY(-1px);
+}
+
+.messages {
+    margin-bottom: 20px;
+}
+
+.message {
+    padding: 12px;
+    border-radius: 8px;
+    margin-bottom: 8px;
+}
+
+.message.success {
+    background: #e8f5e9;
+    color: #1b5e20;
+}
+
+.message.error {
+    background: #ffebee;
+    color: #c62828;
+}
+</style>
+{% endblock %} 

@@ -1,0 +1,105 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Удаление заказа — Той со звездой</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <div class="logo">Той со звездой</div>
+            <nav class="nav">
+                <a href="{% url 'main:index' %}">Главная</a>
+                <a href="{% url 'main:catalog' %}">Исполнители</a>
+                <a href="{% url 'main:dashboard' %}">Личный кабинет</a>
+                <a href="{% url 'main:logout' %}">Выйти</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="main">
+        <div class="container">
+            <div class="confirmation-dialog">
+                <h1>Удаление заказа</h1>
+                <p>Вы действительно хотите удалить заказ "{{ order.title }}"?</p>
+                <p class="warning">Это действие нельзя будет отменить. Вся информация о заказе будет удалена безвозвратно.</p>
+                
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="button-group">
+                        <button type="submit" class="btn accent">Да, удалить заказ</button>
+                        <a href="{% url 'main:order_detail' order.id %}" class="btn outline">Нет, вернуться назад</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <p>© 2024 Той со звездой. Все права защищены.</p>
+        </div>
+    </footer>
+
+    <style>
+        .confirmation-dialog {
+            max-width: 600px;
+            margin: 40px auto;
+            background: white;
+            border-radius: 20px;
+            padding: 32px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+            text-align: center;
+        }
+
+        .confirmation-dialog h1 {
+            font-size: 1.8rem;
+            margin: 0 0 16px 0;
+            color: #dc2626;
+        }
+
+        .confirmation-dialog p {
+            color: #666;
+            margin: 0 0 24px 0;
+        }
+
+        .confirmation-dialog .warning {
+            color: #991b1b;
+            font-weight: 500;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+        }
+
+        .btn.accent {
+            background: #dc2626;
+        }
+
+        .btn.accent:hover {
+            background: #b91c1c;
+        }
+
+        @media (max-width: 768px) {
+            .confirmation-dialog {
+                margin: 20px;
+                padding: 24px;
+            }
+
+            .button-group {
+                flex-direction: column;
+            }
+
+            .button-group .btn {
+                width: 100%;
+            }
+        }
+    </style>
+</body>
+</html> 

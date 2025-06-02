@@ -1,0 +1,885 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container">
+  <div class="order-detail">
+    <div class="order-header">
+      <div class="order-title">
+        <h1>{{ order.title }}</h1>
+        <div class="order-meta">
+          <span class="order-type">{{ order.get_event_type_display }}</span>
+          <span class="order-date">{{ order.event_date|date:"d.m.Y" }}</span>
+          <span class="order-request-type">{{ order.get_order_type_display }}</span>
+        </div>
+      </div>
+      <div class="order-status {{ order.status }}">{{ order.get_status_display }}</div>
+    </div>
+
+    <div class="order-content">
+      <div class="order-section">
+        <h3>Информация о мероприятии</h3>
+        <div class="info-grid">
+          <div class="info-card">
+            <i class="ri-map-pin-line"></i>
+            <div>
+              <label>Город</label>
+              <span>{{ order.city }}</span>
+            </div>
+          </div>
+          {% if order.venue %}
+          <div class="info-card">
+            <i class="ri-building-line"></i>
+            <div>
+              <label>Место проведения</label>
+              <span>{{ order.venue }}</span>
+            </div>
+          </div>
+          {% endif %}
+          <div class="info-card">
+            <i class="ri-group-line"></i>
+            <div>
+              <label>Количество гостей</label>
+              <span>{{ order.guest_count }}</span>
+            </div>
+          </div>
+          <div class="info-card">
+            <i class="ri-money-dollar-circle-line"></i>
+            <div>
+              <label>Бюджет</label>
+              <span>{{ order.budget_min }} - {{ order.budget_max }} ₸</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {% if order.order_type == 'request' %}
+      <div class="order-section">
+        <h3>Требуемые услуги</h3>
+        <div class="services-grid">
+          {% for service in order.services %}
+          <div class="service-card">
+            {% if service == 'photo' %}
+              <i class="ri-camera-line"></i>
+              <span>Фотограф</span>
+            {% elif service == 'video' %}
+              <i class="ri-video-line"></i>
+              <span>Видеограф</span>
+            {% elif service == 'music' %}
+              <i class="ri-music-2-line"></i>
+              <span>Музыканты</span>
+            {% elif service == 'host' %}
+              <i class="ri-mic-line"></i>
+              <span>Ведущий</span>
+            {% elif service == 'dance' %}
+              <i class="ri-emotion-happy-line"></i>
+              <span>Шоу-программа</span>
+            {% else %}
+              <i class="ri-checkbox-circle-line"></i>
+              <span>{{ service }}</span>
+            {% endif %}
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+      {% endif %}
+
+      {% if order.order_type == 'booking' and order.tariff %}
+      <div class="order-section">
+        <h3>Выбранный тариф</h3>
+        <div class="tariff-info">
+          <div class="tariff-name">{{ order.tariff.name }}</div>
+          <div class="tariff-price">{{ order.tariff.price }} ₸</div>
+          <div class="tariff-description">{{ order.tariff.description|linebreaks }}</div>
+        </div>
+      </div>
+      {% endif %}
+
+      {% if order.description %}
+      <div class="order-section">
+        <h3>Описание заявки</h3>
+        <div class="description">
+          {{ order.description|linebreaks }}
+        </div>
+      </div>
+      {% endif %}
+
+      {% if order.details %}
+      <div class="order-section">
+        <h3>Детали заказа</h3>
+        <div class="description">
+          {{ order.details|linebreaks }}
+        </div>
+      </div>
+      {% endif %}
+
+      {% if order.performer %}
+      <div class="order-section">
+        <h3>Исполнитель</h3>
+        <div class="performer-card">
+          <div class="performer-info">
+            {% if order.performer.profile_photo %}
+              <img src="{{ order.performer.profile_photo.url }}" alt="Фото исполнителя" class="performer-avatar">
+            {% else %}
+              <div class="performer-avatar-placeholder">
+                <i class="ri-user-line"></i>
+              </div>
+            {% endif %}
+            <div class="performer-details">
+              <h4>{{ order.performer.get_full_name }}</h4>
+              <div class="performer-meta">
+                <div class="performer-rating">
+                  <i class="ri-star-fill"></i>
+                  <span>{{ order.performer.rating|floatformat:1 }}</span>
+                </div>
+                <div class="performer-city">
+                  <i class="ri-map-pin-line"></i>
+                  <span>{{ order.performer.city }}</span>
+                </div>
+              </div>
+              <a href="{% url 'main:view_profile' order.performer.id %}" class="btn outline small">
+                <i class="ri-user-line"></i>
+                Профиль исполнителя
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+      {% endif %}
+
+      {% if order.customer %}
+      <div class="order-section">
+        <h3>Заказчик</h3>
+        <div class="performer-card">
+          <div class="performer-info">
+            {% if order.customer.profile_photo %}
+              <img src="{{ order.customer.profile_photo.url }}" alt="Фото заказчика" class="performer-avatar">
+            {% else %}
+              <div class="performer-avatar-placeholder">
+                <i class="ri-user-line"></i>
+              </div>
+            {% endif %}
+            <div class="performer-details">
+              <h4>{{ order.customer.get_full_name }}</h4>
+              <div class="performer-meta">
+                <div class="performer-rating">
+                  <i class="ri-star-fill"></i>
+                  <span>{{ order.customer.rating|floatformat:1 }}</span>
+                </div>
+                <div class="performer-city">
+                  <i class="ri-map-pin-line"></i>
+                  <span>{{ order.customer.city }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      {% endif %}
+    </div>
+
+    <div class="order-actions">
+      <!-- Действия для исполнителя -->
+      {% if can_take_order %}
+      <div class="performer-actions">
+        <button class="btn accent" onclick="openResponseModal()">
+          <i class="ri-check-line"></i>
+          Откликнуться на заказ
+        </button>
+      </div>
+      {% endif %}
+
+      {% if is_performer or is_customer %}
+      <button class="btn outline" onclick="openChatModal('{{ order.id }}')">
+        <i class="ri-message-2-line"></i>
+        Открыть чат
+      </button>
+      {% endif %}
+
+      {% if is_customer and order.status == 'new' %}
+      <div class="order-manage-actions">
+        <a href="{% url 'main:edit_order' order.id %}" class="btn outline">
+          <i class="ri-edit-line"></i>
+          Редактировать
+        </a>
+        <form action="{% url 'main:delete_order' order.id %}" method="POST" style="display: inline;" 
+              onsubmit="return confirm('Вы уверены, что хотите удалить этот заказ?');">
+          {% csrf_token %}
+          <button type="submit" class="btn delete">
+            <i class="ri-delete-bin-line"></i>
+            Удалить
+          </button>
+        </form>
+      </div>
+      {% endif %}
+
+      {% if is_customer and order.status == 'in_progress' %}
+      <form action="{% url 'main:cancel_order' order.id %}" method="POST" style="display: inline;"
+            onsubmit="return confirm('Вы уверены, что хотите отменить этот заказ?');">
+        {% csrf_token %}
+        <button type="submit" class="btn outline">
+          <i class="ri-close-circle-line"></i>
+          Отменить заказ
+        </button>
+      </form>
+      {% endif %}
+    </div>
+
+    <!-- Отклики для заказчика -->
+    {% if is_customer and responses %}
+    <div class="section">
+      <div class="section-header">
+        <h2>Отклики исполнителей</h2>
+      </div>
+      <div class="responses-list">
+        {% for response in responses %}
+        <div class="response-card">
+          <div class="response-header">
+            <h3>{{ response.performer.get_full_name }}</h3>
+            <span class="response-date">{{ response.created_at|date:"d.m.Y" }}</span>
+          </div>
+          <div class="response-details">
+            <p class="response-price">{{ response.price }} ₸</p>
+            <div class="response-message">{{ response.message }}</div>
+          </div>
+          <div class="response-actions">
+            <form action="" method="POST" style="display: inline;">
+              {% csrf_token %}
+              <input type="hidden" name="response_id" value="{{ response.id }}">
+              <button type="submit" name="accept_response" class="btn accent">
+                <i class="ri-check-line"></i>
+                Принять
+              </button>
+            </form>
+            <form action="" method="POST" style="display: inline;">
+              {% csrf_token %}
+              <input type="hidden" name="response_id" value="{{ response.id }}">
+              <button type="submit" name="reject_response" class="btn delete">
+                <i class="ri-close-line"></i>
+                Отклонить
+              </button>
+            </form>
+            <a href="{% url 'main:view_profile' response.performer.id %}" class="btn outline">
+              <i class="ri-user-line"></i>
+              Профиль исполнителя
+            </a>
+          </div>
+        </div>
+        {% empty %}
+        <div class="empty-state">
+          <p>Пока нет откликов на ваш заказ</p>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+  </div>
+</div>
+
+<!-- Chat Modal -->
+<div id="chatModal" class="modal">
+  <div class="modal-content">
+    <button class="modal-close" onclick="closeModal('chatModal')">
+      <i class="ri-close-line"></i>
+    </button>
+    <div class="modal-header">
+      <h2 class="modal-title">Чат</h2>
+    </div>
+    <div class="chat-container">
+      <div class="chat-messages" id="chatMessages"></div>
+      <form id="chatForm" class="chat-input" onsubmit="sendMessage(event)">
+        {% csrf_token %}
+        <input type="text" class="form-input" placeholder="Введите сообщение..." required>
+        <button type="submit" class="btn accent">
+          <i class="ri-send-plane-fill"></i>
+        </button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Модальное окно для отклика -->
+<div id="responseModal" class="modal">
+  <div class="modal-content">
+    <button class="modal-close" onclick="closeModal('responseModal')">
+      <i class="ri-close-line"></i>
+    </button>
+    <div class="modal-header">
+      <h2 class="modal-title">Отклик на заказ</h2>
+    </div>
+    <form action="" method="POST" class="response-form">
+      {% csrf_token %}
+      <input type="hidden" name="take_order" value="1">
+      <div class="form-group">
+        <label class="form-label">Ваше предложение</label>
+        <textarea name="response_message" class="form-input" rows="4" required
+                  placeholder="Опишите, почему вы подходите для этого заказа..."></textarea>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Ваша цена</label>
+        <input type="number" name="response_price" class="form-input" required
+               min="0" step="1000" placeholder="Укажите вашу цену...">
+      </div>
+      <button type="submit" class="btn accent">
+        <i class="ri-send-plane-fill"></i>
+        Отправить отклик
+      </button>
+    </form>
+  </div>
+</div>
+
+<style>
+.order-detail {
+  background: white;
+  border-radius: 20px;
+  padding: 32px;
+  margin: 32px 0;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+}
+
+.order-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 32px;
+  padding-bottom: 24px;
+  border-bottom: 1px solid #e3e8ff;
+}
+
+.order-title h1 {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin: 0 0 12px 0;
+}
+
+.order-meta {
+  display: flex;
+  gap: 16px;
+  color: #666;
+  font-size: 0.9rem;
+}
+
+.order-status {
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-weight: 500;
+  font-size: 0.9rem;
+}
+
+.order-status.new {
+  background: #fff3cd;
+  color: #856404;
+}
+
+.order-status.in_progress {
+  background: #d4edda;
+  color: #155724;
+}
+
+.order-status.completed {
+  background: #cce5ff;
+  color: #004085;
+}
+
+.order-status.cancelled {
+  background: #f8d7da;
+  color: #721c24;
+}
+
+.order-content {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+.order-section {
+  background: #f8f9fa;
+  border-radius: 16px;
+  padding: 24px;
+}
+
+.order-section h3 {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin: 0 0 20px 0;
+}
+
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 20px;
+}
+
+.info-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.info-card i {
+  font-size: 1.4rem;
+  color: #2e6cff;
+}
+
+.info-card label {
+  display: block;
+  font-size: 0.9rem;
+  color: #666;
+  margin-bottom: 4px;
+}
+
+.info-card span {
+  font-weight: 500;
+  color: #1a1a1a;
+}
+
+.services-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 16px;
+}
+
+.service-card {
+  background: white;
+  border-radius: 12px;
+  padding: 16px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.service-card i {
+  font-size: 1.6rem;
+  color: #2e6cff;
+}
+
+.service-card span {
+  font-weight: 500;
+  color: #1a1a1a;
+}
+
+.tariff-info {
+  background: white;
+  border-radius: 12px;
+  padding: 20px;
+}
+
+.tariff-name {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin-bottom: 8px;
+}
+
+.tariff-price {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #2e6cff;
+  margin-bottom: 12px;
+}
+
+.tariff-description {
+  color: #666;
+  line-height: 1.6;
+}
+
+.description {
+  color: #1a1a1a;
+  line-height: 1.6;
+}
+
+.performer-card {
+  background: white;
+  border-radius: 12px;
+  padding: 20px;
+}
+
+.performer-info {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+}
+
+.performer-avatar {
+  width: 80px;
+  height: 80px;
+  border-radius: 12px;
+  object-fit: cover;
+}
+
+.performer-avatar-placeholder {
+  width: 80px;
+  height: 80px;
+  border-radius: 12px;
+  background: #e3e8ff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  color: #2e6cff;
+}
+
+.performer-details {
+  flex: 1;
+}
+
+.performer-details h4 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin: 0 0 8px 0;
+}
+
+.performer-meta {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 12px;
+}
+
+.performer-rating, .performer-city {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: #666;
+  font-size: 0.9rem;
+}
+
+.performer-rating i {
+  color: #ffc107;
+}
+
+.order-actions {
+  margin-top: 32px;
+  padding-top: 24px;
+  border-top: 1px solid #e3e8ff;
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.order-manage-actions {
+  display: flex;
+  gap: 16px;
+  margin-left: auto;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 24px;
+  border-radius: 12px;
+  font-weight: 500;
+  transition: all 0.2s;
+  border: none;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.btn.small {
+  padding: 8px 16px;
+  font-size: 0.9rem;
+}
+
+.btn i {
+  font-size: 1.2rem;
+}
+
+.btn.accent {
+  background: #2e6cff;
+  color: white;
+}
+
+.btn.outline {
+  border: 2px solid #2e6cff;
+  color: #2e6cff;
+  background: none;
+}
+
+.btn.delete {
+  border: 2px solid #dc3545;
+  color: #dc3545;
+  background: none;
+}
+
+.modal {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+}
+
+.modal-content {
+  background: white;
+  border-radius: 20px;
+  max-width: 600px;
+  margin: 40px auto;
+  padding: 32px;
+  position: relative;
+}
+
+.modal-close {
+  position: absolute;
+  top: 24px;
+  right: 24px;
+  background: none;
+  border: none;
+  font-size: 24px;
+  color: #666;
+  cursor: pointer;
+}
+
+.chat-container {
+  height: 400px;
+  display: flex;
+  flex-direction: column;
+}
+
+.chat-messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px;
+  background: #f8f9fa;
+  border-radius: 12px;
+  margin-bottom: 16px;
+}
+
+.chat-input {
+  display: flex;
+  gap: 12px;
+}
+
+.chat-input .form-input {
+  flex: 1;
+  padding: 12px;
+  border: 2px solid #e3e8ff;
+  border-radius: 12px;
+  font-size: 1rem;
+}
+
+.message {
+  margin-bottom: 16px;
+  max-width: 80%;
+}
+
+.message.sent {
+  margin-left: auto;
+  background: #2e6cff;
+  color: white;
+  padding: 12px;
+  border-radius: 12px 12px 0 12px;
+}
+
+.message.received {
+  background: white;
+  padding: 12px;
+  border-radius: 12px 12px 12px 0;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.responses-list {
+  display: grid;
+  gap: 20px;
+}
+
+.response-card {
+  background: white;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.response-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.response-header h3 {
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+.response-date {
+  color: #666;
+  font-size: 0.9rem;
+}
+
+.response-price {
+  font-size: 1.4rem;
+  font-weight: 600;
+  color: #2e6cff;
+  margin: 12px 0;
+}
+
+.response-message {
+  color: #666;
+  line-height: 1.6;
+  margin-bottom: 20px;
+}
+
+.response-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.empty-state {
+  text-align: center;
+  color: #666;
+  padding: 32px;
+  background: #f8f9fa;
+  border-radius: 12px;
+}
+
+@media (max-width: 768px) {
+  .order-detail {
+    padding: 24px;
+    margin: 16px 0;
+  }
+
+  .order-header {
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .order-status {
+    align-self: flex-start;
+  }
+
+  .info-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .services-grid {
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  }
+
+  .performer-info {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .performer-meta {
+    justify-content: center;
+  }
+
+  .order-actions {
+    flex-direction: column;
+  }
+
+  .order-manage-actions {
+    flex-direction: column;
+    margin-left: 0;
+    width: 100%;
+  }
+
+  .btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .response-actions {
+    flex-direction: column;
+  }
+  
+  .response-actions .btn {
+    width: 100%;
+  }
+}
+</style>
+
+<script>
+let chatUpdateInterval;
+
+function openChatModal(orderId) {
+  document.getElementById('chatModal').style.display = 'block';
+  document.body.style.overflow = 'hidden';
+  loadMessages(orderId);
+  
+  // Обновляем сообщения каждые 5 секунд
+  chatUpdateInterval = setInterval(() => loadMessages(orderId), 5000);
+}
+
+function closeModal(modalId) {
+  document.getElementById(modalId).style.display = 'none';
+  document.body.style.overflow = 'auto';
+  
+  // Останавливаем обновление сообщений
+  if (chatUpdateInterval) {
+    clearInterval(chatUpdateInterval);
+  }
+}
+
+function loadMessages(orderId) {
+  fetch(`/chat/${orderId}/messages/`)
+    .then(response => response.json())
+    .then(data => {
+      const chatMessages = document.getElementById('chatMessages');
+      chatMessages.innerHTML = '';
+      
+      data.messages.forEach(message => {
+        const messageDiv = document.createElement('div');
+        messageDiv.className = `message ${message.is_mine ? 'sent' : 'received'}`;
+        messageDiv.innerHTML = `
+          <div class="message-content">${message.content}</div>
+          <div class="message-time">${message.timestamp}</div>
+        `;
+        chatMessages.appendChild(messageDiv);
+      });
+      
+      // Прокручиваем к последнему сообщению
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+    });
+}
+
+function sendMessage(event) {
+  event.preventDefault();
+  const form = event.target;
+  const input = form.querySelector('input');
+  const message = input.value.trim();
+  
+  if (!message) return;
+  
+  const orderId = '{{ order.id }}';
+  
+  fetch(`/chat/${orderId}/send/`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-CSRFToken': form.querySelector('[name=csrfmiddlewaretoken]').value
+    },
+    body: JSON.stringify({ message })
+  })
+  .then(response => response.json())
+  .then(data => {
+    if (data.success) {
+      input.value = '';
+      loadMessages(orderId);
+    }
+  });
+}
+
+function openResponseModal() {
+  document.getElementById('responseModal').style.display = 'block';
+  document.body.style.overflow = 'hidden';
+}
+
+// Закрытие модальных окон при клике вне их содержимого
+window.onclick = function(event) {
+  if (event.target.classList.contains('modal')) {
+    closeModal(event.target.id);
+  }
+};
+</script>
+{% endblock %} 
