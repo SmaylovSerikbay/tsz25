@@ -317,4 +317,221 @@ document.addEventListener('DOMContentLoaded', function() {
             cardObserver.observe(card);
         });
     }
-}); 
+
+    // Profile Page Functionality
+    initializeProfile();
+});
+
+// Profile Page Functionality
+function initializeProfile() {
+    const editProfileBtn = document.querySelector('.profile-edit-btn');
+    const editProfileModal = document.getElementById('editProfileModal');
+    const portfolioModal = document.getElementById('portfolioModal');
+    const profilePhotoInput = document.querySelector('input[name="profile_photo"]');
+    const portfolioInput = document.querySelector('input[name="portfolio_photos"]');
+    const portfolioGrid = document.querySelector('.portfolio-grid');
+    const deletePhotoForms = document.querySelectorAll('.delete-photo');
+
+    // Profile photo preview
+    if (profilePhotoInput) {
+        profilePhotoInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const preview = document.querySelector('.profile-photo');
+                    if (preview) {
+                        preview.src = e.target.result;
+                    }
+                }
+                reader.readAsDataURL(file);
+            }
+        });
+    }
+
+    // Portfolio photo upload
+    if (portfolioInput) {
+        portfolioInput.addEventListener('change', function(e) {
+            const files = Array.from(e.target.files);
+            const previewContainer = document.querySelector('.portfolio-preview');
+            
+            if (previewContainer) {
+                previewContainer.innerHTML = '';
+                
+                files.forEach(file => {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        const previewItem = document.createElement('div');
+                        previewItem.className = 'portfolio-preview-item';
+                        previewItem.innerHTML = `
+                            <img src="${e.target.result}" alt="Preview">
+                            <button type="button" class="remove-preview">
+                                <i class="ri-close-line"></i>
+                            </button>
+                        `;
+                        previewContainer.appendChild(previewItem);
+
+                        // Remove preview functionality
+                        previewItem.querySelector('.remove-preview').addEventListener('click', function() {
+                            previewItem.remove();
+                            const newFiles = Array.from(portfolioInput.files).filter((f, i) => {
+                                return f !== file;
+                            });
+                            
+                            // Create new FileList
+                            const dataTransfer = new DataTransfer();
+                            newFiles.forEach(file => dataTransfer.items.add(file));
+                            portfolioInput.files = dataTransfer.files;
+                        });
+                    }
+                    reader.readAsDataURL(file);
+                });
+            }
+        });
+    }
+
+    // Delete portfolio photo with confirmation
+    deletePhotoForms.forEach(form => {
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            if (confirm('Вы уверены, что хотите удалить это фото?')) {
+                const formData = new FormData(form);
+                
+                fetch(form.action, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-CSRFToken': formData.get('csrfmiddlewaretoken')
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        form.closest('.portfolio-item').remove();
+                        showNotification('Фото успешно удалено', 'success');
+                    } else {
+                        showNotification('Ошибка при удалении фото', 'error');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showNotification('Ошибка при удалении фото', 'error');
+                });
+            }
+        });
+    });
+
+    // Portfolio grid masonry layout
+    if (portfolioGrid) {
+        const masonryLayout = () => {
+            const items = portfolioGrid.children;
+            let columns = window.innerWidth <= 768 ? 2 : 3;
+            if (window.innerWidth <= 480) columns = 1;
+
+            const columnHeights = Array(columns).fill(0);
+            const columnItems = Array.from({ length: columns }, () => []);
+
+            Array.from(items).forEach((item, index) => {
+                const shortestColumn = columnHeights.indexOf(Math.min(...columnHeights));
+                columnItems[shortestColumn].push(item);
+                columnHeights[shortestColumn] += item.offsetHeight + 20; // 20px gap
+            });
+
+            let currentLeft = 0;
+            columnItems.forEach(column => {
+                let currentTop = 0;
+                column.forEach(item => {
+                    item.style.position = 'absolute';
+                    item.style.left = currentLeft + 'px';
+                    item.style.top = currentTop + 'px';
+                    currentTop += item.offsetHeight + 20;
+                });
+                currentLeft += column[0]?.offsetWidth + 20 || 0;
+            });
+
+            portfolioGrid.style.height = Math.max(...columnHeights) + 'px';
+        };
+
+        // Initialize masonry layout
+        window.addEventListener('load', masonryLayout);
+        window.addEventListener('resize', masonryLayout);
+
+        // Reinitialize when images are loaded
+        const images = portfolioGrid.querySelectorAll('img');
+        images.forEach(img => {
+            img.addEventListener('load', masonryLayout);
+        });
+    }
+
+    // Modal functionality
+    function openModal(modal) {
+        if (modal) {
+            modal.style.display = 'block';
+            document.body.style.overflow = 'hidden';
+            
+            // Close on overlay click
+            modal.addEventListener('click', function(e) {
+                if (e.target === modal) {
+                    closeModal(modal);
+                }
+            });
+
+            // Close on escape key
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    closeModal(modal);
+                }
+            });
+        }
+    }
+
+    function closeModal(modal) {
+        if (modal) {
+            modal.style.display = 'none';
+            document.body.style.overflow = '';
+        }
+    }
+
+    // Initialize modals
+    if (editProfileBtn) {
+        editProfileBtn.addEventListener('click', () => openModal(editProfileModal));
+    }
+
+    document.querySelectorAll('.modal-close').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const modal = this.closest('.modal');
+            closeModal(modal);
+        });
+    });
+
+    // Form validation and submission
+    const editProfileForm = document.querySelector('#editProfileModal form');
+    if (editProfileForm) {
+        editProfileForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            
+            fetch(this.action, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-CSRFToken': formData.get('csrfmiddlewaretoken')
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    location.reload();
+                } else {
+                    showNotification(data.message || 'Ошибка при сохранении профиля', 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showNotification('Ошибка при сохранении профиля', 'error');
+            });
+        });
+    }
+} 
