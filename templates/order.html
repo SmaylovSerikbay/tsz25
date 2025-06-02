@@ -481,51 +481,87 @@ textarea {
 /* Responsive Styles */
 @media (max-width: 768px) {
   .main {
-    padding: 16px 0;
+    padding: 0;
+    background: white;
+  }
+
+  .container {
+    padding: 0;
   }
 
   .order-form {
-    margin: 0 16px;
-    border-radius: var(--radius-md);
+    margin: 0;
+    border-radius: 0;
+    box-shadow: none;
+    max-width: 100%;
   }
 
-  .order-header,
+  .order-header {
+    padding: 24px 16px;
+    background: var(--primary-light);
+  }
+
   .order-form-container {
-    padding: 24px;
+    padding: 16px;
   }
 
-  .order-header h1 {
-    font-size: 1.8rem;
+  .form-section {
+    padding: 20px 16px;
+    margin: 0 0 16px;
+    border: none;
+    border-radius: 0;
+    background: white;
+    box-shadow: none;
+    border-bottom: 1px solid var(--gray-200);
+  }
+
+  .form-section:hover {
+    box-shadow: none;
+    border-color: var(--gray-200);
+  }
+
+  .form-section:last-child {
+    border-bottom: none;
   }
 
   .form-grid {
     grid-template-columns: 1fr;
-    gap: 24px;
+    gap: 20px;
   }
 
   .services-grid {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 16px;
+    grid-template-columns: 1fr;
+    gap: 12px;
+    margin: 16px -16px 0;
+    padding: 0 16px;
   }
 
-  .form-actions {
-    flex-direction: column;
-    gap: 16px;
-  }
-
-  .btn {
-    width: 100%;
+  .service-card {
     padding: 16px;
-    font-size: 1.1rem;
+    border: 1px solid var(--gray-200);
+    display: flex;
+    align-items: center;
+    text-align: left;
+    gap: 16px;
+    margin: 0;
+    border-radius: var(--radius-sm);
   }
 
-  .form-section {
-    padding: 20px;
-    margin-bottom: 24px;
+  .service-card:hover {
+    transform: none;
+    border-color: var(--primary-color);
+    box-shadow: none;
   }
 
-  .form-label {
-    font-size: 1rem;
+  .service-icon {
+    width: 48px;
+    height: 48px;
+    margin: 0;
+    flex-shrink: 0;
+  }
+
+  .service-card-content {
+    flex: 1;
   }
 
   .form-input,
@@ -534,41 +570,36 @@ textarea {
   input[type="date"],
   select,
   textarea {
-    padding: 14px;
-    font-size: 1.1rem;
+    padding: 16px;
+    font-size: 16px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--gray-200);
   }
 
-  .service-card {
-    padding: 20px;
+  .form-actions {
+    margin: 24px 0 0;
+    padding: 16px;
+    background: white;
+    position: sticky;
+    bottom: 0;
+    border-top: 1px solid var(--gray-200);
   }
 
-  .service-icon {
-    width: 56px;
+  .btn {
+    width: 100%;
+    padding: 16px;
+    font-size: 16px;
     height: 56px;
-    margin-bottom: 20px;
-  }
-
-  .service-icon i {
-    font-size: 28px;
-  }
-
-  .service-card h3 {
-    font-size: 1.2rem;
-    margin-bottom: 12px;
-  }
-
-  .service-card p {
-    font-size: 1rem;
   }
 }
 
 @media (max-width: 480px) {
   .main {
-    padding: 12px 0;
+    padding: 0;
   }
 
   .order-form {
-    margin: 0 12px;
+    margin: 0;
   }
 
   .order-header {
@@ -576,66 +607,51 @@ textarea {
   }
 
   .order-header h1 {
-    font-size: 1.6rem;
-  }
-
-  .order-header p {
-    font-size: 1rem;
+    font-size: 1.5rem;
   }
 
   .order-form-container {
-    padding: 16px;
+    padding: 0;
   }
 
   .form-section {
     padding: 16px;
-    margin-bottom: 20px;
+    margin-bottom: 8px;
   }
 
   .form-section h2 {
-    font-size: 1.2rem;
-    margin-bottom: 20px;
+    font-size: 1.1rem;
+    margin-bottom: 16px;
   }
 
   .services-grid {
-    grid-template-columns: 1fr;
-    gap: 16px;
+    margin: 12px -16px 0;
   }
 
   .service-card {
-    padding: 20px;
-    display: flex;
-    align-items: center;
-    text-align: left;
-    gap: 16px;
+    padding: 12px 16px;
   }
 
   .service-icon {
-    width: 48px;
-    height: 48px;
-    margin: 0;
+    width: 40px;
+    height: 40px;
   }
 
   .service-icon i {
-    font-size: 24px;
-  }
-
-  .service-card-content {
-    flex: 1;
+    font-size: 20px;
   }
 
   .service-card h3 {
-    font-size: 1.1rem;
-    margin-bottom: 4px;
+    font-size: 1rem;
+    margin-bottom: 2px;
   }
 
   .service-card p {
-    font-size: 0.9rem;
-    opacity: 0.8;
+    font-size: 0.85rem;
   }
 
   .form-label {
-    font-size: 1rem;
+    font-size: 0.9rem;
   }
 
   .form-input,
@@ -645,15 +661,17 @@ textarea {
   select,
   textarea {
     padding: 14px;
-    font-size: 1rem;
+    font-size: 16px;
   }
 
   .btn {
     padding: 14px;
     font-size: 1rem;
+    height: 48px;
   }
 
   .message {
+    margin: 0 16px 8px;
     padding: 12px;
     font-size: 0.9rem;
   }
