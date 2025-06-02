@@ -23,32 +23,33 @@ document.addEventListener('DOMContentLoaded', function() {
         mobileMenuToggle.addEventListener('click', function(e) {
             e.preventDefault();
             e.stopPropagation();
-            toggleMobileMenu();
+            
+            // Toggle menu
+            const isOpen = nav.classList.contains('active');
+            if (isOpen) {
+                closeMobileMenu();
+            } else {
+                openMobileMenu();
+            }
         });
 
         // Close menu when clicking overlay
         menuOverlay.addEventListener('click', closeMobileMenu);
     }
 
-    function toggleMobileMenu() {
-        const isOpen = nav.classList.contains('active');
-        if (isOpen) {
-            closeMobileMenu();
-        } else {
-            openMobileMenu();
-        }
-    }
-
     function openMobileMenu() {
-        nav.classList.add('active');
-        menuOverlay.classList.add('active');
-        mobileMenuToggle.classList.add('active');
-        body.style.overflow = 'hidden';
-        
-        const icon = mobileMenuToggle.querySelector('i');
-        if (icon) {
-            icon.className = 'ri-close-line';
-        }
+        nav.style.display = 'flex'; // Ensure nav is visible
+        requestAnimationFrame(() => {
+            nav.classList.add('active');
+            menuOverlay.classList.add('active');
+            mobileMenuToggle.classList.add('active');
+            body.style.overflow = 'hidden';
+            
+            const icon = mobileMenuToggle.querySelector('i');
+            if (icon) {
+                icon.className = 'ri-close-line';
+            }
+        });
     }
 
     function closeMobileMenu() {
@@ -62,11 +63,15 @@ document.addEventListener('DOMContentLoaded', function() {
             icon.className = 'ri-menu-line';
         }
 
-        // Close all dropdowns when closing menu
+        // Close all dropdowns
         dropdowns.forEach(dropdown => {
             const menu = dropdown.querySelector('.nav-dropdown-menu');
+            const toggle = dropdown.querySelector('.nav-dropdown-toggle');
             if (menu) {
                 menu.classList.remove('active');
+            }
+            if (toggle) {
+                toggle.classList.remove('active');
             }
         });
     }
@@ -78,7 +83,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // Enhanced dropdown handling
+    // Dropdown functionality
     dropdowns.forEach(dropdown => {
         const toggle = dropdown.querySelector('.nav-dropdown-toggle');
         const menu = dropdown.querySelector('.nav-dropdown-menu');
@@ -87,18 +92,23 @@ document.addEventListener('DOMContentLoaded', function() {
             toggle.addEventListener('click', function(e) {
                 e.preventDefault();
                 e.stopPropagation();
-                
+
                 // Close other dropdowns
                 dropdowns.forEach(otherDropdown => {
                     if (otherDropdown !== dropdown) {
                         const otherMenu = otherDropdown.querySelector('.nav-dropdown-menu');
+                        const otherToggle = otherDropdown.querySelector('.nav-dropdown-toggle');
                         if (otherMenu) {
                             otherMenu.classList.remove('active');
                         }
+                        if (otherToggle) {
+                            otherToggle.classList.remove('active');
+                        }
                     }
                 });
-                
+
                 // Toggle current dropdown
+                toggle.classList.toggle('active');
                 menu.classList.toggle('active');
             });
         }
@@ -109,8 +119,12 @@ document.addEventListener('DOMContentLoaded', function() {
         if (!e.target.closest('.nav-dropdown')) {
             dropdowns.forEach(dropdown => {
                 const menu = dropdown.querySelector('.nav-dropdown-menu');
+                const toggle = dropdown.querySelector('.nav-dropdown-toggle');
                 if (menu) {
                     menu.classList.remove('active');
+                }
+                if (toggle) {
+                    toggle.classList.remove('active');
                 }
             });
         }
