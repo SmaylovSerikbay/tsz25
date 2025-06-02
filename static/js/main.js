@@ -553,7 +553,7 @@ function initializeProfile() {
         });
     }
 
-    // Portfolio photo upload
+    // Portfolio photo upload preview
     if (portfolioInput) {
         portfolioInput.addEventListener('change', function(e) {
             const files = Array.from(e.target.files);
@@ -563,108 +563,108 @@ function initializeProfile() {
                 previewContainer.innerHTML = '';
                 
                 files.forEach(file => {
-                    const reader = new FileReader();
-                    reader.onload = function(e) {
-                        const previewItem = document.createElement('div');
-                        previewItem.className = 'portfolio-preview-item';
-                        previewItem.innerHTML = `
-                            <img src="${e.target.result}" alt="Preview">
-                            <button type="button" class="remove-preview">
-                                <i class="ri-close-line"></i>
-                            </button>
-                        `;
-                        previewContainer.appendChild(previewItem);
+                    if (file.type.startsWith('image/')) {
+                        const reader = new FileReader();
+                        reader.onload = function(e) {
+                            const previewItem = document.createElement('div');
+                            previewItem.className = 'portfolio-preview-item';
+                            previewItem.innerHTML = `
+                                <img src="${e.target.result}" alt="Preview">
+                                <button type="button" class="remove-preview">
+                                    <i class="ri-close-line"></i>
+                                </button>
+                            `;
+                            previewContainer.appendChild(previewItem);
 
-                        // Remove preview functionality
-                        previewItem.querySelector('.remove-preview').addEventListener('click', function() {
-                            previewItem.remove();
-                            const newFiles = Array.from(portfolioInput.files).filter((f, i) => {
-                                return f !== file;
+                            // Remove preview functionality
+                            previewItem.querySelector('.remove-preview').addEventListener('click', function() {
+                                previewItem.remove();
+                                const newFiles = Array.from(portfolioInput.files).filter(f => f !== file);
+                                const dataTransfer = new DataTransfer();
+                                newFiles.forEach(f => dataTransfer.items.add(f));
+                                portfolioInput.files = dataTransfer.files;
                             });
-                            
-                            // Create new FileList
-                            const dataTransfer = new DataTransfer();
-                            newFiles.forEach(file => dataTransfer.items.add(file));
-                            portfolioInput.files = dataTransfer.files;
-                        });
+                        };
+                        reader.readAsDataURL(file);
                     }
-                    reader.readAsDataURL(file);
                 });
             }
         });
     }
 
-    // Delete portfolio photo with confirmation
-    deletePhotoForms.forEach(form => {
-        form.addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            if (confirm('Вы уверены, что хотите удалить это фото?')) {
-                const formData = new FormData(form);
+    // Delete portfolio photo
+    if (deletePhotoForms) {
+        deletePhotoForms.forEach(form => {
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
                 
-                fetch(form.action, {
-                    method: 'POST',
-                    body: formData,
-                    headers: {
-                        'X-CSRFToken': formData.get('csrfmiddlewaretoken')
-                    }
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        form.closest('.portfolio-item').remove();
-                        showNotification('Фото успешно удалено', 'success');
-                    } else {
+                if (confirm('Вы уверены, что хотите удалить это фото?')) {
+                    const formData = new FormData(form);
+                    const photoItem = form.closest('.portfolio-item');
+                    
+                    fetch(form.action, {
+                        method: 'POST',
+                        body: formData,
+                        headers: {
+                            'X-CSRFToken': formData.get('csrfmiddlewaretoken')
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            photoItem.remove();
+                            showNotification('Фото успешно удалено', 'success');
+                            
+                            // Reflow the grid
+                            if (portfolioGrid) {
+                                const items = portfolioGrid.children;
+                                Array.from(items).forEach(item => {
+                                    item.style.gridRow = 'auto';
+                                    item.style.gridColumn = 'auto';
+                                });
+                            }
+                        } else {
+                            showNotification('Ошибка при удалении фото', 'error');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
                         showNotification('Ошибка при удалении фото', 'error');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    showNotification('Ошибка при удалении фото', 'error');
+                    });
+                }
+            });
+        });
+    }
+
+    // Initialize portfolio grid layout
+    if (portfolioGrid) {
+        const updateLayout = () => {
+            const items = portfolioGrid.children;
+            const isMobile = window.innerWidth <= 768;
+            
+            // Reset styles
+            Array.from(items).forEach(item => {
+                item.style.height = '';
+                item.style.gridRow = 'auto';
+                item.style.gridColumn = 'auto';
+            });
+
+            // Set equal heights for items
+            if (!isMobile) {
+                const itemWidth = items[0]?.offsetWidth || 0;
+                Array.from(items).forEach(item => {
+                    item.style.height = `${itemWidth}px`;
                 });
             }
-        });
-    });
-
-    // Portfolio grid masonry layout
-    if (portfolioGrid) {
-        const masonryLayout = () => {
-            const items = portfolioGrid.children;
-            let columns = window.innerWidth <= 768 ? 2 : 3;
-            if (window.innerWidth <= 480) columns = 1;
-
-            const columnHeights = Array(columns).fill(0);
-            const columnItems = Array.from({ length: columns }, () => []);
-
-            Array.from(items).forEach((item, index) => {
-                const shortestColumn = columnHeights.indexOf(Math.min(...columnHeights));
-                columnItems[shortestColumn].push(item);
-                columnHeights[shortestColumn] += item.offsetHeight + 20; // 20px gap
-            });
-
-            let currentLeft = 0;
-            columnItems.forEach(column => {
-                let currentTop = 0;
-                column.forEach(item => {
-                    item.style.position = 'absolute';
-                    item.style.left = currentLeft + 'px';
-                    item.style.top = currentTop + 'px';
-                    currentTop += item.offsetHeight + 20;
-                });
-                currentLeft += column[0]?.offsetWidth + 20 || 0;
-            });
-
-            portfolioGrid.style.height = Math.max(...columnHeights) + 'px';
         };
 
-        // Initialize masonry layout
-        window.addEventListener('load', masonryLayout);
-        window.addEventListener('resize', masonryLayout);
+        // Update layout on load and resize
+        window.addEventListener('load', updateLayout);
+        window.addEventListener('resize', updateLayout);
 
-        // Reinitialize when images are loaded
-        const images = portfolioGrid.querySelectorAll('img');
-        images.forEach(img => {
-            img.addEventListener('load', masonryLayout);
+        // Update layout when images load
+        portfolioGrid.querySelectorAll('img').forEach(img => {
+            img.addEventListener('load', updateLayout);
         });
     }
 
