@@ -546,6 +546,7 @@ body {
         height: 40px;
         border-radius: var(--border-radius);
         transition: var(--transition);
+        z-index: 1002;
     }
 
     .mobile-menu-toggle:hover {
@@ -570,7 +571,7 @@ body {
     .nav {
         position: fixed;
         top: var(--header-height);
-        right: -100%;
+        right: 0;
         width: 80%;
         max-width: 400px;
         height: calc(100vh - var(--header-height));
@@ -590,24 +591,6 @@ body {
         transform: translateX(0);
     }
 
-    .menu-overlay {
-        display: none;
-        position: fixed;
-        top: var(--header-height);
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: rgba(0,0,0,0.5);
-        z-index: 1000;
-        opacity: 0;
-        transition: opacity 0.3s ease;
-    }
-
-    .menu-overlay.active {
-        display: block;
-        opacity: 1;
-    }
-
     .nav-link {
         width: 100%;
         padding: var(--spacing-md);
@@ -617,6 +600,16 @@ body {
         align-items: center;
         justify-content: flex-start;
         gap: var(--spacing-sm);
+    }
+
+    .nav-link i {
+        font-size: 20px;
+        color: var(--primary-color);
+    }
+
+    .nav-link:hover {
+        background: var(--primary-light);
+        color: var(--primary-color);
     }
 
     .nav-dropdown {
@@ -647,101 +640,22 @@ body {
         display: block;
     }
 
-    .footer {
-        padding: 30px 0 20px;
+    .menu-overlay {
+        display: none;
+        position: fixed;
+        top: var(--header-height);
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0,0,0,0.5);
+        z-index: 1000;
+        opacity: 0;
+        transition: opacity 0.3s ease;
     }
 
-    .footer-content {
-        grid-template-columns: 1fr;
-        text-align: center;
-        gap: var(--spacing-xl);
-    }
-
-    .footer-section h3::after {
-        left: 50%;
-        transform: translateX(-50%);
-    }
-
-    .social-links {
-        justify-content: center;
-    }
-
-    /* Form Elements */
-    .form-group {
-        margin-bottom: 20px;
-    }
-
-    .form-input,
-    input[type="text"],
-    input[type="email"],
-    input[type="password"],
-    input[type="number"],
-    input[type="tel"],
-    input[type="date"],
-    select,
-    textarea {
-        width: 100%;
-        padding: 15px;
-        font-size: 16px;
-        border-radius: 8px;
-        border: 2px solid #e0e0e0;
-        transition: all 0.2s;
-    }
-
-    /* Buttons */
-    .btn {
-        width: 100%;
-        padding: 15px;
-        font-size: 16px;
-        border-radius: 8px;
-        margin-bottom: 10px;
-    }
-
-    .btn-group {
-        flex-direction: column;
-        gap: 10px;
-    }
-
-    /* Cards and Grids */
-    .performer-card,
-    .order-card,
-    .service-card {
-        border-radius: 12px;
-        padding: 20px;
-        margin-bottom: 15px;
-    }
-
-    .features-grid,
-    .performers-grid,
-    .categories-grid {
-        grid-template-columns: 1fr;
-        gap: 15px;
-        padding: 0;
-    }
-
-    /* Profile Section */
-    .profile-section {
-        flex-direction: column;
-        align-items: center;
-        text-align: center;
-        padding: 20px;
-    }
-
-    .profile-photo {
-        width: 120px;
-        height: 120px;
-        margin-bottom: 20px;
-    }
-
-    /* Messages and Notifications */
-    .messages {
-        padding: 10px;
-    }
-
-    .message-alert {
-        margin: 10px 0;
-        padding: 15px;
-        border-radius: 8px;
+    .menu-overlay.active {
+        display: block;
+        opacity: 1;
     }
 }
 

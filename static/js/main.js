@@ -27,7 +27,13 @@ document.addEventListener('DOMContentLoaded', function() {
         mobileMenuToggle.addEventListener('click', function(e) {
             e.preventDefault();
             e.stopPropagation();
-            toggleMobileMenu();
+            const isOpen = nav.classList.contains('active');
+            
+            if (isOpen) {
+                closeMobileMenu();
+            } else {
+                openMobileMenu();
+            }
         });
     }
 
@@ -68,16 +74,6 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         }
     });
-
-    function toggleMobileMenu() {
-        const isOpen = nav.classList.contains('active');
-        
-        if (isOpen) {
-            closeMobileMenu();
-        } else {
-            openMobileMenu();
-        }
-    }
 
     function openMobileMenu() {
         nav.classList.add('active');
