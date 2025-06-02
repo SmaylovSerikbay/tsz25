@@ -25,6 +25,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Mobile menu toggle
     if (mobileMenuToggle && nav) {
         mobileMenuToggle.addEventListener('click', function(e) {
+            e.preventDefault();
             e.stopPropagation();
             toggleMobileMenu();
         });
@@ -37,13 +38,14 @@ document.addEventListener('DOMContentLoaded', function() {
         
         if (toggle && menu) {
             toggle.addEventListener('click', function(e) {
+                e.preventDefault();
                 e.stopPropagation();
                 
                 // Close other dropdowns
                 dropdowns.forEach(otherDropdown => {
                     if (otherDropdown !== dropdown) {
                         const otherMenu = otherDropdown.querySelector('.nav-dropdown-menu');
-                        if (otherMenu && otherMenu.classList.contains('active')) {
+                        if (otherMenu) {
                             otherMenu.classList.remove('active');
                         }
                     }
@@ -68,16 +70,25 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     function toggleMobileMenu() {
-        nav.classList.toggle('active');
-        mobileMenuToggle.classList.toggle('active');
-        menuOverlay.classList.toggle('active');
+        const isOpen = nav.classList.contains('active');
+        
+        if (isOpen) {
+            closeMobileMenu();
+        } else {
+            openMobileMenu();
+        }
+    }
+
+    function openMobileMenu() {
+        nav.classList.add('active');
+        mobileMenuToggle.classList.add('active');
+        menuOverlay.classList.add('active');
+        body.style.overflow = 'hidden';
         
         const icon = mobileMenuToggle.querySelector('i');
         if (icon) {
-            icon.className = nav.classList.contains('active') ? 'ri-close-line' : 'ri-menu-line';
+            icon.className = 'ri-close-line';
         }
-        
-        body.style.overflow = nav.classList.contains('active') ? 'hidden' : '';
     }
 
     function closeMobileMenu() {
