@@ -51,7 +51,7 @@
                                 {% else %}
                                     <i class="ri-user-line"></i>
                                 {% endif %}
-                                <span>{{ user.get_full_name|default:user.phone }}</span>
+                                <span>{{ user.get_full_name|default:user.phone_number }}</span>
                             </div>
                             <i class="ri-arrow-down-s-line"></i>
                         </button>
@@ -111,7 +111,7 @@
                                 {% else %}
                                     <i class="ri-user-line"></i>
                                 {% endif %}
-                                <span>{{ user.get_full_name|default:user.phone }}</span>
+                                <span>{{ user.get_full_name|default:user.phone_number }}</span>
                             </div>
                             <i class="ri-arrow-down-s-line"></i>
                         </button>
