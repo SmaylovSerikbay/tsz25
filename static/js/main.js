@@ -456,6 +456,74 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Catalog Page Functionality
     initializeCatalog();
+
+    // Mobile Menu
+    const mobileMenu = document.querySelector('.mobile-menu');
+    const mobileDropdowns = document.querySelectorAll('.mobile-nav-dropdown');
+
+    // Mobile menu toggle
+    if (mobileMenuToggle && mobileMenu) {
+        mobileMenuToggle.addEventListener('click', function() {
+            mobileMenu.classList.toggle('active');
+            mobileMenuToggle.classList.toggle('active');
+            body.style.overflow = mobileMenu.classList.contains('active') ? 'hidden' : '';
+        });
+
+        // Close menu when clicking outside
+        mobileMenu.addEventListener('click', function(e) {
+            if (e.target === mobileMenu) {
+                mobileMenu.classList.remove('active');
+                mobileMenuToggle.classList.remove('active');
+                body.style.overflow = '';
+            }
+        });
+
+        // Close menu when clicking a link
+        const mobileLinks = mobileMenu.querySelectorAll('a[href]');
+        mobileLinks.forEach(link => {
+            link.addEventListener('click', function() {
+                mobileMenu.classList.remove('active');
+                mobileMenuToggle.classList.remove('active');
+                body.style.overflow = '';
+            });
+        });
+    }
+
+    // Mobile dropdowns
+    mobileDropdowns.forEach(dropdown => {
+        const toggle = dropdown.querySelector('.mobile-nav-dropdown-toggle');
+        const menu = dropdown.querySelector('.mobile-nav-dropdown-menu');
+        
+        if (toggle && menu) {
+            toggle.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+
+                // Close other dropdowns
+                mobileDropdowns.forEach(otherDropdown => {
+                    if (otherDropdown !== dropdown) {
+                        const otherMenu = otherDropdown.querySelector('.mobile-nav-dropdown-menu');
+                        const otherToggle = otherDropdown.querySelector('.mobile-nav-dropdown-toggle');
+                        if (otherMenu) otherMenu.classList.remove('active');
+                        if (otherToggle) otherToggle.classList.remove('active');
+                    }
+                });
+
+                // Toggle current dropdown
+                toggle.classList.toggle('active');
+                menu.classList.toggle('active');
+            });
+        }
+    });
+
+    // Close mobile menu on window resize
+    window.addEventListener('resize', function() {
+        if (window.innerWidth > 768 && mobileMenu && mobileMenu.classList.contains('active')) {
+            mobileMenu.classList.remove('active');
+            mobileMenuToggle.classList.remove('active');
+            body.style.overflow = '';
+        }
+    });
 });
 
 // Profile Page Functionality
