@@ -236,14 +236,33 @@
         flex-direction: column;
         align-items: flex-start;
         gap: 16px;
+        padding: 16px;
+      }
+
+      .quick-actions {
+        flex-direction: column;
+        width: 100%;
+      }
+
+      .btn {
+        width: 100%;
+        justify-content: center;
       }
 
       .stats-section {
         grid-template-columns: 1fr;
+        padding: 0 16px;
       }
 
       .order-card {
         flex-direction: column;
+        padding: 16px;
+      }
+
+      .order-meta {
+        flex-direction: column;
+        gap: 8px;
+        align-items: flex-start;
       }
 
       .order-actions {
@@ -259,6 +278,105 @@
 
       .catalog-preview {
         grid-template-columns: 1fr;
+        padding: 0 16px;
+      }
+
+      .performer-card {
+        flex-direction: column;
+        text-align: center;
+      }
+
+      .performer-photo {
+        width: 120px;
+        height: 120px;
+      }
+
+      .performer-info {
+        width: 100%;
+      }
+
+      .modal-content {
+        margin: 20px;
+        padding: 20px;
+      }
+
+      .chat-container {
+        height: 300px;
+      }
+
+      .chat-input {
+        flex-direction: column;
+      }
+
+      .responses-grid {
+        padding: 0 16px;
+      }
+
+      .response-card {
+        padding: 16px;
+      }
+
+      .response-header {
+        flex-direction: column;
+        text-align: center;
+      }
+
+      .response-photo {
+        width: 100px;
+        height: 100px;
+        margin: 0 auto;
+      }
+
+      .response-actions {
+        flex-direction: column;
+      }
+
+      .response-actions .btn {
+        width: 100%;
+      }
+
+      .selected-performer {
+        flex-direction: column;
+        text-align: center;
+        padding: 16px;
+      }
+
+      .selected-performer img {
+        width: 80px;
+        height: 80px;
+        margin: 0 auto;
+      }
+
+      .selected-performer-info {
+        text-align: center;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .dashboard-header {
+        padding: 12px;
+      }
+
+      .performer-photo {
+        width: 100px;
+        height: 100px;
+      }
+
+      .modal-content {
+        margin: 10px;
+        padding: 16px;
+      }
+
+      .form-input {
+        padding: 10px;
+      }
+
+      .chat-container {
+        height: 250px;
+      }
+
+      .message {
+        max-width: 90%;
       }
     }
 
@@ -477,20 +595,6 @@
       color: #666;
       margin: 0;
       font-size: 0.9rem;
-    }
-
-    @media (max-width: 768px) {
-      .form-grid {
-        grid-template-columns: 1fr;
-      }
-
-      .response-actions {
-        flex-direction: column;
-      }
-
-      .response-actions .btn {
-        width: 100%;
-      }
     }
 
     .services-status {
