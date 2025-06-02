@@ -11,9 +11,9 @@
   <style>
     /* Base styles */
     :root {
-      --primary-color: #2e6cff;
-      --primary-dark: #1e54d5;
-      --primary-light: #eef3ff;
+      --primary-color: #4B5563;
+      --primary-dark: #374151;
+      --primary-light: #F3F4F6;
       --gray-100: #f8faff;
       --gray-200: #e5e7eb;
       --gray-300: #d1d5db;
@@ -65,6 +65,12 @@
       gap: 8px;
     }
 
+    .filters-actions {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
     .clear-filters {
       color: var(--primary-color);
       text-decoration: none;
@@ -78,6 +84,10 @@
 
     .clear-filters:hover {
       opacity: 0.8;
+    }
+
+    .filters-close {
+      display: none;
     }
 
     .filter-section {
@@ -375,47 +385,6 @@
         padding: 0 16px;
       }
 
-      .filters-sidebar {
-        position: fixed;
-        top: 0;
-        left: -100%;
-        width: 100%;
-        height: 100vh;
-        z-index: 999;
-        border-radius: 0;
-        transition: left 0.3s;
-        overflow-y: auto;
-      }
-
-      .filters-sidebar.active {
-        left: 0;
-      }
-
-      .filters-header {
-        position: sticky;
-        top: 0;
-        background: white;
-        z-index: 2;
-        padding-top: 16px;
-      }
-
-      .catalog-grid {
-        grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-        gap: 16px;
-      }
-
-      .performer-image {
-        height: 180px;
-      }
-
-      .page-title {
-        font-size: 1.5rem;
-      }
-
-      .page-subtitle {
-        font-size: 0.875rem;
-      }
-
       /* Add mobile filters toggle button */
       .mobile-filters-toggle {
         display: flex;
@@ -433,6 +402,58 @@
 
       .mobile-filters-toggle i {
         color: var(--primary-color);
+      }
+
+      .filters-sidebar {
+        position: fixed;
+        top: 0;
+        right: -100%;
+        width: 100%;
+        height: 100vh;
+        z-index: 999;
+        border-radius: 0;
+        transition: right 0.3s ease;
+        overflow-y: auto;
+      }
+
+      .filters-sidebar.active {
+        right: 0;
+      }
+
+      .filters-header {
+        position: sticky;
+        top: 0;
+        background: white;
+        z-index: 2;
+        padding-top: 16px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .filters-close {
+        display: block;
+        font-size: 24px;
+        color: var(--gray-600);
+        cursor: pointer;
+        padding: 4px;
+      }
+
+      .catalog-grid {
+        grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+        gap: 16px;
+      }
+
+      .performer-image {
+        height: 180px;
+      }
+
+      .page-title {
+        font-size: 1.5rem;
+      }
+
+      .page-subtitle {
+        font-size: 0.875rem;
       }
     }
 
@@ -636,10 +657,13 @@
             <i class="ri-filter-3-line"></i>
             Фильтры
           </h2>
-          <a href="{% url 'main:catalog' %}" class="clear-filters">
-            <i class="ri-refresh-line"></i>
-            Сбросить
-          </a>
+          <div class="filters-actions">
+            <a href="{% url 'main:catalog' %}" class="clear-filters">
+              <i class="ri-refresh-line"></i>
+              Сбросить
+            </a>
+            <i class="ri-close-line filters-close" onclick="toggleFilters()"></i>
+          </div>
         </div>
 
         <form id="filters-form" method="get">
@@ -847,38 +871,19 @@
     // Add filters toggle functionality
     function toggleFilters() {
       const filtersSidebar = document.querySelector('.filters-sidebar');
-      const filtersOverlay = document.querySelector('.filters-overlay');
-      
+      document.body.style.overflow = filtersSidebar.classList.contains('active') ? 'auto' : 'hidden';
       filtersSidebar.classList.toggle('active');
-      filtersOverlay.classList.toggle('active');
-      
-      if (filtersSidebar.classList.contains('active')) {
-        document.body.style.overflow = 'hidden';
-      } else {
-        document.body.style.overflow = 'auto';
-      }
     }
 
-    // Close mobile menu and filters when clicking outside
+    // Close filters when clicking outside
     document.addEventListener('click', function(event) {
-      const mobileMenu = document.querySelector('.mobile-menu');
-      const mobileMenuToggle = document.querySelector('.mobile-menu-toggle');
       const filtersSidebar = document.querySelector('.filters-sidebar');
-      const filtersOverlay = document.querySelector('.filters-overlay');
-      
-      if (mobileMenu.classList.contains('active') && 
-          !event.target.closest('.mobile-menu-content') && 
-          !event.target.closest('.mobile-menu-toggle')) {
-        mobileMenu.classList.remove('active');
-        mobileMenuToggle.classList.remove('active');
-        document.body.style.overflow = 'auto';
-      }
+      const filtersToggle = document.querySelector('.mobile-filters-toggle');
       
       if (filtersSidebar.classList.contains('active') && 
           !event.target.closest('.filters-sidebar') && 
           !event.target.closest('.mobile-filters-toggle')) {
         filtersSidebar.classList.remove('active');
-        filtersOverlay.classList.remove('active');
         document.body.style.overflow = 'auto';
       }
     });
