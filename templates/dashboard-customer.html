@@ -757,10 +757,22 @@
     <div class="container">
       <a href="{% url 'main:index' %}" class="logo">Той со звездой</a>
       <nav class="nav desktop-nav">
-        <a href="{% url 'main:index' %}" class="nav-link">Главная</a>
-        <a href="{% url 'main:catalog' %}" class="nav-link">Исполнители</a>
-        <a href="{% url 'main:dashboard' %}" class="nav-link">Личный кабинет</a>
-        <a href="{% url 'main:logout' %}" class="nav-link">Выйти</a>
+        <a href="{% url 'main:index' %}" class="nav-link">
+          <i class="ri-home-line"></i>
+          Главная
+        </a>
+        <a href="{% url 'main:catalog' %}" class="nav-link">
+          <i class="ri-user-star-line"></i>
+          Исполнители
+        </a>
+        <a href="{% url 'main:dashboard' %}" class="nav-link">
+          <i class="ri-dashboard-line"></i>
+          Личный кабинет
+        </a>
+        <a href="{% url 'main:logout' %}" class="nav-link">
+          <i class="ri-logout-box-line"></i>
+          Выйти
+        </a>
       </nav>
       <button class="mobile-menu-toggle" onclick="toggleMobileMenu()">
         <span></span>
