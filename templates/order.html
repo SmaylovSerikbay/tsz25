@@ -99,36 +99,46 @@
               <div class="service-icon">
                 <i class="ri-camera-line"></i>
               </div>
-              <h3>Фотограф</h3>
-              <p>Профессиональная фотосъемка</p>
+              <div class="service-card-content">
+                <h3>Фотограф</h3>
+                <p>Профессиональная фотосъемка</p>
+              </div>
             </div>
             <div class="service-card" onclick="toggleService(this, 'video')">
               <div class="service-icon">
                 <i class="ri-video-line"></i>
               </div>
-              <h3>Видеограф</h3>
-              <p>Видеосъемка и монтаж</p>
+              <div class="service-card-content">
+                <h3>Видеограф</h3>
+                <p>Видеосъемка и монтаж</p>
+              </div>
             </div>
             <div class="service-card" onclick="toggleService(this, 'music')">
               <div class="service-icon">
                 <i class="ri-music-2-line"></i>
               </div>
-              <h3>Музыканты</h3>
-              <p>Живая музыка и DJ</p>
+              <div class="service-card-content">
+                <h3>Музыканты</h3>
+                <p>Живая музыка и DJ</p>
+              </div>
             </div>
             <div class="service-card" onclick="toggleService(this, 'host')">
               <div class="service-icon">
                 <i class="ri-mic-line"></i>
               </div>
-              <h3>Ведущий</h3>
-              <p>Тамада и организатор</p>
+              <div class="service-card-content">
+                <h3>Ведущий</h3>
+                <p>Тамада и организатор</p>
+              </div>
             </div>
             <div class="service-card" onclick="toggleService(this, 'dance')">
               <div class="service-icon">
                 <i class="ri-emotion-happy-line"></i>
               </div>
-              <h3>Шоу-программа</h3>
-              <p>Танцоры и артисты</p>
+              <div class="service-card-content">
+                <h3>Шоу-программа</h3>
+                <p>Танцоры и артисты</p>
+              </div>
             </div>
           </div>
           <input type="hidden" name="services" id="selectedServices">
@@ -471,64 +481,181 @@ textarea {
 /* Responsive Styles */
 @media (max-width: 768px) {
   .main {
-    padding: 20px 0;
+    padding: 16px 0;
   }
 
   .order-form {
-    margin: 0 20px;
+    margin: 0 16px;
+    border-radius: var(--radius-md);
   }
 
   .order-header,
   .order-form-container {
-    padding: 20px;
+    padding: 24px;
   }
 
   .order-header h1 {
-    font-size: 1.75rem;
+    font-size: 1.8rem;
   }
 
   .form-grid {
     grid-template-columns: 1fr;
+    gap: 24px;
   }
 
   .services-grid {
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    grid-template-columns: repeat(2, 1fr);
     gap: 16px;
   }
 
   .form-actions {
     flex-direction: column;
+    gap: 16px;
   }
 
   .btn {
     width: 100%;
+    padding: 16px;
+    font-size: 1.1rem;
+  }
+
+  .form-section {
+    padding: 20px;
+    margin-bottom: 24px;
+  }
+
+  .form-label {
+    font-size: 1rem;
+  }
+
+  .form-input,
+  input[type="text"],
+  input[type="number"],
+  input[type="date"],
+  select,
+  textarea {
+    padding: 14px;
+    font-size: 1.1rem;
+  }
+
+  .service-card {
+    padding: 20px;
+  }
+
+  .service-icon {
+    width: 56px;
+    height: 56px;
+    margin-bottom: 20px;
+  }
+
+  .service-icon i {
+    font-size: 28px;
+  }
+
+  .service-card h3 {
+    font-size: 1.2rem;
+    margin-bottom: 12px;
+  }
+
+  .service-card p {
+    font-size: 1rem;
   }
 }
 
 @media (max-width: 480px) {
+  .main {
+    padding: 12px 0;
+  }
+
   .order-form {
-    margin: 0 16px;
+    margin: 0 12px;
+  }
+
+  .order-header {
+    padding: 20px 16px;
   }
 
   .order-header h1 {
-    font-size: 1.5rem;
+    font-size: 1.6rem;
+  }
+
+  .order-header p {
+    font-size: 1rem;
+  }
+
+  .order-form-container {
+    padding: 16px;
   }
 
   .form-section {
     padding: 16px;
+    margin-bottom: 20px;
+  }
+
+  .form-section h2 {
+    font-size: 1.2rem;
+    margin-bottom: 20px;
+  }
+
+  .services-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
   }
 
   .service-card {
-    padding: 16px;
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    text-align: left;
+    gap: 16px;
   }
 
   .service-icon {
-    width: 40px;
-    height: 40px;
+    width: 48px;
+    height: 48px;
+    margin: 0;
   }
 
   .service-icon i {
-    font-size: 20px;
+    font-size: 24px;
+  }
+
+  .service-card-content {
+    flex: 1;
+  }
+
+  .service-card h3 {
+    font-size: 1.1rem;
+    margin-bottom: 4px;
+  }
+
+  .service-card p {
+    font-size: 0.9rem;
+    opacity: 0.8;
+  }
+
+  .form-label {
+    font-size: 1rem;
+  }
+
+  .form-input,
+  input[type="text"],
+  input[type="number"],
+  input[type="date"],
+  select,
+  textarea {
+    padding: 14px;
+    font-size: 1rem;
+  }
+
+  .btn {
+    padding: 14px;
+    font-size: 1rem;
+  }
+
+  .message {
+    padding: 12px;
+    font-size: 0.9rem;
   }
 }
 </style>
