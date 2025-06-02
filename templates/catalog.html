@@ -9,20 +9,28 @@
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
   <style>
+    /* Общие стили */
+    .main {
+      background: #f8faff;
+      min-height: 100vh;
+      padding: 40px 0;
+    }
+
     .catalog-container {
       max-width: 1600px;
       margin: 0 auto;
-      padding: 0 32px;
+      padding: 0 40px;
       display: grid;
-      grid-template-columns: 300px 1fr;
-      gap: 32px;
+      grid-template-columns: 320px 1fr;
+      gap: 40px;
     }
 
+    /* Стили для фильтров */
     .filters-sidebar {
       background: white;
-      border-radius: 16px;
-      padding: 24px;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      border-radius: 24px;
+      padding: 32px;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.06);
       height: fit-content;
       position: sticky;
       top: 100px;
@@ -32,19 +40,30 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 24px;
+      margin-bottom: 32px;
     }
 
     .filters-title {
-      font-size: 1.2rem;
+      font-size: 1.4rem;
       font-weight: 600;
       color: #1a1a1a;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .filters-title i {
+      color: var(--primary-color);
     }
 
     .clear-filters {
       color: var(--primary-color);
       text-decoration: none;
-      font-size: 0.9rem;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      transition: opacity 0.2s;
     }
 
     .filter-section {
@@ -527,20 +546,35 @@
       <!-- Фильтры -->
       <aside class="filters-sidebar">
         <div class="filters-header">
-          <h2 class="filters-title">Фильтры</h2>
-          <a href="{% url 'main:catalog' %}" class="clear-filters">Сбросить</a>
+          <h2 class="filters-title">
+            <i class="ri-filter-3-line"></i>
+            Фильтры
+          </h2>
+          <a href="{% url 'main:catalog' %}" class="clear-filters">
+            <i class="ri-refresh-line"></i>
+            Сбросить
+          </a>
         </div>
 
         <form id="filters-form" method="get">
-          <select name="sort" class="sort-select" onchange="this.form.submit()">
-            <option value="rating" {% if current_filters.sort == 'rating' %}selected{% endif %}>По рейтингу</option>
-            <option value="price_low" {% if current_filters.sort == 'price_low' %}selected{% endif %}>Сначала дешевле</option>
-            <option value="price_high" {% if current_filters.sort == 'price_high' %}selected{% endif %}>Сначала дороже</option>
-            <option value="newest" {% if current_filters.sort == 'newest' %}selected{% endif %}>Сначала новые</option>
-          </select>
+          <div class="filter-section">
+            <h3>
+              <i class="ri-sort-desc"></i>
+              Сортировка
+            </h3>
+            <select name="sort" class="sort-select" onchange="this.form.submit()">
+              <option value="rating" {% if current_filters.sort == 'rating' %}selected{% endif %}>По рейтингу</option>
+              <option value="price_low" {% if current_filters.sort == 'price_low' %}selected{% endif %}>Сначала дешевле</option>
+              <option value="price_high" {% if current_filters.sort == 'price_high' %}selected{% endif %}>Сначала дороже</option>
+              <option value="newest" {% if current_filters.sort == 'newest' %}selected{% endif %}>Сначала новые</option>
+            </select>
+          </div>
 
           <div class="filter-section">
-            <h3>Категория</h3>
+            <h3>
+              <i class="ri-apps-line"></i>
+              Категория
+            </h3>
             <div class="filter-options">
               <label class="filter-option">
                 <input type="radio" name="category" value="photographer" {% if current_filters.category == 'photographer' %}checked{% endif %} onchange="this.form.submit()">
@@ -566,7 +600,10 @@
           </div>
 
           <div class="filter-section">
-            <h3>Город</h3>
+            <h3>
+              <i class="ri-map-pin-line"></i>
+              Город
+            </h3>
             <select name="city" class="sort-select" onchange="this.form.submit()">
               <option value="">Все города</option>
               {% for city in cities %}
@@ -576,7 +613,10 @@
           </div>
 
           <div class="filter-section">
-            <h3>Цена</h3>
+            <h3>
+              <i class="ri-money-dollar-circle-line"></i>
+              Цена
+            </h3>
             <div class="price-range">
               <input type="number" name="min_price" class="price-input" placeholder="От" value="{{ current_filters.min_price }}" onchange="this.form.submit()">
               <input type="number" name="max_price" class="price-input" placeholder="До" value="{{ current_filters.max_price }}" onchange="this.form.submit()">
@@ -584,7 +624,10 @@
           </div>
 
           <div class="filter-section">
-            <h3>Рейтинг</h3>
+            <h3>
+              <i class="ri-star-line"></i>
+              Рейтинг
+            </h3>
             <div class="rating-options">
               <label class="rating-option">
                 <input type="radio" name="rating" value="4" {% if current_filters.rating == '4' %}checked{% endif %} onchange="this.form.submit()">
@@ -604,7 +647,10 @@
           </div>
 
           <div class="filter-section">
-            <h3>Дата</h3>
+            <h3>
+              <i class="ri-calendar-line"></i>
+              Дата
+            </h3>
             <input type="date" name="date" class="sort-select" value="{{ current_filters.date }}" onchange="this.form.submit()">
           </div>
         </form>
