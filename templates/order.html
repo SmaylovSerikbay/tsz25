@@ -683,32 +683,80 @@ textarea {
   }
 }
 
-/* Добавляем специальные стили для футера */
-.footer .container {
-  padding: 0 16px;
+/* Footer Styles */
+.footer {
+  background: white;
+  border-top: 1px solid var(--gray-200);
 }
 
 .footer-content {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 40px;
   padding: 40px 0;
 }
 
+.footer-section h3 {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: var(--gray-900);
+  margin-bottom: 16px;
+}
+
+.footer-section p {
+  color: var(--gray-600);
+  line-height: 1.6;
+  margin-bottom: 8px;
+}
+
+.social-links {
+  display: flex;
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.social-links a {
+  color: var(--primary-color);
+  font-size: 24px;
+  transition: all 0.2s;
+}
+
+.social-links a:hover {
+  color: var(--primary-dark);
+  transform: translateY(-2px);
+}
+
+.footer-bottom {
+  border-top: 1px solid var(--gray-200);
+  padding: 20px 0;
+  text-align: center;
+  color: var(--gray-600);
+  font-size: 0.9rem;
+}
+
 @media (max-width: 768px) {
-  .footer .container {
-    padding: 0 16px;
-  }
-  
   .footer-content {
+    gap: 32px;
     padding: 32px 0;
   }
 }
 
 @media (max-width: 480px) {
-  .footer .container {
-    padding: 0 16px;
-  }
-  
   .footer-content {
+    gap: 24px;
     padding: 24px 0;
+  }
+
+  .footer-section h3 {
+    font-size: 1.1rem;
+  }
+
+  .social-links {
+    gap: 24px;
+  }
+
+  .social-links a {
+    font-size: 28px;
   }
 }
 
