@@ -546,6 +546,7 @@ body {
         height: 40px;
         border-radius: var(--border-radius);
         transition: var(--transition);
+        z-index: 1002;
     }
 
     .mobile-menu-toggle:hover {
@@ -582,6 +583,7 @@ body {
         flex-direction: column;
         gap: var(--spacing-sm);
         overflow-y: auto;
+        z-index: 1001;
     }
 
     .nav.active {
@@ -628,23 +630,15 @@ body {
         margin-top: var(--spacing-xs);
         padding: var(--spacing-xs);
         display: none;
+        opacity: 1;
+        visibility: visible;
+        transform: none;
     }
 
     .nav-dropdown-menu.active {
         display: block;
-        animation: slideDown 0.3s ease;
     }
 
-    .nav-dropdown-menu a {
-        padding: var(--spacing-md);
-        border-radius: var(--border-radius);
-    }
-
-    .nav-dropdown-menu a:hover {
-        background: white;
-    }
-
-    /* Overlay when menu is open */
     .menu-overlay {
         display: none;
         position: fixed;
@@ -653,7 +647,7 @@ body {
         right: 0;
         bottom: 0;
         background: rgba(0,0,0,0.5);
-        z-index: 999;
+        z-index: 1000;
         opacity: 0;
         transition: var(--transition);
     }
