@@ -252,8 +252,6 @@ body {
     justify-content: space-between;
     gap: var(--spacing-lg);
     padding: 0 var(--spacing-lg);
-    position: relative;
-    z-index: inherit;
 }
 
 .logo {
@@ -261,15 +259,9 @@ body {
     display: flex;
     align-items: center;
     gap: var(--spacing-sm);
-    position: relative;
-    z-index: 1002;
-}
-
-.logo-text {
     font-size: 1.5rem;
     font-weight: 700;
     color: var(--primary-color);
-    white-space: nowrap;
 }
 
 .nav {
@@ -288,11 +280,6 @@ body {
     display: flex;
     align-items: center;
     gap: var(--spacing-sm);
-}
-
-.nav-link i {
-    font-size: 1.2rem;
-    color: var(--primary-color);
 }
 
 .nav-link:hover {
@@ -604,7 +591,7 @@ body {
     max-width: 400px;
     height: 100vh;
     background: white;
-    padding: 0;
+    padding: calc(var(--header-height) + var(--spacing-md)) var(--spacing-lg) var(--spacing-lg);
     overflow-y: auto;
     transition: right 0.3s ease;
     box-shadow: -2px 0 10px rgba(0, 0, 0, 0.1);
@@ -619,7 +606,6 @@ body {
 .mobile-nav {
     display: flex;
     flex-direction: column;
-    padding: calc(var(--header-height) + var(--spacing-md)) var(--spacing-lg) var(--spacing-lg);
     gap: var(--spacing-md);
 }
 
@@ -754,7 +740,7 @@ body {
         height: 60px;
     }
 
-    .logo-text {
+    .logo {
         font-size: 1.2rem;
     }
 
@@ -855,12 +841,13 @@ body {
         padding: 0 var(--spacing-sm);
     }
 
-    .logo-text {
+    .logo {
         font-size: 1.1rem;
     }
 
     .mobile-menu-content {
         width: 100%;
+        max-width: none;
     }
 
     .mobile-nav {
@@ -2656,7 +2643,6 @@ body {
 .form-input:focus {
     border-color: var(--primary-color);
     outline: none;
-    box-shadow: 0 0 0 3px var(--primary-light);
 }
 
 .form-input::placeholder {
