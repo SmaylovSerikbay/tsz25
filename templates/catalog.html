@@ -348,27 +348,179 @@
       border-top: 1px solid #e5e7eb;
       color: #666;
     }
+
+    /* Mobile Responsive Styles */
+    @media (max-width: 768px) {
+      .catalog-container {
+        grid-template-columns: 1fr;
+        padding: 20px;
+      }
+
+      .filters-sidebar {
+        position: fixed;
+        top: 0;
+        left: -100%;
+        width: 85%;
+        max-width: 300px;
+        height: 100vh;
+        z-index: 999;
+        transition: left 0.3s ease;
+        border-radius: 0;
+        padding: 20px;
+        background: white;
+      }
+
+      .filters-sidebar.active {
+        left: 0;
+      }
+
+      .mobile-filters-toggle {
+        display: flex;
+        margin-bottom: 20px;
+      }
+
+      .catalog-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 16px;
+      }
+
+      .performer-card {
+        margin-bottom: 16px;
+      }
+
+      .performer-image {
+        height: 180px;
+      }
+
+      .performer-info {
+        padding: 16px;
+      }
+
+      .desktop-nav {
+        display: none;
+      }
+
+      .mobile-menu-toggle {
+        display: flex;
+      }
+
+      .filters-overlay {
+        display: block;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .catalog-container {
+        padding: 16px;
+      }
+
+      .catalog-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .performer-image {
+        height: 160px;
+      }
+
+      .performer-info {
+        padding: 12px;
+      }
+
+      .performer-meta {
+        flex-direction: column;
+        gap: 8px;
+      }
+
+      .performer-actions {
+        flex-direction: column;
+        gap: 8px;
+      }
+
+      .performer-actions .btn {
+        width: 100%;
+      }
+    }
   </style>
 </head>
 <body>
   <header class="header">
     <div class="container">
       <a href="{% url 'main:index' %}" class="logo">Той со звездой</a>
-      <nav class="nav">
-        <a href="{% url 'main:index' %}" class="nav-link">Главная</a>
-        <a href="{% url 'main:catalog' %}" class="nav-link">Исполнители</a>
+      <nav class="nav desktop-nav">
+        <a href="{% url 'main:index' %}" class="nav-link">
+          <i class="ri-home-line"></i>
+          Главная
+        </a>
+        <a href="{% url 'main:catalog' %}" class="nav-link">
+          <i class="ri-user-star-line"></i>
+          Исполнители
+        </a>
         {% if user.is_authenticated %}
           {% if user.user_type == 'customer' %}
-            <a href="{% url 'main:create_order' %}" class="nav-link">Создать заявку</a>
+            <a href="{% url 'main:create_order' %}" class="nav-link">
+              <i class="ri-add-circle-line"></i>
+              Создать заявку
+            </a>
           {% endif %}
-          <a href="{% url 'main:dashboard' %}" class="nav-link">Личный кабинет</a>
-          <a href="{% url 'main:logout' %}" class="nav-link">Выйти</a>
+          <a href="{% url 'main:dashboard' %}" class="nav-link">
+            <i class="ri-dashboard-line"></i>
+            Личный кабинет
+          </a>
+          <a href="{% url 'main:logout' %}" class="nav-link">
+            <i class="ri-logout-box-line"></i>
+            Выйти
+          </a>
         {% else %}
-          <a href="{% url 'main:auth' %}" class="nav-link">Войти</a>
+          <a href="{% url 'main:auth' %}" class="nav-link">
+            <i class="ri-login-box-line"></i>
+            Войти
+          </a>
+        {% endif %}
+      </nav>
+      <button class="mobile-menu-toggle" onclick="toggleMobileMenu()">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Mobile Menu -->
+  <div class="mobile-menu">
+    <div class="mobile-menu-content">
+      <nav class="mobile-nav">
+        <a href="{% url 'main:index' %}" class="mobile-nav-link">
+          <i class="ri-home-line"></i>
+          Главная
+        </a>
+        <a href="{% url 'main:catalog' %}" class="mobile-nav-link">
+          <i class="ri-user-star-line"></i>
+          Исполнители
+        </a>
+        {% if user.is_authenticated %}
+          {% if user.user_type == 'customer' %}
+            <a href="{% url 'main:create_order' %}" class="mobile-nav-link">
+              <i class="ri-add-circle-line"></i>
+              Создать заявку
+            </a>
+          {% endif %}
+          <a href="{% url 'main:dashboard' %}" class="mobile-nav-link">
+            <i class="ri-dashboard-line"></i>
+            Личный кабинет
+          </a>
+          <a href="{% url 'main:logout' %}" class="mobile-nav-link">
+            <i class="ri-logout-box-line"></i>
+            Выйти
+          </a>
+        {% else %}
+          <a href="{% url 'main:auth' %}" class="mobile-nav-link">
+            <i class="ri-login-box-line"></i>
+            Войти
+          </a>
         {% endif %}
       </nav>
     </div>
-  </header>
+  </div>
 
   <main class="main">
     <div class="catalog-container">
@@ -542,6 +694,60 @@
       const dateInput = document.querySelector('input[type="date"]');
       const today = new Date();
       dateInput.min = today.toISOString().split('T')[0];
+    });
+
+    // Add mobile menu toggle functionality
+    function toggleMobileMenu() {
+      const mobileMenu = document.querySelector('.mobile-menu');
+      const mobileMenuToggle = document.querySelector('.mobile-menu-toggle');
+      
+      mobileMenu.classList.toggle('active');
+      mobileMenuToggle.classList.toggle('active');
+      
+      if (mobileMenu.classList.contains('active')) {
+        document.body.style.overflow = 'hidden';
+      } else {
+        document.body.style.overflow = 'auto';
+      }
+    }
+
+    // Add filters toggle functionality
+    function toggleFilters() {
+      const filtersSidebar = document.querySelector('.filters-sidebar');
+      const filtersOverlay = document.querySelector('.filters-overlay');
+      
+      filtersSidebar.classList.toggle('active');
+      filtersOverlay.classList.toggle('active');
+      
+      if (filtersSidebar.classList.contains('active')) {
+        document.body.style.overflow = 'hidden';
+      } else {
+        document.body.style.overflow = 'auto';
+      }
+    }
+
+    // Close mobile menu and filters when clicking outside
+    document.addEventListener('click', function(event) {
+      const mobileMenu = document.querySelector('.mobile-menu');
+      const mobileMenuToggle = document.querySelector('.mobile-menu-toggle');
+      const filtersSidebar = document.querySelector('.filters-sidebar');
+      const filtersOverlay = document.querySelector('.filters-overlay');
+      
+      if (mobileMenu.classList.contains('active') && 
+          !event.target.closest('.mobile-menu-content') && 
+          !event.target.closest('.mobile-menu-toggle')) {
+        mobileMenu.classList.remove('active');
+        mobileMenuToggle.classList.remove('active');
+        document.body.style.overflow = 'auto';
+      }
+      
+      if (filtersSidebar.classList.contains('active') && 
+          !event.target.closest('.filters-sidebar') && 
+          !event.target.closest('.mobile-filters-toggle')) {
+        filtersSidebar.classList.remove('active');
+        filtersOverlay.classList.remove('active');
+        document.body.style.overflow = 'auto';
+      }
     });
   </script>
 </body>

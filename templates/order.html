@@ -297,20 +297,126 @@
       border-top: 1px solid #e5e7eb;
       color: #666;
     }
+
+    /* Mobile Responsive Styles */
+    @media (max-width: 768px) {
+      .order-form {
+        margin: 20px;
+        padding: 20px;
+      }
+
+      .order-header h1 {
+        font-size: 1.5rem;
+      }
+
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .services-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 16px;
+      }
+
+      .service-card {
+        padding: 16px;
+      }
+
+      .btn-group {
+        flex-direction: column;
+      }
+
+      .btn {
+        width: 100%;
+      }
+
+      .desktop-nav {
+        display: none;
+      }
+
+      .mobile-menu-toggle {
+        display: flex;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .order-form {
+        margin: 16px;
+        padding: 16px;
+      }
+
+      .services-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .form-input {
+        padding: 10px;
+      }
+
+      .service-card {
+        padding: 12px;
+      }
+
+      .service-icon {
+        width: 20px;
+        height: 20px;
+      }
+    }
   </style>
 </head>
 <body>
   <header class="header">
     <div class="container">
       <a href="{% url 'main:index' %}" class="logo">Той со звездой</a>
-      <nav class="nav">
-        <a href="{% url 'main:index' %}" class="nav-link">Главная</a>
-        <a href="{% url 'main:catalog' %}" class="nav-link">Исполнители</a>
-        <a href="{% url 'main:dashboard' %}" class="nav-link">Личный кабинет</a>
-        <a href="{% url 'main:logout' %}" class="nav-link">Выйти</a>
+      <nav class="nav desktop-nav">
+        <a href="{% url 'main:index' %}" class="nav-link">
+          <i class="ri-home-line"></i>
+          Главная
+        </a>
+        <a href="{% url 'main:catalog' %}" class="nav-link">
+          <i class="ri-user-star-line"></i>
+          Исполнители
+        </a>
+        <a href="{% url 'main:dashboard' %}" class="nav-link">
+          <i class="ri-dashboard-line"></i>
+          Личный кабинет
+        </a>
+        <a href="{% url 'main:logout' %}" class="nav-link">
+          <i class="ri-logout-box-line"></i>
+          Выйти
+        </a>
       </nav>
+      <button class="mobile-menu-toggle" onclick="toggleMobileMenu()">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
     </div>
   </header>
+
+  <!-- Mobile Menu -->
+  <div class="mobile-menu">
+    <div class="mobile-menu-content">
+      <nav class="mobile-nav">
+        <a href="{% url 'main:index' %}" class="mobile-nav-link">
+          <i class="ri-home-line"></i>
+          Главная
+        </a>
+        <a href="{% url 'main:catalog' %}" class="mobile-nav-link">
+          <i class="ri-user-star-line"></i>
+          Исполнители
+        </a>
+        <a href="{% url 'main:dashboard' %}" class="mobile-nav-link">
+          <i class="ri-dashboard-line"></i>
+          Личный кабинет
+        </a>
+        <a href="{% url 'main:logout' %}" class="mobile-nav-link">
+          <i class="ri-logout-box-line"></i>
+          Выйти
+        </a>
+      </nav>
+    </div>
+  </div>
 
   <main class="main">
     <div class="container">
