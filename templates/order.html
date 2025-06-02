@@ -250,7 +250,7 @@
         width: 100%;
         padding: 14px;
       }
-    }
+      }
 
     @media (max-width: 480px) {
       .order-form {
@@ -635,9 +635,9 @@
     // Выбранные услуги
     let selectedServices = new Set();
     
-    {% if is_edit and order.services %}
+        {% if is_edit and order.services %}
       selectedServices = new Set({{ order.services|safe }});
-    {% endif %}
+        {% endif %}
 
     function toggleService(element, service) {
       element.classList.toggle('selected');
@@ -646,39 +646,39 @@
       } else {
         selectedServices.add(service);
       }
-      // Обновляем значение скрытого поля
-      document.getElementById('selectedServices').value = JSON.stringify(Array.from(selectedServices));
+        // Обновляем значение скрытого поля
+        document.getElementById('selectedServices').value = JSON.stringify(Array.from(selectedServices));
     }
 
     // Инициализация выбранных услуг при редактировании
     document.addEventListener('DOMContentLoaded', function() {
-      if (selectedServices.size > 0) {
-        selectedServices.forEach(service => {
-          const serviceCard = document.querySelector(`.service-card[onclick*="${service}"]`);
-          if (serviceCard) {
-            serviceCard.classList.add('selected');
-          }
-        });
-        // Устанавливаем начальное значение скрытого поля
-        document.getElementById('selectedServices').value = JSON.stringify(Array.from(selectedServices));
-      }
+        if (selectedServices.size > 0) {
+            selectedServices.forEach(service => {
+                const serviceCard = document.querySelector(`.service-card[onclick*="${service}"]`);
+                if (serviceCard) {
+                    serviceCard.classList.add('selected');
+                }
+            });
+            // Устанавливаем начальное значение скрытого поля
+            document.getElementById('selectedServices').value = JSON.stringify(Array.from(selectedServices));
+        }
     });
 
     // Проверяем наличие услуг перед отправкой формы
     document.querySelector('form').addEventListener('submit', function(event) {
       if (selectedServices.size === 0) {
-        event.preventDefault();
+            event.preventDefault();
         alert('Пожалуйста, выберите хотя бы одну услугу');
-      }
+        }
     });
 
     // Устанавливаем минимальную дату
     document.addEventListener('DOMContentLoaded', function() {
-      const dateInput = document.querySelector('input[type="date"]');
-      const today = new Date();
-      const tomorrow = new Date(today);
-      tomorrow.setDate(tomorrow.getDate() + 1);
-      dateInput.min = tomorrow.toISOString().split('T')[0];
+        const dateInput = document.querySelector('input[type="date"]');
+        const today = new Date();
+        const tomorrow = new Date(today);
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        dateInput.min = tomorrow.toISOString().split('T')[0];
     });
   </script>
 

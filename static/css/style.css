@@ -792,7 +792,7 @@ body {
 
     .mobile-nav-dropdown-menu .mobile-nav-link {
         margin-bottom: var(--spacing-xs);
-    }
+}
 
     /* Dashboard specific mobile styles */
     .dashboard-container {
@@ -1513,7 +1513,7 @@ body {
         border-right: none;
         border-bottom: 1px solid #e5e7eb;
         padding: 16px;
-    }
+}
 
     .dashboard-main {
         margin-left: 0;
@@ -1526,7 +1526,7 @@ body {
 
     .form-grid {
         grid-template-columns: 1fr;
-    }
+}
 
     .dashboard-table {
         display: block;
@@ -1542,11 +1542,11 @@ body {
 @media (max-width: 480px) {
     .dashboard-main {
         padding: 16px;
-    }
+}
 
     .dashboard-grid {
         grid-template-columns: 1fr;
-    }
+}
 
     .stat-card {
         padding: 20px;
@@ -1556,17 +1556,17 @@ body {
         width: 40px;
         height: 40px;
         font-size: 1.2rem;
-    }
+}
 
     .dashboard-table th,
     .dashboard-table td {
         padding: 12px;
-        font-size: 0.9rem;
-    }
+    font-size: 0.9rem;
+}
 
     .dashboard-form {
         padding: 16px;
-    }
+}
 
     .form-input {
         padding: 10px;
