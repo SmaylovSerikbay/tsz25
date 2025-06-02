@@ -320,6 +320,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Profile Page Functionality
     initializeProfile();
+
+    // Order Form Functionality
+    initializeOrderForm();
 });
 
 // Profile Page Functionality
@@ -533,5 +536,217 @@ function initializeProfile() {
                 showNotification('Ошибка при сохранении профиля', 'error');
             });
         });
+    }
+}
+
+// Order Form Functionality
+function initializeOrderForm() {
+    const orderForm = document.querySelector('.order-form');
+    const serviceCards = document.querySelectorAll('.service-card');
+    const budgetInputs = document.querySelectorAll('.budget-range input');
+    const dateInput = document.querySelector('input[type="date"]');
+    const timeInput = document.querySelector('input[type="time"]');
+    const submitBtn = document.querySelector('.btn.accent[type="submit"]');
+    const progressSteps = document.querySelectorAll('.progress-step');
+
+    // Service card selection
+    serviceCards.forEach(card => {
+        card.addEventListener('click', function() {
+            const input = this.querySelector('input[type="radio"]');
+            if (input) {
+                // Deselect all cards
+                serviceCards.forEach(c => c.classList.remove('selected'));
+                // Select clicked card
+                this.classList.add('selected');
+                input.checked = true;
+                
+                // Trigger validation
+                validateForm();
+            }
+        });
+    });
+
+    // Budget range validation and formatting
+    if (budgetInputs.length === 2) {
+        const [minInput, maxInput] = budgetInputs;
+
+        function formatNumber(value) {
+            return new Intl.NumberFormat('ru-RU').format(value);
+        }
+
+        function parseNumber(value) {
+            return parseInt(value.replace(/[^\d]/g, ''));
+        }
+
+        function updateBudgetInputs() {
+            let min = parseNumber(minInput.value) || 0;
+            let max = parseNumber(maxInput.value) || 0;
+
+            if (max && min > max) {
+                [min, max] = [max, min];
+            }
+
+            minInput.value = min ? formatNumber(min) : '';
+            maxInput.value = max ? formatNumber(max) : '';
+        }
+
+        budgetInputs.forEach(input => {
+            input.addEventListener('input', function() {
+                this.value = this.value.replace(/[^\d]/g, '');
+                updateBudgetInputs();
+                validateForm();
+            });
+
+            input.addEventListener('blur', updateBudgetInputs);
+        });
+    }
+
+    // Date and time validation
+    if (dateInput) {
+        // Set minimum date to today
+        const today = new Date();
+        const yyyy = today.getFullYear();
+        const mm = String(today.getMonth() + 1).padStart(2, '0');
+        const dd = String(today.getDate()).padStart(2, '0');
+        dateInput.min = `${yyyy}-${mm}-${dd}`;
+
+        dateInput.addEventListener('change', validateForm);
+    }
+
+    if (timeInput) {
+        timeInput.addEventListener('change', validateForm);
+    }
+
+    // Form validation
+    function validateForm() {
+        let isValid = true;
+        const errors = new Map();
+
+        // Required fields validation
+        orderForm.querySelectorAll('[required]').forEach(field => {
+            if (!field.value.trim()) {
+                isValid = false;
+                errors.set(field, 'Это поле обязательно для заполнения');
+            }
+        });
+
+        // Service selection validation
+        const selectedService = orderForm.querySelector('input[name="service"]:checked');
+        if (!selectedService) {
+            isValid = false;
+            errors.set(document.querySelector('.services-grid'), 'Выберите услугу');
+        }
+
+        // Budget validation
+        if (budgetInputs.length === 2) {
+            const [minInput, maxInput] = budgetInputs;
+            const min = parseNumber(minInput.value);
+            const max = parseNumber(maxInput.value);
+
+            if (min && max && min > max) {
+                isValid = false;
+                errors.set(maxInput, 'Максимальный бюджет должен быть больше минимального');
+            }
+        }
+
+        // Date validation
+        if (dateInput && dateInput.value) {
+            const selectedDate = new Date(dateInput.value);
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+
+            if (selectedDate < today) {
+                isValid = false;
+                errors.set(dateInput, 'Дата не может быть в прошлом');
+            }
+        }
+
+        // Display errors
+        orderForm.querySelectorAll('.error-message').forEach(msg => msg.remove());
+        orderForm.querySelectorAll('.form-input').forEach(input => {
+            input.classList.remove('error');
+        });
+
+        errors.forEach((message, element) => {
+            element.classList.add('error');
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'error-message';
+            errorDiv.innerHTML = `<i class="ri-error-warning-line"></i>${message}`;
+            element.parentNode.appendChild(errorDiv);
+        });
+
+        // Update submit button state
+        if (submitBtn) {
+            submitBtn.disabled = !isValid;
+            submitBtn.style.opacity = isValid ? '1' : '0.7';
+        }
+
+        return isValid;
+    }
+
+    // Form submission
+    if (orderForm) {
+        orderForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            if (validateForm()) {
+                const formData = new FormData(this);
+                
+                // Show loading state
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<i class="ri-loader-4-line"></i> Отправка...';
+
+                fetch(this.action, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-CSRFToken': formData.get('csrfmiddlewaretoken')
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        showNotification('Заявка успешно отправлена', 'success');
+                        setTimeout(() => {
+                            window.location.href = data.redirect_url;
+                        }, 1500);
+                    } else {
+                        showNotification(data.message || 'Ошибка при отправке заявки', 'error');
+                        submitBtn.disabled = false;
+                        submitBtn.innerHTML = 'Отправить заявку';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showNotification('Ошибка при отправке заявки', 'error');
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = 'Отправить заявку';
+                });
+            }
+        });
+
+        // Initial validation
+        validateForm();
+    }
+
+    // Progress steps animation
+    function updateProgressSteps() {
+        const validSections = Array.from(document.querySelectorAll('.form-section')).map(section => {
+            const inputs = section.querySelectorAll('input, select, textarea');
+            return Array.from(inputs).every(input => input.value.trim());
+        });
+
+        progressSteps.forEach((step, index) => {
+            if (validSections[index]) {
+                step.classList.add('completed');
+            } else {
+                step.classList.remove('completed');
+            }
+        });
+    }
+
+    if (progressSteps.length) {
+        orderForm.addEventListener('input', updateProgressSteps);
+        updateProgressSteps();
     }
 } 
