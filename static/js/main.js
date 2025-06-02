@@ -13,10 +13,6 @@ document.addEventListener('DOMContentLoaded', function() {
             menuOverlay = document.createElement('div');
             menuOverlay.className = 'menu-overlay';
             document.body.appendChild(menuOverlay);
-
-            menuOverlay.addEventListener('click', () => {
-                closeMobileMenu();
-            });
         }
     }
 
@@ -27,15 +23,60 @@ document.addEventListener('DOMContentLoaded', function() {
         mobileMenuToggle.addEventListener('click', function(e) {
             e.preventDefault();
             e.stopPropagation();
-            const isOpen = nav.classList.contains('active');
-            
-            if (isOpen) {
-                closeMobileMenu();
-            } else {
-                openMobileMenu();
+            toggleMobileMenu();
+        });
+
+        // Close menu when clicking overlay
+        menuOverlay.addEventListener('click', closeMobileMenu);
+    }
+
+    function toggleMobileMenu() {
+        const isOpen = nav.classList.contains('active');
+        if (isOpen) {
+            closeMobileMenu();
+        } else {
+            openMobileMenu();
+        }
+    }
+
+    function openMobileMenu() {
+        nav.classList.add('active');
+        menuOverlay.classList.add('active');
+        mobileMenuToggle.classList.add('active');
+        body.style.overflow = 'hidden';
+        
+        const icon = mobileMenuToggle.querySelector('i');
+        if (icon) {
+            icon.className = 'ri-close-line';
+        }
+    }
+
+    function closeMobileMenu() {
+        nav.classList.remove('active');
+        menuOverlay.classList.remove('active');
+        mobileMenuToggle.classList.remove('active');
+        body.style.overflow = '';
+        
+        const icon = mobileMenuToggle.querySelector('i');
+        if (icon) {
+            icon.className = 'ri-menu-line';
+        }
+
+        // Close all dropdowns when closing menu
+        dropdowns.forEach(dropdown => {
+            const menu = dropdown.querySelector('.nav-dropdown-menu');
+            if (menu) {
+                menu.classList.remove('active');
             }
         });
     }
+
+    // Close menu on window resize
+    window.addEventListener('resize', function() {
+        if (window.innerWidth > 768) {
+            closeMobileMenu();
+        }
+    });
 
     // Enhanced dropdown handling
     dropdowns.forEach(dropdown => {
@@ -74,30 +115,6 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         }
     });
-
-    function openMobileMenu() {
-        nav.classList.add('active');
-        mobileMenuToggle.classList.add('active');
-        menuOverlay.classList.add('active');
-        body.style.overflow = 'hidden';
-        
-        const icon = mobileMenuToggle.querySelector('i');
-        if (icon) {
-            icon.className = 'ri-close-line';
-        }
-    }
-
-    function closeMobileMenu() {
-        nav.classList.remove('active');
-        mobileMenuToggle.classList.remove('active');
-        menuOverlay.classList.remove('active');
-        body.style.overflow = '';
-        
-        const icon = mobileMenuToggle.querySelector('i');
-        if (icon) {
-            icon.className = 'ri-menu-line';
-        }
-    }
 
     // Handle window resize
     window.addEventListener('resize', function() {
