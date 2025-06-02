@@ -859,6 +859,11 @@ function initializeOrderForm() {
 
 // Catalog Page Functionality
 function initializeCatalog() {
+    const catalogGrid = document.querySelector('.catalog-grid');
+    
+    // Only initialize catalog functionality if we're on a page with catalog grid
+    if (!catalogGrid) return;
+
     const filtersForm = document.querySelector('.filters-form');
     const mobileFiltersToggle = document.querySelector('.mobile-filters-toggle');
     const filtersSidebar = document.querySelector('.filters-sidebar');
@@ -867,7 +872,6 @@ function initializeCatalog() {
     const sortSelect = document.querySelector('.sort-select');
     const priceInputs = document.querySelectorAll('.price-input');
     const filterSections = document.querySelectorAll('.filter-section');
-    const catalogGrid = document.querySelector('.catalog-grid');
 
     // Mobile filters toggle
     if (mobileFiltersToggle && filtersSidebar && filtersOverlay) {
@@ -1013,7 +1017,7 @@ function initializeCatalog() {
     const loadMoreThreshold = 300;
 
     function loadMorePerformers() {
-        if (loading) return;
+        if (!catalogGrid || loading) return;
         
         const lastCard = catalogGrid.lastElementChild;
         if (!lastCard) return;
@@ -1049,12 +1053,6 @@ function initializeCatalog() {
                     const newPerformers = temp.querySelectorAll('.performer-card');
                     newPerformers.forEach(performer => {
                         catalogGrid.appendChild(performer);
-                        
-                        // Initialize lazy loading for new images
-                        const img = performer.querySelector('.performer-image[data-src]');
-                        if (img) {
-                            imageObserver.observe(img);
-                        }
                     });
                     
                     loading = false;
