@@ -7,6 +7,13 @@
 <div class="auth-container">
     <div class="auth-form">
         <h2>Регистрация</h2>
+        {% if messages %}
+          <div class="messages">
+            {% for message in messages %}
+              <div class="message {{ message.tags }}">{{ message }}</div>
+            {% endfor %}
+          </div>
+        {% endif %}
         <form method="post" action="{% url 'register' %}">
             {% csrf_token %}
             <div class="form-group">
@@ -29,6 +36,10 @@
                 <input type="tel" id="phone_number" name="phone_number">
             </div>
             <div class="form-group">
+                <label for="city">Город:</label>
+                <input type="text" id="city" name="city" required>
+            </div>
+            <div class="form-group">
                 <label for="password1">Пароль:</label>
                 <input type="password" id="password1" name="password1" required>
             </div>
@@ -36,6 +47,34 @@
                 <label for="password2">Подтвердите пароль:</label>
                 <input type="password" id="password2" name="password2" required>
             </div>
+            <div class="form-group performer-only" style="display:none;">
+                <label for="service_type">Специализация:</label>
+                <select id="service_type" name="service_type">
+                    <option value="">Выберите специализацию</option>
+                    <option value="photo">Фотограф</option>
+                    <option value="video">Видеограф</option>
+                    <option value="music">Музыкант</option>
+                    <option value="host">Ведущий</option>
+                    <option value="dance">Шоу-программа</option>
+                </select>
+            </div>
+            <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                const userTypeSelect = document.querySelector('select[name="user_type"]');
+                const performerFields = document.querySelector('.form-group.performer-only');
+                function togglePerformerFields() {
+                    if (userTypeSelect.value === 'performer') {
+                        performerFields.style.display = '';
+                        performerFields.querySelector('select').setAttribute('required', 'required');
+                    } else {
+                        performerFields.style.display = 'none';
+                        performerFields.querySelector('select').removeAttribute('required');
+                    }
+                }
+                userTypeSelect.addEventListener('change', togglePerformerFields);
+                togglePerformerFields();
+            });
+            </script>
             <button type="submit" class="btn">Зарегистрироваться</button>
         </form>
         <p class="auth-links">
@@ -43,4 +82,121 @@
         </p>
     </div>
 </div>
+
+<!-- Mobile Menu -->
+<div class="mobile-menu">
+  <div class="mobile-menu-content">
+    <nav class="mobile-nav">
+      <a href="{% url 'main:index' %}" class="mobile-nav-link">
+        <i class="ri-home-line"></i>
+        <span>Главная</span>
+      </a>
+      <a href="{% url 'main:catalog' %}" class="mobile-nav-link">
+        <i class="ri-user-star-line"></i>
+        <span>Исполнители</span>
+      </a>
+      {% if user.is_authenticated %}
+        {% if user.user_type == 'customer' %}
+          <a href="{% url 'main:create_order' %}" class="mobile-nav-link">
+            <i class="ri-add-circle-line"></i>
+            <span>Создать заявку</span>
+          </a>
+        {% endif %}
+        <a href="{% url 'main:dashboard' %}" class="mobile-nav-link">
+          <i class="ri-dashboard-line"></i>
+          <span>Личный кабинет</span>
+        </a>
+        <div class="mobile-nav-dropdown">
+          <button class="mobile-nav-dropdown-toggle">
+            <div class="user-info">
+              {% if user.profile_photo %}
+                <img src="{{ user.profile_photo.url }}" alt="{{ user.get_full_name }}" class="nav-avatar">
+              {% else %}
+                <i class="ri-user-line"></i>
+              {% endif %}
+              <span>{{ user.get_full_name|default:user.phone_number }}</span>
+            </div>
+            <i class="ri-arrow-down-s-line"></i>
+          </button>
+          <div class="mobile-nav-dropdown-menu">
+            <a href="{% url 'main:profile_settings' %}" class="mobile-nav-link">
+              <i class="ri-settings-line"></i>
+              <span>Настройки</span>
+            </a>
+            <a href="{% url 'main:logout' %}" class="mobile-nav-link">
+              <i class="ri-logout-box-line"></i>
+              <span>Выйти</span>
+            </a>
+          </div>
+        </div>
+      {% else %}
+        <a href="{% url 'main:auth' %}" class="mobile-nav-link auth-link">
+          <i class="ri-login-box-line"></i>
+          <span>Войти по номеру телефона</span>
+        </a>
+      {% endif %}
+    </nav>
+  </div>
+</div>
+
+<header class="header">
+  <div class="container">
+    <a href="{% url 'main:index' %}" class="logo">Той со звездой</a>
+    <nav class="nav desktop-nav">
+      <a href="{% url 'main:index' %}" class="nav-link">
+        <i class="ri-home-line"></i>
+        <span>Главная</span>
+      </a>
+      <a href="{% url 'main:catalog' %}" class="nav-link">
+        <i class="ri-group-line"></i>
+        <span>Исполнители</span>
+      </a>
+      {% if user.is_authenticated %}
+        {% if user.user_type == 'customer' %}
+          <a href="{% url 'main:create_order' %}" class="nav-link">
+            <i class="ri-add-circle-line"></i>
+            <span>Создать заявку</span>
+          </a>
+        {% endif %}
+        <a href="{% url 'main:dashboard' %}" class="nav-link">
+          <i class="ri-dashboard-line"></i>
+          <span>Личный кабинет</span>
+        </a>
+        <div class="nav-dropdown">
+          <button class="nav-dropdown-toggle">
+            <div class="user-info">
+              {% if user.profile_photo %}
+                <img src="{{ user.profile_photo.url }}" alt="{{ user.get_full_name }}" class="nav-avatar">
+              {% else %}
+                <i class="ri-user-line"></i>
+              {% endif %}
+              <span>{{ user.get_full_name|default:user.phone_number }}</span>
+            </div>
+            <i class="ri-arrow-down-s-line"></i>
+          </button>
+          <div class="nav-dropdown-menu">
+            <a href="{% url 'main:profile_settings' %}">
+              <i class="ri-settings-line"></i>
+              <span>Настройки</span>
+            </a>
+            <a href="{% url 'main:logout' %}">
+              <i class="ri-logout-box-line"></i>
+              <span>Выйти</span>
+            </a>
+          </div>
+        </div>
+      {% else %}
+        <a href="{% url 'main:auth' %}" class="nav-link auth-link">
+          <i class="ri-login-box-line"></i>
+          <span>Войти по номеру телефона</span>
+        </a>
+      {% endif %}
+    </nav>
+    <button class="mobile-menu-toggle" aria-label="Открыть меню">
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
+  </div>
+</header>
 {% endblock %} 

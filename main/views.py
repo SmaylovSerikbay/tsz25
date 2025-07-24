@@ -9,7 +9,10 @@ from .forms import UserRegistrationForm, UserProfileForm, OrderForm, ReviewForm,
 from .services import WhatsAppOTPService
 import json
 from datetime import datetime, timedelta
-from django.views.decorators.http import require_http_methods
+from django.views.decorators.http import require_http_methods, require_GET, require_POST
+from django.views.decorators.csrf import csrf_exempt
+
+SERVICE_TYPE_CODES = {'photo', 'video', 'music', 'host', 'dance'}
 
 def index(request):
     if request.user.is_authenticated:
@@ -33,43 +36,72 @@ def auth_page(request):
 
 def register(request):
     if request.method == 'POST':
-        verified_phone = request.session.get('verified_phone')
-        if not verified_phone:
-            messages.error(request, 'Phone verification required')
-            return redirect('main:auth')
-            
+        print('REGISTER POST DATA:', dict(request.POST))
         user_type = request.POST.get('user_type')
         service_type = request.POST.get('service_type') if user_type == 'performer' else None
-        
-        # Create user with basic fields
+        password1 = request.POST.get('password1')
+        password2 = request.POST.get('password2')
+        username = request.POST.get('username')
+        email = request.POST.get('email')
+        phone_number = request.POST.get('phone_number')
+        city = request.POST.get('city')
+        # Проверка обязательных полей
+        if not username or not email or not password1 or not password2 or not user_type or not city:
+            msg = 'Пожалуйста, заполните все обязательные поля.'
+            print('REGISTER ERROR:', msg)
+            messages.error(request, msg)
+            return render(request, 'auth.html', {'is_register': True})
+        if user_type == 'performer' and service_type not in SERVICE_TYPE_CODES:
+            msg = 'Выберите корректную специализацию исполнителя!'
+            print('REGISTER ERROR:', msg)
+            messages.error(request, msg)
+            return render(request, 'auth.html', {'is_register': True})
+        if password1 != password2:
+            msg = 'Пароли не совпадают!'
+            print('REGISTER ERROR:', msg)
+            messages.error(request, msg)
+            return render(request, 'auth.html', {'is_register': True})
+        if User.objects.filter(username=username).exists():
+            msg = 'Пользователь с таким именем уже существует!'
+            print('REGISTER ERROR:', msg)
+            messages.error(request, msg)
+            return render(request, 'auth.html', {'is_register': True})
+        if User.objects.filter(email=email).exists():
+            msg = 'Пользователь с таким email уже существует!'
+            print('REGISTER ERROR:', msg)
+            messages.error(request, msg)
+            return render(request, 'auth.html', {'is_register': True})
+        # Создание пользователя
         user = User.objects.create_user(
-            username=verified_phone,  # Use verified phone as username
-            phone_number=verified_phone,
+            username=username,
+            phone_number=phone_number,
             first_name=request.POST.get('first_name', ''),
             last_name=request.POST.get('last_name', ''),
-            city=request.POST.get('city', ''),
+            city=city,
             user_type=user_type,
             service_type=service_type,
             is_phone_verified=True,
-            email=f"{verified_phone}@example.com",  # Temporary email, can be updated later
+            email=email,
+            password=password1,
         )
-        
-        # Update performer-specific fields if applicable
         if user_type == 'performer':
             user.company_name = request.POST.get('company_name', '')
             user.bio = request.POST.get('bio', '')
-            
-        # Handle profile photo upload
         if request.FILES.get('profile_photo'):
             user.profile_photo = request.FILES['profile_photo']
-            
         user.save()
-        
-        login(request, user)
-        del request.session['verified_phone']  # Clear session
-        messages.success(request, 'Registration successful!')
-        return redirect('main:dashboard')
-        
+        # Явная аутентификация
+        user = authenticate(request, username=username, password=password1)
+        if user is not None:
+            print('REGISTER SUCCESS: user created and authenticated')
+            login(request, user)
+            messages.success(request, 'Регистрация прошла успешно!')
+            return redirect('main:dashboard')
+        else:
+            msg = 'Ошибка при автоматическом входе. Попробуйте войти вручную.'
+            print('REGISTER ERROR:', msg)
+            messages.error(request, msg)
+            return redirect('main:login')
     return render(request, 'auth.html', {'is_register': True})
 
 def user_login(request):
@@ -133,7 +165,7 @@ def profile(request):
         messages.success(request, 'Профиль успешно обновлен')
         return redirect('main:profile')
         
-    return render(request, 'profile.html', {
+    context = {
         'user': request.user,
         'subscription_plans': [
             {
@@ -150,7 +182,26 @@ def profile(request):
             }
         ],
         'kaspi_payment_url': 'https://pay.kaspi.kz/pay/96yxytne'
-    })
+    }
+    if request.user.user_type == 'performer':
+        active_orders = []
+        extra_orders = Order.objects.filter(
+            status__in=['in_progress', 'new'],
+            order_type='request'
+        )
+        for order in extra_orders:
+            selected = order.selected_performers or {}
+            # Исправленная логика:
+            if selected:
+                if str(selected.get(request.user.service_type)) == str(request.user.id):
+                    active_orders.append(order)
+            else:
+                # Только если performer_id совпадает и услуга реально есть в заказе
+                if order.performer_id == request.user.id and request.user.service_type in (order.services or []):
+                    active_orders.append(order)
+        active_orders = sorted(active_orders, key=lambda o: o.created_at, reverse=True)
+        context['active_orders'] = active_orders
+    return render(request, 'profile.html', context)
 
 @login_required
 def process_subscription(request):
@@ -187,7 +238,11 @@ def profile_settings(request):
         # Update performer-specific fields if applicable
         if request.user.user_type == 'performer':
             request.user.company_name = request.POST.get('company_name', '')
-            request.user.service_type = request.POST.get('service_type', '')
+            service_type = request.POST.get('service_type', '')
+            if service_type not in SERVICE_TYPE_CODES:
+                messages.error(request, 'Выберите корректную специализацию исполнителя!')
+                return render(request, 'profile_settings.html', {'user': request.user})
+            request.user.service_type = service_type
             request.user.bio = request.POST.get('bio', '')
             request.user.services_description = request.POST.get('services_description', '')
             request.user.experience = request.POST.get('experience', '')
@@ -211,19 +266,41 @@ def profile_settings(request):
 @login_required
 def dashboard(request):
     if request.user.user_type == 'performer':
-        # Получаем доступные заявки, соответствующие услугам исполнителя
-        available_orders = Order.objects.filter(
+        # Получаем все новые заявки-запросы, на которые исполнитель еще не откликался
+        all_orders = Order.objects.filter(
             status='new',
             order_type='request'
         ).exclude(
-            responses__performer=request.user  # Исключаем заявки, на которые уже откликнулись
+            responses__performer=request.user
         ).order_by('-created_at')
+
+        # Фильтруем в Python: только те, где его специализация есть в services и по этой услуге еще не выбран исполнитель
+        available_orders = []
+        for order in all_orders:
+            services = order.services or []
+            selected = order.selected_performers or {}
+            # Исполнитель видит заказ, если его услуга есть в заказе и по этой услуге еще не выбран исполнитель
+            if (
+                request.user.service_type in services and
+                (not selected.get(request.user.service_type))
+            ):
+                available_orders.append(order)
         
-        # Получаем активные заказы исполнителя
-        active_orders = Order.objects.filter(
-            performer=request.user,
-            status__in=['in_progress', 'new']
-        ).order_by('-created_at')
+        # Получаем активные заказы исполнителя (теперь по selected_performers, если исполнитель выбран по своей услуге, и статус не cancelled/completed)
+        active_orders = []
+        extra_orders = Order.objects.filter(
+            status__in=['in_progress', 'new'],  # Можно добавить сюда и другие статусы, если нужно
+            order_type='request'
+        )
+        for order in extra_orders:
+            selected = order.selected_performers or {}
+            # Показываем, если исполнитель выбран по своей услуге
+            if str(selected.get(request.user.service_type)) == str(request.user.id):
+                active_orders.append(order)
+            # Для старых заказов (без selected_performers)
+            elif not selected and order.performer_id == request.user.id and request.user.service_type in (order.services or []):
+                active_orders.append(order)
+        active_orders = sorted(active_orders, key=lambda o: o.created_at, reverse=True)
         
         # Получаем отклики исполнителя
         my_responses = OrderResponse.objects.filter(
@@ -251,6 +328,7 @@ def dashboard(request):
             status='completed'
         ).count()
         
+        all_orders_debug = Order.objects.filter(status__in=['in_progress', 'new'], order_type='request')
         return render(request, 'dashboard-performer.html', {
             'available_orders': available_orders,
             'active_orders': active_orders,
@@ -260,11 +338,15 @@ def dashboard(request):
             'tariffs': tariffs,
             'busy_dates': busy_dates,
             'completed_orders_count': completed_orders_count,
-            'rating': request.user.rating
+            'rating': request.user.rating,
+            'all_orders_debug': all_orders_debug,
         })
     elif request.user.user_type == 'customer':
-        # Получаем заказы клиента
-        orders = Order.objects.filter(customer=request.user).order_by('-created_at')
+        # Получаем только неотменённые заказы клиента
+        orders = Order.objects.filter(
+            customer=request.user,
+            status__in=['new', 'in_progress', 'completed']
+        ).order_by('-created_at')
         return render(request, 'dashboard-customer.html', {'orders': orders})
     
     return redirect('main:index')
@@ -367,12 +449,23 @@ def order_detail(request, order_id):
                 response_id = request.POST.get('response_id')
                 try:
                     response = OrderResponse.objects.get(id=response_id, order=order)
-                    order.performer = response.performer
-                    order.status = 'in_progress'
-                    order.save()
-                    # Удаляем все остальные отклики
-                    OrderResponse.objects.filter(order=order).exclude(id=response_id).delete()
-                    messages.success(request, 'Исполнитель успешно выбран')
+                    # Проверка: исполнитель не должен быть уже выбран и заказ должен быть новым
+                    if order.performer is not None or order.status != 'new':
+                        return redirect('main:order_detail', order_id=order.id)
+                    else:
+                        # Получаем специализацию исполнителя
+                        service_type = response.performer.service_type
+                        selected_performers = order.selected_performers or {}
+                        selected_performers[service_type] = response.performer.id
+                        order.selected_performers = selected_performers
+                        if set(selected_performers.keys()) == set(order.services):
+                            order.status = 'in_progress'
+                            order.save()
+                        else:
+                            order.save()
+                        # Удаляем все остальные отклики по этой услуге
+                        OrderResponse.objects.filter(order=order, performer__service_type=service_type).exclude(id=response_id).delete()
+                        messages.success(request, f'Исполнитель по услуге {service_type} успешно выбран')
                 except OrderResponse.DoesNotExist:
                     messages.error(request, 'Отклик не найден')
             
@@ -386,15 +479,41 @@ def order_detail(request, order_id):
                 except OrderResponse.DoesNotExist:
                     messages.error(request, 'Отклик не найден')
             
-    # Получаем все отклики для заказа
-    responses = OrderResponse.objects.filter(order=order).select_related('performer')
-            
+    # Получаем отклики для заказа
+    if order.status == 'new':
+        responses = OrderResponse.objects.filter(order=order).select_related('performer')
+    else:
+        responses = None
+
+    # Фильтруем отклики: показываем только тех, кто ещё не выбран по своей услуге
+    unselected_responses = []
+    if responses:
+        selected = order.selected_performers or {}
+        for r in responses:
+            # Если услуга не выбрана или выбран другой исполнитель
+            if r.performer.service_type not in selected or selected[r.performer.service_type] != r.performer.id:
+                unselected_responses.append(r)
+
+    is_selected_performer = False
+    if request.user.user_type == 'performer' and order.selected_performers:
+        if request.user.service_type in order.selected_performers and order.selected_performers[request.user.service_type] == request.user.id:
+            is_selected_performer = True
+    can_take_order = (
+        request.user.user_type == 'performer'
+        and order.status == 'new'
+        and (
+            not order.selected_performers
+            or request.user.service_type not in order.selected_performers
+        )
+    )
     context = {
         'order': order,
-        'can_take_order': request.user.user_type == 'performer' and order.status == 'new',
+        'can_take_order': can_take_order,
         'is_performer': request.user == order.performer,
         'is_customer': request.user == order.customer,
-        'responses': responses if request.user == order.customer else None,
+        'responses': unselected_responses if request.user == order.customer else None,
+        'performers_by_id': {pid: User.objects.filter(id=pid).first() for pid in (order.selected_performers or {}).values()} if order.selected_performers else {},
+        'is_selected_performer': is_selected_performer,
     }
             
     return render(request, 'order_detail.html', context)
@@ -591,6 +710,28 @@ def delete_order(request, order_id):
         
     return render(request, 'delete_order.html', {'order': order})
 
+@login_required
+def performer_cancel_order(request, order_id):
+    order = get_object_or_404(Order, id=order_id)
+    if request.user.user_type != 'performer' or request.user != order.performer:
+        messages.error(request, 'У вас нет прав для отмены этого заказа')
+        return redirect('main:dashboard')
+    if request.method == 'POST':
+        # Только если заказ в работе и исполнитель совпадает
+        if order.status == 'in_progress' and order.performer == request.user:
+            # Удаляем дату из занятых
+            BusyDate.objects.filter(user=order.performer, date=order.event_date).delete()
+            # Удаляем отклик исполнителя на этот заказ
+            OrderResponse.objects.filter(order=order, performer=request.user).delete()
+            order.performer = None
+            order.status = 'new'
+            order.save()
+            messages.success(request, 'Вы успешно отменили участие в заказе')
+        else:
+            messages.error(request, 'Этот заказ нельзя отменить')
+        return redirect('main:dashboard')
+    return render(request, 'performer_cancel_order.html', {'order': order})
+
 def user_logout(request):
     logout(request)
     messages.success(request, 'Вы успешно вышли из системы')
@@ -689,53 +830,52 @@ def delete_tariff(request, tariff_id):
     return redirect('main:dashboard')
 
 @login_required
+@require_GET
 def get_chat_messages(request, order_id):
     order = get_object_or_404(Order, id=order_id)
-    if request.user != order.performer and request.user != order.customer:
+    performer_id = request.GET.get('performer_id')
+    if request.user != order.customer and (not performer_id or int(performer_id) != request.user.id):
         return JsonResponse({'error': 'Access denied'}, status=403)
-        
-    messages = Message.objects.filter(order=order).order_by('created_at')
-    
-    # Mark messages as read
-    if request.user == order.performer:
-        messages.filter(from_user=order.customer, is_read=False).update(is_read=True)
+    if performer_id:
+        messages_qs = Message.objects.filter(order=order, performer_id=performer_id).order_by('created_at')
     else:
-        messages.filter(from_user=order.performer, is_read=False).update(is_read=True)
-    
+        messages_qs = Message.objects.filter(order=order, performer=request.user).order_by('created_at')
+    # Mark messages as read
+    messages_qs.filter(to_user=request.user, is_read=False).update(is_read=True)
     messages_data = [{
         'content': msg.content,
         'timestamp': msg.created_at.strftime('%H:%M'),
         'is_mine': msg.from_user == request.user
-    } for msg in messages]
-    
+    } for msg in messages_qs]
     return JsonResponse({'messages': messages_data})
 
 @login_required
+@require_POST
 def send_chat_message(request, order_id):
-    if request.method != 'POST':
-        return JsonResponse({'error': 'Method not allowed'}, status=405)
-        
     order = get_object_or_404(Order, id=order_id)
-    if request.user != order.performer and request.user != order.customer:
+    data = json.loads(request.body)
+    performer_id = data.get('performer_id')
+    content = data.get('message', '').strip()
+    if not content:
+        return JsonResponse({'error': 'Message cannot be empty'}, status=400)
+    if request.user == order.customer:
+        if not performer_id:
+            return JsonResponse({'error': 'No performer specified'}, status=400)
+        performer = get_object_or_404(User, id=performer_id)
+        to_user = performer
+    elif request.user.user_type == 'performer' and request.user.id == int(performer_id):
+        to_user = order.customer
+        performer = request.user
+    else:
         return JsonResponse({'error': 'Access denied'}, status=403)
-    
-    try:
-        data = json.loads(request.body)
-        content = data.get('message', '').strip()
-        
-        if not content:
-            return JsonResponse({'error': 'Message cannot be empty'}, status=400)
-            
-        Message.objects.create(
-            order=order,
-            from_user=request.user,
-            to_user=order.customer if request.user == order.performer else order.performer,
-            content=content
-        )
-        
-        return JsonResponse({'success': True})
-    except json.JSONDecodeError:
-        return JsonResponse({'error': 'Invalid JSON'}, status=400)
+    Message.objects.create(
+        order=order,
+        from_user=request.user,
+        to_user=to_user,
+        content=content,
+        performer=performer
+    )
+    return JsonResponse({'success': True})
 
 @login_required
 def get_user_orders(request):
@@ -810,7 +950,9 @@ def attach_performer_to_order(request, order_id, performer_id):
             'error': str(e)
         }, status=500)
 
+@csrf_exempt
 def send_otp(request):
+    print('send_otp called', request.method, request.POST)
     if request.method == 'POST':
         phone_number = request.POST.get('phone_number')
         if not phone_number:
@@ -831,6 +973,7 @@ def send_otp(request):
         else:
             return JsonResponse({'error': 'Failed to send OTP'}, status=500)
 
+@csrf_exempt
 def verify_otp(request):
     if request.method == 'POST':
         phone_number = request.POST.get('phone_number')

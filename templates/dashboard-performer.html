@@ -767,7 +767,7 @@
       box-shadow: 0 2px 12px rgba(0,0,0,0.08);
       position: sticky;
       top: 0;
-      z-index: 100;
+      z-index: 1111;
     }
 
     .header .container {
@@ -841,19 +841,107 @@
       border-top: 1px solid #e5e7eb;
       color: #666;
     }
+    .mobile-menu-toggle {
+      display: none;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      width: 40px;
+      height: 40px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      z-index: 1100;
+      position: relative;
+    }
+    .mobile-menu-toggle span {
+      display: block;
+      width: 28px;
+      height: 3px;
+      margin: 4px 0;
+      background: #1a1a1a;
+      border-radius: 2px;
+      transition: 0.3s;
+      position: relative;
+      z-index: 2;
+    }
+    /* Анимация крестика (икса) для активного состояния */
+    .mobile-menu-toggle.active span:nth-child(1) {
+      transform: translateY(13.7px) rotate(45deg);
+      background: #1a1a1a;
+    }
+    .mobile-menu-toggle.active span:nth-child(2) {
+      opacity: 0;
+    }
+    .mobile-menu-toggle.active span:nth-child(3) {
+      transform: translateY(-9px) rotate(-45deg);
+      background: #1a1a1a;
+    }
+    @media (max-width: 768px) {
+      .mobile-menu-toggle {
+        display: flex;
+      }
+      .desktop-nav {
+        display: none ;
+      }
+    }
   </style>
 </head>
 <body>
-  <header class="header">
+<header class="header">
     <div class="container">
-      <a href="{% url 'main:index' %}" class="logo">Той со звездой</a>
+      <div class="logo">Той со звездой</div>
       <nav class="nav desktop-nav">
-        <a href="{% url 'main:index' %}" class="nav-link">Главная</a>
-        <a href="{% url 'main:catalog' %}" class="nav-link">Исполнители</a>
-        <a href="{% url 'main:dashboard' %}" class="nav-link">Личный кабинет</a>
-        <a href="{% url 'main:logout' %}" class="nav-link">Выйти</a>
+        <a href="{% url 'main:index' %}" class="nav-link">
+          <i class="ri-home-line"></i>
+          <span>Главная</span>
+        </a>
+        <a href="{% url 'main:catalog' %}" class="nav-link">
+          <i class="ri-group-line"></i>
+          <span>Исполнители</span>
+        </a>
+        {% if user.is_authenticated %}
+          {% if user.user_type == 'customer' %}
+            <a href="{% url 'main:create_order' %}" class="nav-link">
+              <i class="ri-add-circle-line"></i>
+              <span>Создать заявку</span>
+            </a>
+          {% endif %}
+          <a href="{% url 'main:dashboard' %}" class="nav-link">
+            <i class="ri-dashboard-line"></i>
+            <span>Личный кабинет</span>
+          </a>
+          <div class="nav-dropdown">
+            <button class="nav-dropdown-toggle">
+              <div class="user-info">
+                {% if user.profile_photo %}
+                  <img src="{{ user.profile_photo.url }}" alt="{{ user.get_full_name }}" class="nav-avatar">
+                {% else %}
+                  <i class="ri-user-line"></i>
+                {% endif %}
+                <span>{{ user.get_full_name|default:user.phone_number }}</span>
+              </div>
+              <i class="ri-arrow-down-s-line"></i>
+            </button>
+            <div class="nav-dropdown-menu">
+              <a href="{% url 'main:profile_settings' %}">
+                <i class="ri-settings-line"></i>
+                <span>Настройки</span>
+              </a>
+              <a href="{% url 'main:logout' %}">
+                <i class="ri-logout-box-line"></i>
+                <span>Выйти</span>
+              </a>
+            </div>
+          </div>
+        {% else %}
+          <a href="{% url 'main:auth' %}" class="nav-link auth-link">
+            <i class="ri-login-box-line"></i>
+            <span>Войти по номеру телефона</span>
+          </a>
+        {% endif %}
       </nav>
-      <button class="mobile-menu-toggle" onclick="toggleMobileMenu()">
+      <button class="mobile-menu-toggle" aria-label="Открыть меню">
         <span></span>
         <span></span>
         <span></span>
@@ -867,26 +955,53 @@
       <nav class="mobile-nav">
         <a href="{% url 'main:index' %}" class="mobile-nav-link">
           <i class="ri-home-line"></i>
-          Главная
+          <span>Главная</span>
         </a>
         <a href="{% url 'main:catalog' %}" class="mobile-nav-link">
           <i class="ri-user-star-line"></i>
-          Исполнители
+          <span>Исполнители</span>
         </a>
-        <a href="{% url 'main:dashboard' %}" class="mobile-nav-link">
-          <i class="ri-dashboard-line"></i>
-          Личный кабинет
-        </a>
-        <a href="{% url 'main:logout' %}" class="mobile-nav-link">
-          <i class="ri-logout-box-line"></i>
-          Выйти
-        </a>
+        {% if user.is_authenticated %}
+          <a href="{% url 'main:dashboard' %}" class="mobile-nav-link">
+            <i class="ri-dashboard-line"></i>
+            <span>Личный кабинет</span>
+          </a>
+          <div class="mobile-nav-dropdown">
+            <button class="mobile-nav-dropdown-toggle">
+              <div class="user-info">
+                {% if user.profile_photo %}
+                  <img src="{{ user.profile_photo.url }}" alt="{{ user.get_full_name }}" class="nav-avatar">
+                {% else %}
+                  <i class="ri-user-line"></i>
+                {% endif %}
+                <span>{{ user.get_full_name|default:user.phone_number }}</span>
+              </div>
+              <i class="ri-arrow-down-s-line"></i>
+            </button>
+            <div class="mobile-nav-dropdown-menu">
+              <a href="{% url 'main:profile_settings' %}" class="mobile-nav-link">
+                <i class="ri-settings-line"></i>
+                <span>Настройки</span>
+              </a>
+              <a href="{% url 'main:logout' %}" class="mobile-nav-link">
+                <i class="ri-logout-box-line"></i>
+                <span>Выйти</span>
+              </a>
+            </div>
+          </div>
+        {% else %}
+          <a href="{% url 'main:auth' %}" class="mobile-nav-link auth-link">
+            <i class="ri-login-box-line"></i>
+            <span>Войти по номеру телефона</span>
+          </a>
+        {% endif %}
       </nav>
     </div>
   </div>
 
   <main class="main">
     <div class="container">
+
       <div class="dashboard-grid">
         <!-- Statistics Section -->
         <div class="stats-section">
@@ -1032,9 +1147,6 @@
         <div class="section" style="grid-column: span 12;">
           <div class="section-header">
             <h2 class="section-title">Доступные заявки <span class="notification-badge">{{ new_requests_count }}</span></h2>
-            <button class="btn outline">
-              <i class="ri-filter-3-line"></i> Фильтры
-            </button>
           </div>
           <div class="orders-grid">
             {% for order in available_orders %}
@@ -1090,6 +1202,8 @@
               </div>
               <div class="order-actions">
                 <a href="{% url 'main:order_detail' order.id %}" class="btn outline">Подробнее</a>
+                {% if order.performer and order.performer.id == user.id %}
+                {% endif %}
               </div>
             </div>
             {% empty %}
@@ -1194,6 +1308,20 @@
     </div>
   </div>
 
+  <!-- Filter Modal -->
+  <div id="filterModal" class="modal">
+    <div class="modal-content">
+      <button class="modal-close" onclick="closeModal('filterModal')">
+        <i class="ri-close-line"></i>
+      </button>
+      <div class="modal-header">
+        <h2 class="modal-title">Фильтры</h2>
+      </div>
+      <!-- Здесь размести фильтры, если нужно -->
+      <div style="color:#666; text-align:center; padding:32px;">Здесь будут фильтры для заявок</div>
+    </div>
+  </div>
+
   <footer class="footer">
     <div class="container">
       <div class="footer-content">
@@ -1221,138 +1349,8 @@
     </div>
   </footer>
 
-  <script>
-    // Mobile Menu Functions
-    function toggleMobileMenu() {
-      const mobileMenu = document.querySelector('.mobile-menu');
-      const mobileMenuToggle = document.querySelector('.mobile-menu-toggle');
-      
-      mobileMenu.classList.toggle('active');
-      mobileMenuToggle.classList.toggle('active');
-      
-      if (mobileMenu.classList.contains('active')) {
-        document.body.style.overflow = 'hidden';
-      } else {
-        document.body.style.overflow = 'auto';
-      }
-    }
-
-    // Close mobile menu when clicking outside
-    document.addEventListener('click', function(event) {
-      const mobileMenu = document.querySelector('.mobile-menu');
-      const mobileMenuToggle = document.querySelector('.mobile-menu-toggle');
-      
-      if (mobileMenu.classList.contains('active') && 
-          !event.target.closest('.mobile-menu-content') && 
-          !event.target.closest('.mobile-menu-toggle')) {
-        mobileMenu.classList.remove('active');
-        mobileMenuToggle.classList.remove('active');
-        document.body.style.overflow = 'auto';
-      }
-    });
-
-    // All JavaScript functions from the reference template
-    function openModal(modalId) {
-      document.getElementById(modalId).style.display = 'block';
-      document.body.style.overflow = 'hidden';
-      if (modalId === 'calendarModal') {
-        updateCalendar(); // Initialize calendar when opening the modal
-      }
-    }
-
-    function closeModal(modalId) {
-      document.getElementById(modalId).style.display = 'none';
-      document.body.style.overflow = 'auto';
-    }
-
-    function editTariff(tariffId) {
-      // Implementation for editing tariff
-          document.getElementById('tariffModalTitle').textContent = 'Изменить тариф';
-          openModal('tariffModal');
-    }
-
-    let currentOrderId = null;
-    let chatUpdateInterval = null;
-
-    function openChatModal(orderId) {
-      currentOrderId = orderId;
-      document.getElementById('chatModal').style.display = 'block';
-      document.body.style.overflow = 'hidden';
-      loadMessages(orderId);
-      
-      // Start periodic updates
-      if (chatUpdateInterval) clearInterval(chatUpdateInterval);
-      chatUpdateInterval = setInterval(() => loadMessages(orderId), 5000);
-    }
-
-    function loadMessages(orderId) {
-      fetch(`/chat/${orderId}/messages/`)
-        .then(response => response.json())
-        .then(data => {
-          const messagesContainer = document.getElementById('chatMessages');
-          messagesContainer.innerHTML = '';
-          
-          data.messages.forEach(message => {
-            const messageDiv = document.createElement('div');
-            messageDiv.className = `message ${message.is_mine ? 'sent' : 'received'}`;
-            messageDiv.innerHTML = `
-              <div class="message-content">${message.content}</div>
-              <div class="message-time">${message.timestamp}</div>
-            `;
-            messagesContainer.appendChild(messageDiv);
-          });
-          
-          // Scroll to bottom
-          messagesContainer.scrollTop = messagesContainer.scrollHeight;
-        });
-      }
-
-    function sendMessage(event) {
-      event.preventDefault();
-      const form = event.target;
-      const input = form.querySelector('input');
-      const message = input.value.trim();
-      
-      if (!message) return;
-      
-      fetch(`/chat/${currentOrderId}/send/`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
-        },
-        body: JSON.stringify({ message })
-      })
-      .then(response => response.json())
-      .then(data => {
-        if (data.success) {
-          input.value = '';
-          loadMessages(currentOrderId);
-        }
-      });
-    }
-
-    // Close modals when clicking outside
-    window.onclick = function(event) {
-      if (event.target.classList.contains('modal')) {
-        closeModal(event.target.id);
-      }
-    }
-
-    // Initialize all event listeners when DOM is loaded
-    document.addEventListener('DOMContentLoaded', function() {
-      // Add your event listeners here
-    });
-
-    function openEditProfileModal() {
-      document.getElementById('editProfileModal').style.display = 'block';
-      document.body.style.overflow = 'hidden';
-    }
-
-    function openSubscriptionModal() {
-      document.getElementById('subscriptionModal').style.display = 'block';
-      document.body.style.overflow = 'hidden';
-    }
-  </script>
+  
+  <script src="{% static 'js/main.js' %}"></script>
+  {% load static %}
 </body>
 </html> 

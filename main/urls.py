@@ -25,6 +25,7 @@ urlpatterns = [
     path('order/<int:order_id>/cancel/', views.cancel_order, name='cancel_order'),
     path('order/<int:order_id>/delete/', views.delete_order, name='delete_order'),
     path('order/<int:order_id>/review/', views.create_review, name='create_review'),
+    path('order/<int:order_id>/performer-cancel/', views.performer_cancel_order, name='performer_cancel_order'),
     
     # Portfolio management
     path('portfolio/add/', views.add_portfolio, name='add_portfolio'),

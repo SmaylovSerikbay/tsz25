@@ -1,7 +1,913 @@
-{% extends 'base.html' %}
+{% load static %}
+{% load l10n %}
+{% load i18n %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Личный кабинет — Той со звездой</title>
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+  <style>
+    .dashboard {
+      padding: 32px 0;
+    }
+
+    .dashboard-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 32px;
+    }
+
+    .dashboard-header h1 {
+      margin: 0;
+      font-size: 2rem;
+      font-weight: 700;
+    }
+
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 24px;
+    }
+    
+    .stats-section {
+      grid-column: span 12;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 20px;
+      margin-bottom: 32px;
+    }
+    
+    .stat-card {
+      background: white;
+      border-radius: 16px;
+      padding: 24px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+      transition: transform 0.2s;
+    }
+    
+    .stat-card:hover {
+      transform: translateY(-4px);
+    }
+    
+    .stat-value {
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--primary-color);
+      margin: 8px 0;
+    }
+    
+    .stat-label {
+      color: #666;
+      font-size: 0.9rem;
+    }
+
+    .section {
+      grid-column: span 12;
+      background: white;
+      border-radius: 20px;
+      padding: 32px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+      margin-bottom: 24px;
+    }
+
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+    }
+
+    .section-title {
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: #1a1a1a;
+    }
+
+    .quick-actions {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      padding: 12px 24px;
+      border-radius: 12px;
+      font-weight: 500;
+      transition: all 0.2s;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn i {
+      font-size: 1.2rem;
+    }
+
+    .btn.accent {
+      background: var(--primary-color);
+      color: white;
+    }
+
+    .btn.outline {
+      border: 2px solid var(--primary-color);
+      color: var(--primary-color);
+    }
+
+    .orders-list {
+      display: grid;
+      gap: 16px;
+    }
+
+    .order-card {
+      background: #f8f9fa;
+      border-radius: 12px;
+      padding: 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+    }
+
+    .order-info {
+      flex: 1;
+    }
+
+    .order-info h3 {
+      margin: 0 0 8px 0;
+      font-size: 1.2rem;
+      font-weight: 600;
+    }
+
+    .order-meta {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .order-date {
+      color: #666;
+    }
+
+    .order-status {
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 0.9rem;
+      font-weight: 500;
+    }
+
+    .order-status.pending {
+      background: #fff3cd;
+      color: #856404;
+    }
+
+    .order-status.completed {
+      background: #d4edda;
+      color: #155724;
+    }
+
+    .order-actions {
+      margin-left: 24px;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 48px;
+      background: #f8f9fa;
+      border-radius: 12px;
+    }
+
+    .empty-state p {
+      color: #666;
+      margin-bottom: 16px;
+    }
+
+    .catalog-preview {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 20px;
+      margin-top: 24px;
+    }
+
+    .performer-card {
+      background: #f8f9fa;
+      border-radius: 12px;
+      padding: 20px;
+      display: flex;
+      gap: 16px;
+      align-items: center;
+      transition: transform 0.2s;
+    }
+
+    .performer-card:hover {
+      transform: translateY(-4px);
+    }
+
+    .performer-photo {
+      width: 80px;
+      height: 80px;
+      border-radius: 12px;
+      object-fit: cover;
+    }
+
+    .performer-info h3 {
+      margin: 0 0 4px 0;
+      font-size: 1.1rem;
+    }
+
+    .performer-info p {
+      color: #666;
+      font-size: 0.9rem;
+      margin: 0;
+    }
+
+    .rating {
+      color: #ffc107;
+      font-weight: 500;
+      margin-top: 4px;
+    }
+
+    @media (max-width: 768px) {
+      .dashboard-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 16px;
+        padding: 16px;
+      }
+
+      .quick-actions {
+        flex-direction: column;
+        width: 100%;
+      }
+
+      .btn {
+        width: 100%;
+        justify-content: center;
+      }
+
+      .stats-section {
+        grid-template-columns: 1fr;
+        padding: 0 16px;
+      }
+
+      .order-card {
+        flex-direction: column;
+        padding: 16px;
+      }
+
+      .order-meta {
+        flex-direction: column;
+        gap: 8px;
+        align-items: flex-start;
+      }
+
+      .order-actions {
+        margin-left: 0;
+        margin-top: 16px;
+        width: 100%;
+      }
+
+      .order-actions .btn {
+        width: 100%;
+        text-align: center;
+      }
+
+      .catalog-preview {
+        grid-template-columns: 1fr;
+        padding: 0 16px;
+      }
+
+      .performer-card {
+        flex-direction: column;
+        text-align: center;
+      }
+
+      .performer-photo {
+        width: 120px;
+        height: 120px;
+      }
+
+      .performer-info {
+        width: 100%;
+      }
+
+      .modal-content {
+        margin: 20px;
+        padding: 20px;
+      }
+
+      .chat-container {
+        height: 300px;
+      }
+
+      .chat-input {
+        flex-direction: column;
+      }
+
+      .responses-grid {
+        padding: 0 16px;
+      }
+
+      .response-card {
+        padding: 16px;
+      }
+
+      .response-header {
+        flex-direction: column;
+        text-align: center;
+      }
+
+      .response-photo {
+        width: 100px;
+        height: 100px;
+        margin: 0 auto;
+      }
+
+      .response-actions {
+        flex-direction: column;
+      }
+
+      .response-actions .btn {
+        width: 100%;
+      }
+
+      .selected-performer {
+        flex-direction: column;
+        text-align: center;
+        padding: 16px;
+      }
+
+      .selected-performer img {
+        width: 80px;
+        height: 80px;
+        margin: 0 auto;
+      }
+
+      .selected-performer-info {
+        text-align: center;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .dashboard-header {
+        padding: 12px;
+      }
+
+      .performer-photo {
+        width: 100px;
+        height: 100px;
+      }
+
+      .modal-content {
+        margin: 10px;
+        padding: 16px;
+      }
+
+      .form-input {
+        padding: 10px;
+      }
+
+      .chat-container {
+        height: 250px;
+      }
+
+      .message {
+        max-width: 90%;
+      }
+    }
+
+    /* Modal Styles */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 1000;
+      overflow-y: auto;
+    }
+
+    .modal-content {
+      background: white;
+      border-radius: 20px;
+      max-width: 800px;
+      margin: 40px auto;
+      padding: 32px;
+      position: relative;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.1);
+    }
+
+    .modal-close {
+      position: absolute;
+      top: 24px;
+      right: 24px;
+      background: none;
+      border: none;
+      font-size: 24px;
+      color: #666;
+      cursor: pointer;
+      padding: 4px;
+      border-radius: 50%;
+      transition: all 0.2s;
+    }
+
+    .modal-close:hover {
+      background: #f5f5f5;
+      color: #1a1a1a;
+    }
+
+    .modal-header {
+      margin-bottom: 24px;
+    }
+
+    .modal-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #1a1a1a;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 20px;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .form-label {
+      font-weight: 500;
+      color: #1a1a1a;
+      font-size: 0.9rem;
+    }
+
+    .form-input {
+      padding: 12px;
+      border: 2px solid #e3e8ff;
+      border-radius: 12px;
+      font-size: 1rem;
+      font-family: 'Montserrat', sans-serif;
+      transition: all 0.2s;
+    }
+
+    .form-input:focus {
+      border-color: var(--primary-color);
+      outline: none;
+    }
+
+    .chat-container {
+      height: 400px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .chat-messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px;
+      background: #f8f9fa;
+      border-radius: 12px;
+      margin-bottom: 16px;
+    }
+
+    .chat-input {
+      display: flex;
+      gap: 12px;
+    }
+
+    .chat-input input {
+      flex: 1;
+    }
+
+    .message {
+      margin-bottom: 16px;
+      max-width: 80%;
+    }
+
+    .message.sent {
+      margin-left: auto;
+      background: var(--primary-color);
+      color: white;
+      padding: 12px;
+      border-radius: 12px 12px 0 12px;
+    }
+
+    .message.received {
+      background: white;
+      padding: 12px;
+      border-radius: 12px 12px 12px 0;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+
+    .responses-grid {
+      display: grid;
+      gap: 16px;
+      margin-top: 20px;
+    }
+
+    .response-card {
+      background: #f8f9fa;
+      border-radius: 12px;
+      padding: 20px;
+    }
+
+    .response-header {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+
+    .response-photo {
+      width: 60px;
+      height: 60px;
+      border-radius: 12px;
+      object-fit: cover;
+    }
+
+    .response-info h3 {
+      margin: 0 0 4px 0;
+    }
+
+    .response-info .rating {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .response-price {
+      color: #2e6cff;
+      font-weight: 600;
+      margin: 12px 0;
+    }
+
+    .response-message {
+      color: #666;
+      margin-bottom: 16px;
+      line-height: 1.6;
+    }
+
+    .response-actions {
+      display: flex;
+      gap: 12px;
+    }
+
+    .selected-performers {
+      display: grid;
+      gap: 16px;
+      margin-top: 20px;
+    }
+
+    .selected-performer {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      background: #f8f9fa;
+      border-radius: 12px;
+      padding: 16px;
+    }
+
+    .selected-performer img {
+      width: 48px;
+      height: 48px;
+      border-radius: 8px;
+      object-fit: cover;
+    }
+
+    .selected-performer-info {
+      flex: 1;
+    }
+
+    .selected-performer-info h4 {
+      margin: 0 0 4px 0;
+    }
+
+    .selected-performer-info p {
+      color: #666;
+      margin: 0;
+      font-size: 0.9rem;
+    }
+
+    .services-status {
+      display: grid;
+      gap: 20px;
+    }
+
+    .service-item {
+      background: #f8f9fa;
+      border-radius: 12px;
+      padding: 20px;
+    }
+
+    .service-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+
+    .service-header h4 {
+      margin: 0;
+      font-size: 1.1rem;
+    }
+
+    .status {
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 0.9rem;
+      font-weight: 500;
+    }
+
+    .status.done {
+      background: #d4edda;
+      color: #155724;
+    }
+
+    .status.pending {
+      background: #fff3cd;
+      color: #856404;
+    }
+
+    .status.waiting {
+      background: #e2e3e5;
+      color: #383d41;
+    }
+
+    .position-selector {
+      display: flex;
+      gap: 12px;
+      margin-top: 16px;
+      flex-wrap: wrap;
+    }
+
+    .position-btn {
+      padding: 8px 16px;
+      border-radius: 20px;
+      border: 2px solid #e3e8ff;
+      background: none;
+      color: #666;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .position-btn.active {
+      background: #2e6cff;
+      border-color: #2e6cff;
+      color: white;
+    }
+
+    .position-btn:hover:not(.active) {
+      border-color: #2e6cff;
+      color: #2e6cff;
+    }
+
+    /* Обновляем стили хедера и футера */
+    .header {
+      background: white;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+      position: sticky;
+      top: 0;
+      z-index: 1100;
+    }
+
+    .header .container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 16px;
+    }
+
+    .nav {
+      display: flex;
+      gap: 24px;
+    }
+
+    .nav-link {
+      color: #1a1a1a;
+      text-decoration: none;
+      font-weight: 500;
+      transition: color 0.2s;
+    }
+
+    .nav-link:hover {
+      color: var(--primary-color);
+    }
+
+    .footer {
+      background: white;
+      padding: 48px 0 24px;
+      margin-top: 48px;
+      border-top: 1px solid #e5e7eb;
+    }
+
+    .footer-content {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 48px;
+      margin-bottom: 32px;
+    }
+
+    .footer-section h3 {
+      font-size: 1.2rem;
+      font-weight: 600;
+      margin-bottom: 16px;
+      color: #1a1a1a;
+    }
+
+    .footer-section p {
+      color: #666;
+      line-height: 1.6;
+    }
+
+    .social-links {
+      display: flex;
+      gap: 16px;
+      margin-top: 12px;
+    }
+
+    .social-links a {
+      color: var(--primary-color);
+      font-size: 1.5rem;
+      transition: opacity 0.2s;
+    }
+
+    .social-links a:hover {
+      opacity: 0.8;
+    }
+
+    .footer-bottom {
+      text-align: center;
+      padding-top: 24px;
+      border-top: 1px solid #e5e7eb;
+      color: #666;
+    }
+    .mobile-menu-toggle {
+      display: none;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      width: 40px;
+      height: 40px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      z-index: 1100;
+      position: relative;
+    }
+    .mobile-menu-toggle span {
+      display: block;
+      width: 28px;
+      height: 3px;
+      margin: 4px 0;
+      background: #1a1a1a;
+      border-radius: 2px;
+      transition: 0.3s;
+      position: relative;
+      z-index: 2;
+    }
+    .mobile-menu-toggle.active span:nth-child(1) {
+      transform: translateY(13.7px) rotate(45deg);
+      background: #1a1a1a;
+    }
+    .mobile-menu-toggle.active span:nth-child(2) {
+      opacity: 0;
+    }
+    .mobile-menu-toggle.active span:nth-child(3) {
+      transform: translateY(-9px) rotate(-45deg);
+      background: #1a1a1a;
+    }
+    @media (max-width: 768px) {
+      .mobile-menu-toggle {
+        display: flex;
+      }
+      .desktop-nav {
+        display: none ;
+      }
+    }
+  </style>
+</head>
+<body>
+<header class="header">
+    <div class="container">
+      <div class="logo">Той со звездой</div>
+      <nav class="nav desktop-nav">
+        <a href="{% url 'main:index' %}" class="nav-link">
+          <i class="ri-home-line"></i>
+          <span>Главная</span>
+        </a>
+        <a href="{% url 'main:catalog' %}" class="nav-link">
+          <i class="ri-group-line"></i>
+          <span>Исполнители</span>
+        </a>
+        {% if user.is_authenticated %}
+          {% if user.user_type == 'customer' %}
+            <a href="{% url 'main:create_order' %}" class="nav-link">
+              <i class="ri-add-circle-line"></i>
+              <span>Создать заявку</span>
+            </a>
+          {% endif %}
+          <a href="{% url 'main:dashboard' %}" class="nav-link">
+            <i class="ri-dashboard-line"></i>
+            <span>Личный кабинет</span>
+          </a>
+          <div class="nav-dropdown">
+            <button class="nav-dropdown-toggle">
+              <div class="user-info">
+                {% if user.profile_photo %}
+                  <img src="{{ user.profile_photo.url }}" alt="{{ user.get_full_name }}" class="nav-avatar">
+                {% else %}
+                  <i class="ri-user-line"></i>
+                {% endif %}
+                <span>{{ user.get_full_name|default:user.phone_number }}</span>
+              </div>
+              <i class="ri-arrow-down-s-line"></i>
+            </button>
+            <div class="nav-dropdown-menu">
+              <a href="{% url 'main:profile_settings' %}">
+                <i class="ri-settings-line"></i>
+                <span>Настройки</span>
+              </a>
+              <a href="{% url 'main:logout' %}">
+                <i class="ri-logout-box-line"></i>
+                <span>Выйти</span>
+              </a>
+            </div>
+          </div>
+        {% else %}
+          <a href="{% url 'main:auth' %}" class="nav-link auth-link">
+            <i class="ri-login-box-line"></i>
+            <span>Войти по номеру телефона</span>
+          </a>
+        {% endif %}
+      </nav>
+      <button class="mobile-menu-toggle" aria-label="Открыть меню">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+  </header>
+
+<!-- Mobile Menu -->
+<div class="mobile-menu">
+  <div class="mobile-menu-content">
+    <nav class="mobile-nav">
+      <a href="{% url 'main:index' %}" class="mobile-nav-link">
+        <i class="ri-home-line"></i>
+        <span>Главная</span>
+      </a>
+      <a href="{% url 'main:catalog' %}" class="mobile-nav-link">
+        <i class="ri-user-star-line"></i>
+        <span>Исполнители</span>
+      </a>
+      {% if user.is_authenticated %}
+        <a href="{% url 'main:dashboard' %}" class="mobile-nav-link">
+          <i class="ri-dashboard-line"></i>
+          <span>Личный кабинет</span>
+        </a>
+        <div class="mobile-nav-dropdown">
+          <button class="mobile-nav-dropdown-toggle">
+            <div class="user-info">
+              {% if user.profile_photo %}
+                <img src="{{ user.profile_photo.url }}" alt="{{ user.get_full_name }}" class="nav-avatar">
+              {% else %}
+                <i class="ri-user-line"></i>
+              {% endif %}
+              <span>{{ user.get_full_name|default:user.phone_number }}</span>
+            </div>
+            <i class="ri-arrow-down-s-line"></i>
+          </button>
+          <div class="mobile-nav-dropdown-menu">
+            <a href="{% url 'main:profile_settings' %}" class="mobile-nav-link">
+              <i class="ri-settings-line"></i>
+              <span>Настройки</span>
+            </a>
+            <a href="{% url 'main:logout' %}" class="mobile-nav-link">
+              <i class="ri-logout-box-line"></i>
+              <span>Выйти</span>
+            </a>
+          </div>
+        </div>
+      {% else %}
+        <a href="{% url 'main:auth' %}" class="mobile-nav-link auth-link">
+          <i class="ri-login-box-line"></i>
+          <span>Войти по номеру телефона</span>
+        </a>
+      {% endif %}
+    </nav>
+  </div>
+</div>
 {% load static %}
 
-{% block title %}Настройки профиля — Той со звездой{% endblock %}
 
 {% block content %}
 <div class="container">
@@ -68,12 +974,11 @@
                     <label>Тип услуги</label>
                     <select name="service_type" class="form-input" required>
                         <option value="">Выберите тип услуги</option>
-                        <option value="photographer" {% if user.service_type == 'photographer' %}selected{% endif %}>Фотограф</option>
-                        <option value="videographer" {% if user.service_type == 'videographer' %}selected{% endif %}>Видеограф</option>
-                        <option value="musician" {% if user.service_type == 'musician' %}selected{% endif %}>Музыкант</option>
-                        <option value="decorator" {% if user.service_type == 'decorator' %}selected{% endif %}>Декоратор</option>
-                        <option value="makeup" {% if user.service_type == 'makeup' %}selected{% endif %}>Визажист</option>
+                        <option value="photo" {% if user.service_type == 'photo' %}selected{% endif %}>Фотограф</option>
+                        <option value="video" {% if user.service_type == 'video' %}selected{% endif %}>Видеограф</option>
+                        <option value="music" {% if user.service_type == 'music' %}selected{% endif %}>Музыкант</option>
                         <option value="host" {% if user.service_type == 'host' %}selected{% endif %}>Ведущий</option>
+                        <option value="dance" {% if user.service_type == 'dance' %}selected{% endif %}>Шоу-программа</option>
                     </select>
                 </div>
 
@@ -121,6 +1026,7 @@
         </form>
     </div>
 </div>
+<script src="{% static 'js/main.js' %}"></script>
 
 <style>
 .settings-container {

@@ -36,6 +36,10 @@
       gap: 32px;
     }
 
+    .mobile-menu-toggle {
+        display: none;
+    }
+
     /* Filters Sidebar */
     .filters-sidebar {
       background: white;
@@ -337,13 +341,16 @@
       width: 280px;
       height: 100%;
       background: white;
-      padding: 24px;
+      padding: 80px 24px;
       transition: right 0.3s;
     }
 
     .mobile-menu.active .mobile-menu-content {
       right: 0;
     }
+    .mobile-filters-toggle {
+        display: none;
+      }
 
     .mobile-nav {
       display: flex;
@@ -493,12 +500,24 @@
         grid-template-columns: 1fr;
       }
     }
+    
 
     /* Hide mobile elements on desktop */
-    @media (min-width: 769px) {
-      .mobile-filters-toggle {
-        display: none;
-      }
+    @media (max-width: 768px) {
+
+      .mobile-menu-toggle {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        width: 40px;
+        height: 40px;
+        background: none;
+        border: none;
+        cursor: pointer;
+        z-index: 1100;
+        position: relative;
+    }
     }
 
     /* Обновляем стили хедера и футера */
@@ -507,7 +526,7 @@
       box-shadow: 0 2px 12px rgba(0,0,0,0.08);
       position: sticky;
       top: 0;
-      z-index: 100;
+      z-index: 1111;
     }
 
     .header .container {
@@ -581,44 +600,87 @@
       border-top: 1px solid #e5e7eb;
       color: #666;
     }
+    @media (max-width: 768px) {
+      
+    .mobile-menu-toggle span {
+      display: block;
+      width: 28px;
+      height: 3px;
+      margin: 4px 0;
+      background: #1a1a1a;
+      border-radius: 2px;
+      transition: 0.3s;
+      position: relative;
+      z-index: 2;
+    }
+    .mobile-menu-toggle.active span:nth-child(1) {
+      transform: translateY(13px) rotate(45deg);
+    }
+    .mobile-menu-toggle.active span:nth-child(2) {
+      opacity: 0;
+    }
+    .mobile-menu-toggle.active span:nth-child(3) {
+      transform: translateY(-9px) rotate(-45deg);
+    }
+    }
+
   </style>
 </head>
 <body>
   <header class="header">
     <div class="container">
-      <a href="{% url 'main:index' %}" class="logo">Той со звездой</a>
+      <div class="logo">Той со звездой</div>
       <nav class="nav desktop-nav">
         <a href="{% url 'main:index' %}" class="nav-link">
           <i class="ri-home-line"></i>
-          Главная
+          <span>Главная</span>
         </a>
         <a href="{% url 'main:catalog' %}" class="nav-link">
-          <i class="ri-user-star-line"></i>
-          Исполнители
+          <i class="ri-group-line"></i>
+          <span>Исполнители</span>
         </a>
         {% if user.is_authenticated %}
           {% if user.user_type == 'customer' %}
             <a href="{% url 'main:create_order' %}" class="nav-link">
               <i class="ri-add-circle-line"></i>
-              Создать заявку
+              <span>Создать заявку</span>
             </a>
           {% endif %}
           <a href="{% url 'main:dashboard' %}" class="nav-link">
             <i class="ri-dashboard-line"></i>
-            Личный кабинет
+            <span>Личный кабинет</span>
           </a>
-          <a href="{% url 'main:logout' %}" class="nav-link">
-            <i class="ri-logout-box-line"></i>
-            Выйти
-          </a>
+          <div class="nav-dropdown">
+            <button class="nav-dropdown-toggle">
+              <div class="user-info">
+                {% if user.profile_photo %}
+                  <img src="{{ user.profile_photo.url }}" alt="{{ user.get_full_name }}" class="nav-avatar">
+                {% else %}
+                  <i class="ri-user-line"></i>
+                {% endif %}
+                <span>{{ user.get_full_name|default:user.phone_number }}</span>
+              </div>
+              <i class="ri-arrow-down-s-line"></i>
+            </button>
+            <div class="nav-dropdown-menu">
+              <a href="{% url 'main:profile_settings' %}">
+                <i class="ri-settings-line"></i>
+                <span>Настройки</span>
+              </a>
+              <a href="{% url 'main:logout' %}">
+                <i class="ri-logout-box-line"></i>
+                <span>Выйти</span>
+              </a>
+            </div>
+          </div>
         {% else %}
-          <a href="{% url 'main:auth' %}" class="nav-link">
+          <a href="{% url 'main:auth' %}" class="nav-link auth-link">
             <i class="ri-login-box-line"></i>
-            Войти
+            <span>Войти по номеру телефона</span>
           </a>
         {% endif %}
       </nav>
-      <button class="mobile-menu-toggle" onclick="toggleMobileMenu()">
+      <button class="mobile-menu-toggle" aria-label="Открыть меню">
         <span></span>
         <span></span>
         <span></span>
@@ -632,31 +694,50 @@
       <nav class="mobile-nav">
         <a href="{% url 'main:index' %}" class="mobile-nav-link">
           <i class="ri-home-line"></i>
-          Главная
+          <span>Главная</span>
         </a>
         <a href="{% url 'main:catalog' %}" class="mobile-nav-link">
           <i class="ri-user-star-line"></i>
-          Исполнители
+          <span>Исполнители</span>
         </a>
         {% if user.is_authenticated %}
           {% if user.user_type == 'customer' %}
             <a href="{% url 'main:create_order' %}" class="mobile-nav-link">
               <i class="ri-add-circle-line"></i>
-              Создать заявку
+              <span>Создать заявку</span>
             </a>
           {% endif %}
           <a href="{% url 'main:dashboard' %}" class="mobile-nav-link">
             <i class="ri-dashboard-line"></i>
-            Личный кабинет
+            <span>Личный кабинет</span>
           </a>
-          <a href="{% url 'main:logout' %}" class="mobile-nav-link">
-            <i class="ri-logout-box-line"></i>
-            Выйти
-          </a>
+          <div class="mobile-nav-dropdown">
+            <button class="mobile-nav-dropdown-toggle">
+              <div class="user-info">
+                {% if user.profile_photo %}
+                  <img src="{{ user.profile_photo.url }}" alt="{{ user.get_full_name }}" class="nav-avatar">
+                {% else %}
+                  <i class="ri-user-line"></i>
+                {% endif %}
+                <span>{{ user.get_full_name|default:user.phone_number }}</span>
+              </div>
+              <i class="ri-arrow-down-s-line"></i>
+            </button>
+            <div class="mobile-nav-dropdown-menu">
+              <a href="{% url 'main:profile_settings' %}" class="mobile-nav-link">
+                <i class="ri-settings-line"></i>
+                <span>Настройки</span>
+              </a>
+              <a href="{% url 'main:logout' %}" class="mobile-nav-link">
+                <i class="ri-logout-box-line"></i>
+                <span>Выйти</span>
+              </a>
+            </div>
+          </div>
         {% else %}
-          <a href="{% url 'main:auth' %}" class="mobile-nav-link">
+          <a href="{% url 'main:auth' %}" class="mobile-nav-link auth-link">
             <i class="ri-login-box-line"></i>
-            Войти
+            <span>Войти по номеру телефона</span>
           </a>
         {% endif %}
       </nav>
@@ -859,6 +940,7 @@
     </div>
   </footer>
 
+  <script src="{% static 'js/main.js' %}"></script>
   <script>
     // Инициализация формы при загрузке страницы
     document.addEventListener('DOMContentLoaded', function() {

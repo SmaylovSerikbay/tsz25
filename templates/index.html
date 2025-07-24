@@ -4,6 +4,67 @@
 {% block title %}Той со звездой - Главная{% endblock %}
 
 {% block content %}
+<header class="header">
+    <div class="container">
+        <a href="{% url 'main:index' %}" class="logo">Той со звездой</a>
+        <nav class="nav desktop-nav">
+            <a href="{% url 'main:index' %}" class="nav-link">
+                <i class="ri-home-line"></i>
+                <span>Главная</span>
+            </a>
+            <a href="{% url 'main:catalog' %}" class="nav-link">
+                <i class="ri-group-line"></i>
+                <span>Исполнители</span>
+            </a>
+            {% if user.is_authenticated %}
+                {% if user.user_type == 'customer' %}
+                    <a href="{% url 'main:create_order' %}" class="nav-link">
+                        <i class="ri-add-circle-line"></i>
+                        <span>Создать заявку</span>
+                    </a>
+                {% endif %}
+                <a href="{% url 'main:dashboard' %}" class="nav-link">
+                    <i class="ri-dashboard-line"></i>
+                    <span>Личный кабинет</span>
+                </a>
+                <div class="nav-dropdown">
+                    <button class="nav-dropdown-toggle">
+                        <div class="user-info">
+                            {% if user.profile_photo %}
+                                <img src="{{ user.profile_photo.url }}" alt="{{ user.get_full_name }}" class="nav-avatar">
+                            {% else %}
+                                <i class="ri-user-line"></i>
+                            {% endif %}
+                            <span>{{ user.get_full_name|default:user.phone_number }}</span>
+                        </div>
+                        <i class="ri-arrow-down-s-line"></i>
+                    </button>
+                    <div class="nav-dropdown-menu">
+                        <a href="{% url 'main:profile_settings' %}">
+                            <i class="ri-settings-line"></i>
+                            <span>Настройки</span>
+                        </a>
+                        <a href="{% url 'main:logout' %}">
+                            <i class="ri-logout-box-line"></i>
+                            <span>Выйти</span>
+                        </a>
+                    </div>
+                </div>
+            {% else %}
+                <a href="{% url 'main:auth' %}" class="nav-link auth-link">
+                    <i class="ri-login-box-line"></i>
+                    <span>Войти по номеру телефона</span>
+                </a>
+            {% endif %}
+        </nav>
+        <button class="mobile-menu-toggle" aria-label="Открыть меню">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+    </div>
+</header>
+
 <div class="hero">
     <div class="container">
         <h1>Найдите лучших исполнителей для вашего мероприятия</h1>
@@ -98,6 +159,62 @@
                 <h3>Ведущие</h3>
             </a>
         </div>
+    </div>
+</div>
+
+<!-- Mobile Menu -->
+<div class="mobile-menu">
+    <div class="mobile-menu-content">
+        <nav class="mobile-nav">
+            <a href="{% url 'main:index' %}" class="mobile-nav-link">
+                <i class="ri-home-line"></i>
+                <span>Главная</span>
+            </a>
+            <a href="{% url 'main:catalog' %}" class="mobile-nav-link">
+                <i class="ri-user-star-line"></i>
+                <span>Исполнители</span>
+            </a>
+            {% if user.is_authenticated %}
+                {% if user.user_type == 'customer' %}
+                    <a href="{% url 'main:create_order' %}" class="mobile-nav-link">
+                        <i class="ri-add-circle-line"></i>
+                        <span>Создать заявку</span>
+                    </a>
+                {% endif %}
+                <a href="{% url 'main:dashboard' %}" class="mobile-nav-link">
+                    <i class="ri-dashboard-line"></i>
+                    <span>Личный кабинет</span>
+                </a>
+                <div class="mobile-nav-dropdown">
+                    <button class="mobile-nav-dropdown-toggle">
+                        <div class="user-info">
+                            {% if user.profile_photo %}
+                                <img src="{{ user.profile_photo.url }}" alt="{{ user.get_full_name }}" class="nav-avatar">
+                            {% else %}
+                                <i class="ri-user-line"></i>
+                            {% endif %}
+                            <span>{{ user.get_full_name|default:user.phone_number }}</span>
+                        </div>
+                        <i class="ri-arrow-down-s-line"></i>
+                    </button>
+                    <div class="mobile-nav-dropdown-menu">
+                        <a href="{% url 'main:profile_settings' %}" class="mobile-nav-link">
+                            <i class="ri-settings-line"></i>
+                            <span>Настройки</span>
+                        </a>
+                        <a href="{% url 'main:logout' %}" class="mobile-nav-link">
+                            <i class="ri-logout-box-line"></i>
+                            <span>Выйти</span>
+                        </a>
+                    </div>
+                </div>
+            {% else %}
+                <a href="{% url 'main:auth' %}" class="mobile-nav-link auth-link">
+                    <i class="ri-login-box-line"></i>
+                    <span>Войти по номеру телефона</span>
+                </a>
+            {% endif %}
+        </nav>
     </div>
 </div>
 {% endblock %} 

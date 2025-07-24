@@ -676,7 +676,7 @@
       box-shadow: 0 2px 12px rgba(0,0,0,0.08);
       position: sticky;
       top: 0;
-      z-index: 100;
+      z-index: 1100;
     }
 
     .header .container {
@@ -750,31 +750,106 @@
       border-top: 1px solid #e5e7eb;
       color: #666;
     }
+    .mobile-menu-toggle {
+      display: none;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      width: 40px;
+      height: 40px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      z-index: 1100;
+      position: relative;
+    }
+    .mobile-menu-toggle span {
+      display: block;
+      width: 28px;
+      height: 3px;
+      margin: 4px 0;
+      background: #1a1a1a;
+      border-radius: 2px;
+      transition: 0.3s;
+      position: relative;
+      z-index: 2;
+    }
+    .mobile-menu-toggle.active span:nth-child(1) {
+      transform: translateY(13.7px) rotate(45deg);
+      background: #1a1a1a;
+    }
+    .mobile-menu-toggle.active span:nth-child(2) {
+      opacity: 0;
+    }
+    .mobile-menu-toggle.active span:nth-child(3) {
+      transform: translateY(-9px) rotate(-45deg);
+      background: #1a1a1a;
+    }
+    @media (max-width: 768px) {
+      .mobile-menu-toggle {
+        display: flex;
+      }
+      .desktop-nav {
+        display: none ;
+      }
+    }
   </style>
 </head>
 <body>
   <header class="header">
     <div class="container">
-      <a href="{% url 'main:index' %}" class="logo">Той со звездой</a>
+      <div class="logo">Той со звездой</div>
       <nav class="nav desktop-nav">
         <a href="{% url 'main:index' %}" class="nav-link">
           <i class="ri-home-line"></i>
-          Главная
+          <span>Главная</span>
         </a>
         <a href="{% url 'main:catalog' %}" class="nav-link">
-          <i class="ri-user-star-line"></i>
-          Исполнители
+          <i class="ri-group-line"></i>
+          <span>Исполнители</span>
         </a>
-        <a href="{% url 'main:dashboard' %}" class="nav-link">
-          <i class="ri-dashboard-line"></i>
-          Личный кабинет
-        </a>
-        <a href="{% url 'main:logout' %}" class="nav-link">
-          <i class="ri-logout-box-line"></i>
-          Выйти
-        </a>
+        {% if user.is_authenticated %}
+          {% if user.user_type == 'customer' %}
+            <a href="{% url 'main:create_order' %}" class="nav-link">
+              <i class="ri-add-circle-line"></i>
+              <span>Создать заявку</span>
+            </a>
+          {% endif %}
+          <a href="{% url 'main:dashboard' %}" class="nav-link">
+            <i class="ri-dashboard-line"></i>
+            <span>Личный кабинет</span>
+          </a>
+          <div class="nav-dropdown">
+            <button class="nav-dropdown-toggle">
+              <div class="user-info">
+                {% if user.profile_photo %}
+                  <img src="{{ user.profile_photo.url }}" alt="{{ user.get_full_name }}" class="nav-avatar">
+                {% else %}
+                  <i class="ri-user-line"></i>
+                {% endif %}
+                <span>{{ user.get_full_name|default:user.phone_number }}</span>
+              </div>
+              <i class="ri-arrow-down-s-line"></i>
+            </button>
+            <div class="nav-dropdown-menu">
+              <a href="{% url 'main:profile_settings' %}">
+                <i class="ri-settings-line"></i>
+                <span>Настройки</span>
+              </a>
+              <a href="{% url 'main:logout' %}">
+                <i class="ri-logout-box-line"></i>
+                <span>Выйти</span>
+              </a>
+            </div>
+          </div>
+        {% else %}
+          <a href="{% url 'main:auth' %}" class="nav-link auth-link">
+            <i class="ri-login-box-line"></i>
+            <span>Войти по номеру телефона</span>
+          </a>
+        {% endif %}
       </nav>
-      <button class="mobile-menu-toggle" onclick="toggleMobileMenu()">
+      <button class="mobile-menu-toggle" aria-label="Открыть меню">
         <span></span>
         <span></span>
         <span></span>
@@ -788,20 +863,46 @@
       <nav class="mobile-nav">
         <a href="{% url 'main:index' %}" class="mobile-nav-link">
           <i class="ri-home-line"></i>
-          Главная
+          <span>Главная</span>
         </a>
         <a href="{% url 'main:catalog' %}" class="mobile-nav-link">
           <i class="ri-user-star-line"></i>
-          Исполнители
+          <span>Исполнители</span>
         </a>
+        {% if user.is_authenticated %}
         <a href="{% url 'main:dashboard' %}" class="mobile-nav-link">
           <i class="ri-dashboard-line"></i>
-          Личный кабинет
+            <span>Личный кабинет</span>
+          </a>
+          <div class="mobile-nav-dropdown">
+            <button class="mobile-nav-dropdown-toggle">
+              <div class="user-info">
+                {% if user.profile_photo %}
+                  <img src="{{ user.profile_photo.url }}" alt="{{ user.get_full_name }}" class="nav-avatar">
+                {% else %}
+                  <i class="ri-user-line"></i>
+                {% endif %}
+                <span>{{ user.get_full_name|default:user.phone_number }}</span>
+              </div>
+              <i class="ri-arrow-down-s-line"></i>
+            </button>
+            <div class="mobile-nav-dropdown-menu">
+              <a href="{% url 'main:profile_settings' %}" class="mobile-nav-link">
+                <i class="ri-settings-line"></i>
+                <span>Настройки</span>
         </a>
         <a href="{% url 'main:logout' %}" class="mobile-nav-link">
           <i class="ri-logout-box-line"></i>
-          Выйти
+                <span>Выйти</span>
+              </a>
+            </div>
+          </div>
+        {% else %}
+          <a href="{% url 'main:auth' %}" class="mobile-nav-link auth-link">
+            <i class="ri-login-box-line"></i>
+            <span>Войти по номеру телефона</span>
         </a>
+        {% endif %}
       </nav>
     </div>
   </div>
@@ -934,34 +1035,8 @@
       document.body.style.overflow = 'auto';
     }
 
-    // Mobile Menu Functions
-    function toggleMobileMenu() {
-      const mobileMenu = document.querySelector('.mobile-menu');
-      const mobileMenuToggle = document.querySelector('.mobile-menu-toggle');
-      
-      mobileMenu.classList.toggle('active');
-      mobileMenuToggle.classList.toggle('active');
-      
-      if (mobileMenu.classList.contains('active')) {
-        document.body.style.overflow = 'hidden';
-      } else {
-        document.body.style.overflow = 'auto';
-      }
-    }
 
-    // Close mobile menu when clicking outside
-    document.addEventListener('click', function(event) {
-      const mobileMenu = document.querySelector('.mobile-menu');
-      const mobileMenuToggle = document.querySelector('.mobile-menu-toggle');
-      
-      if (mobileMenu.classList.contains('active') && 
-          !event.target.closest('.mobile-menu-content') && 
-          !event.target.closest('.mobile-menu-toggle')) {
-        mobileMenu.classList.remove('active');
-        mobileMenuToggle.classList.remove('active');
-        document.body.style.overflow = 'auto';
-      }
-    });
+
 
     // Close modals when clicking outside
     window.onclick = function(event) {
@@ -973,7 +1048,31 @@
     // Initialize all event listeners when DOM is loaded
     document.addEventListener('DOMContentLoaded', function() {
       // Add your event listeners here
+      const mobileMenuToggle = document.querySelector('.mobile-menu-toggle');
+      const mobileMenu = document.querySelector('.mobile-menu');
+      if (mobileMenuToggle && mobileMenu) {
+        mobileMenuToggle.addEventListener('click', function() {
+          mobileMenuToggle.classList.toggle('active');
+          mobileMenu.classList.toggle('open');
+          if (mobileMenu.classList.contains('open')) {
+            mobileMenu.style.display = 'block';
+            document.body.style.overflow = 'hidden';
+          } else {
+            mobileMenu.style.display = 'none';
+            document.body.style.overflow = 'auto';
+          }
+        });
+        window.addEventListener('click', function(event) {
+          if (mobileMenu.classList.contains('open') && !mobileMenu.contains(event.target) && !mobileMenuToggle.contains(event.target)) {
+            mobileMenuToggle.classList.remove('active');
+            mobileMenu.classList.remove('open');
+            mobileMenu.style.display = 'none';
+            document.body.style.overflow = 'auto';
+          }
+        });
+      }
     });
   </script>
+  <script src="{% static 'js/main.js' %}"></script>
 </body>
 </html> 

@@ -129,6 +129,7 @@ class Order(models.Model):
     budget_min = models.DecimalField(max_digits=10, decimal_places=2)
     budget_max = models.DecimalField(max_digits=10, decimal_places=2)
     services = models.JSONField()  # Хранит список выбранных услуг
+    selected_performers = models.JSONField(default=dict, blank=True, help_text="Выбранные исполнители по услугам: {service_type: performer_id}")
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='new')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -166,6 +167,7 @@ class Message(models.Model):
     content = models.TextField()
     is_read = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
+    performer = models.ForeignKey('User', on_delete=models.CASCADE, null=True, blank=True, related_name='chat_messages_performer')
     
     class Meta:
         ordering = ['created_at']

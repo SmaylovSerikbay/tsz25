@@ -18,68 +18,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
     createOverlay();
 
-    // Mobile menu toggle
-    if (mobileMenuToggle && nav) {
-        mobileMenuToggle.addEventListener('click', function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            
-            const isOpen = nav.classList.contains('active');
-            
-            // First, set display to flex if opening
-            if (!isOpen) {
-                nav.style.display = 'flex';
-                // Force a reflow
-                nav.offsetHeight;
-            }
-            
-            // Then toggle active classes
-            nav.classList.toggle('active');
-            mobileMenuToggle.classList.toggle('active');
-            menuOverlay.classList.toggle('active');
-            
-            // Toggle body scroll
-            body.style.overflow = isOpen ? '' : 'hidden';
-            
-            // Update icon
-            const icon = mobileMenuToggle.querySelector('i');
-            if (icon) {
-                icon.className = isOpen ? 'ri-menu-line' : 'ri-close-line';
-            }
-        });
-
-        // Close menu when clicking overlay
-        menuOverlay.addEventListener('click', function() {
-            closeMenu();
-        });
-
-        // Close menu when clicking a link
-        nav.addEventListener('click', function(e) {
-            if (e.target.matches('a[href]')) {
-                closeMenu();
-            }
-        });
-    }
-
-    function closeMenu() {
-        nav.classList.remove('active');
-        mobileMenuToggle.classList.remove('active');
-        menuOverlay.classList.remove('active');
-        body.style.overflow = '';
-        
-        const icon = mobileMenuToggle.querySelector('i');
-        if (icon) {
-            icon.className = 'ri-menu-line';
-        }
-        
-        // Wait for transition to complete before hiding
-        setTimeout(() => {
-            if (!nav.classList.contains('active')) {
-                nav.style.display = '';
-            }
-        }, 300);
-    }
-
     // Dropdown Functionality
     dropdowns.forEach(dropdown => {
         const toggle = dropdown.querySelector('.nav-dropdown-toggle');
@@ -330,9 +268,6 @@ document.addEventListener('DOMContentLoaded', function() {
     // Profile Page Functionality
     initializeProfile();
 
-    // Order Form Functionality
-    initializeOrderForm();
-
     // Base Template Functionality
     let lastScroll = 0;
     let scrollTimeout;
@@ -355,74 +290,111 @@ document.addEventListener('DOMContentLoaded', function() {
         }, 50);
     });
 
-    // Mobile menu functionality
-    const headerMobileMenuToggle = document.querySelector('.mobile-menu-toggle');
-    const headerNav = document.querySelector('.nav');
-    let headerMenuOverlay;
+    // --- ЧИСТАЯ ЛОГИКА МОБИЛЬНОГО МЕНЮ ---
+    const mobileMenu = document.querySelector('.mobile-menu');
+    // Корректно выбираем только мобильные дропдауны внутри мобильного меню
+    const mobileDropdowns = mobileMenu ? mobileMenu.querySelectorAll('.mobile-nav-dropdown') : [];
 
-    function createHeaderOverlay() {
-        if (!headerMenuOverlay) {
-            headerMenuOverlay = document.createElement('div');
-            headerMenuOverlay.className = 'menu-overlay';
-            document.body.appendChild(headerMenuOverlay);
-
-            headerMenuOverlay.addEventListener('click', closeHeaderMenu);
-        }
+    if (mobileMenuToggle && mobileMenu) {
+        mobileMenuToggle.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            const isOpen = mobileMenu.classList.contains('active');
+            if (!isOpen) {
+                mobileMenu.style.display = 'block';
+                mobileMenu.classList.add('active');
+                mobileMenuToggle.classList.add('active');
+                body.style.overflow = 'hidden';
+            } else {
+                mobileMenu.classList.remove('active');
+                mobileMenuToggle.classList.remove('active');
+                body.style.overflow = '';
+                // Сбросить display только после завершения анимации (300мс)
+                setTimeout(() => {
+                    if (!mobileMenu.classList.contains('active')) {
+                        mobileMenu.style.display = '';
+                    }
+                }, 300);
+            }
+        });
+        // Закрытие по клику вне меню
+        document.addEventListener('click', function(e) {
+            if (mobileMenu.classList.contains('active') &&
+                !e.target.closest('.mobile-menu-content') &&
+                !e.target.closest('.mobile-menu-toggle')) {
+                mobileMenu.classList.remove('active');
+                mobileMenuToggle.classList.remove('active');
+                body.style.overflow = '';
+                setTimeout(() => {
+                    if (!mobileMenu.classList.contains('active')) {
+                        mobileMenu.style.display = '';
+                    }
+                }, 300);
+            }
+        });
     }
+    // Удаляем overlay для мобильного меню, если был создан
+    var _menuOverlay = document.querySelector('.menu-overlay');
+    if (_menuOverlay) _menuOverlay.remove();
 
-    function toggleHeaderMenu() {
-        const isOpen = headerNav.classList.contains('active');
-        
-        if (isOpen) {
-            closeHeaderMenu();
-        } else {
-            openHeaderMenu();
-        }
-    }
+    // Mobile dropdowns (только внутри мобильного меню)
+    mobileDropdowns.forEach(dropdown => {
+        const toggle = dropdown.querySelector('.mobile-nav-dropdown-toggle');
+        const menu = dropdown.querySelector('.mobile-nav-dropdown-menu');
 
-    function openHeaderMenu() {
-        headerNav.classList.add('active');
-        headerMobileMenuToggle.classList.add('active');
-        document.body.style.overflow = 'hidden';
-        createHeaderOverlay();
-        headerMenuOverlay.classList.add('active');
-    }
-
-    function closeHeaderMenu() {
-        headerNav.classList.remove('active');
-        headerMobileMenuToggle.classList.remove('active');
-        document.body.style.overflow = '';
-        if (headerMenuOverlay) {
-            headerMenuOverlay.classList.remove('active');
-        }
-    }
-
-    if (headerMobileMenuToggle) {
-        headerMobileMenuToggle.addEventListener('click', toggleHeaderMenu);
-    }
-
-    // Dropdown menu functionality
-    const headerDropdowns = document.querySelectorAll('.nav-dropdown');
-
-    headerDropdowns.forEach(dropdown => {
-        const toggle = dropdown.querySelector('.nav-dropdown-toggle');
-        const menu = dropdown.querySelector('.nav-dropdown-menu');
-        
         if (toggle && menu) {
             toggle.addEventListener('click', function(e) {
+                e.preventDefault();
                 e.stopPropagation();
-                
+
                 // Close other dropdowns
-                headerDropdowns.forEach(d => {
-                    if (d !== dropdown) {
-                        d.querySelector('.nav-dropdown-menu')?.classList.remove('active');
+                mobileDropdowns.forEach(otherDropdown => {
+                    if (otherDropdown !== dropdown) {
+                        const otherMenu = otherDropdown.querySelector('.mobile-nav-dropdown-menu');
+                        const otherToggle = otherDropdown.querySelector('.mobile-nav-dropdown-toggle');
+                        if (otherMenu) otherMenu.classList.remove('active');
+                        if (otherToggle) otherToggle.classList.remove('active');
                     }
                 });
-                
+
+                // Toggle current dropdown
+                toggle.classList.toggle('active');
                 menu.classList.toggle('active');
             });
         }
     });
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const headerDropdowns = document.querySelectorAll('.mobile-nav-dropdown');
+    
+        headerDropdowns.forEach(dropdown => {
+            const toggle = dropdown.querySelector('.mobile-nav-dropdown-toggle');
+            const menu = dropdown.querySelector('.mobile-nav-dropdown-menu');
+    
+            if (toggle && menu) {
+                toggle.addEventListener('click', function(e) {
+                    e.stopPropagation();
+    
+                    // Закрыть другие
+                    headerDropdowns.forEach(d => {
+                        if (d !== dropdown) {
+                            d.querySelector('.mobile-nav-dropdown-menu')?.classList.remove('active');
+                        }
+                    });
+    
+                    menu.classList.toggle('active');
+                });
+            }
+        });
+    
+        // Закрыть при клике вне
+        document.addEventListener('click', function() {
+            headerDropdowns.forEach(dropdown => {
+                dropdown.querySelector('.mobile-nav-dropdown-menu')?.classList.remove('active');
+            });
+        });
+    });
+    
 
     // Message alerts functionality
     function showNotification(message, type = 'info') {
@@ -457,74 +429,100 @@ document.addEventListener('DOMContentLoaded', function() {
     // Catalog Page Functionality
     initializeCatalog();
 
-    // Mobile Menu
-    const mobileMenu = document.querySelector('.mobile-menu');
-    const mobileDropdowns = document.querySelectorAll('.mobile-nav-dropdown');
-
-    // Mobile menu toggle
-    if (mobileMenuToggle && mobileMenu) {
-        mobileMenuToggle.addEventListener('click', function() {
-            mobileMenu.classList.toggle('active');
-            mobileMenuToggle.classList.toggle('active');
-            body.style.overflow = mobileMenu.classList.contains('active') ? 'hidden' : '';
-        });
-
-        // Close menu when clicking outside
-        mobileMenu.addEventListener('click', function(e) {
-            if (e.target === mobileMenu) {
-                mobileMenu.classList.remove('active');
-                mobileMenuToggle.classList.remove('active');
-                body.style.overflow = '';
+    // --- ЛОГИКА ВЫБОРА УСЛУГ В ФОРМЕ ЗАКАЗА ---
+    const serviceCards = document.querySelectorAll('.service-card');
+    const selectedServicesInput = document.getElementById('selectedServices');
+    if (serviceCards.length && selectedServicesInput) {
+        let selected = [];
+        // Восстановить выбранные услуги при редактировании
+        try {
+            selected = JSON.parse(selectedServicesInput.value);
+        } catch (e) {
+            selected = [];
+        }
+        serviceCards.forEach(card => {
+            const service = card.getAttribute('data-service');
+            if (selected.includes(service)) {
+                card.classList.add('selected');
             }
-        });
-
-        // Close menu when clicking a link
-        const mobileLinks = mobileMenu.querySelectorAll('a[href]');
-        mobileLinks.forEach(link => {
-            link.addEventListener('click', function() {
-                mobileMenu.classList.remove('active');
-                mobileMenuToggle.classList.remove('active');
-                body.style.overflow = '';
+            card.addEventListener('click', function() {
+                if (selected.includes(service)) {
+                    selected = selected.filter(s => s !== service);
+                    card.classList.remove('selected');
+                } else {
+                    selected.push(service);
+                    card.classList.add('selected');
+                }
+                selectedServicesInput.value = JSON.stringify(selected);
             });
         });
+        // При отправке формы сериализуем выбранные услуги
+        const orderForm = selectedServicesInput.closest('form');
+        if (orderForm) {
+            orderForm.addEventListener('submit', function() {
+                selectedServicesInput.value = JSON.stringify(selected);
+            });
+        }
     }
-
-    // Mobile dropdowns
-    mobileDropdowns.forEach(dropdown => {
-        const toggle = dropdown.querySelector('.mobile-nav-dropdown-toggle');
-        const menu = dropdown.querySelector('.mobile-nav-dropdown-menu');
-        
-        if (toggle && menu) {
-            toggle.addEventListener('click', function(e) {
-                e.preventDefault();
-                e.stopPropagation();
-
-                // Close other dropdowns
-                mobileDropdowns.forEach(otherDropdown => {
-                    if (otherDropdown !== dropdown) {
-                        const otherMenu = otherDropdown.querySelector('.mobile-nav-dropdown-menu');
-                        const otherToggle = otherDropdown.querySelector('.mobile-nav-dropdown-toggle');
-                        if (otherMenu) otherMenu.classList.remove('active');
-                        if (otherToggle) otherToggle.classList.remove('active');
-                    }
-                });
-
-                // Toggle current dropdown
-                toggle.classList.toggle('active');
-                menu.classList.toggle('active');
-            });
-        }
-    });
-
-    // Close mobile menu on window resize
-    window.addEventListener('resize', function() {
-        if (window.innerWidth > 768 && mobileMenu && mobileMenu.classList.contains('active')) {
-            mobileMenu.classList.remove('active');
-            mobileMenuToggle.classList.remove('active');
-            body.style.overflow = '';
-        }
-    });
 });
+
+function closeMenu() {
+    const mobileMenu = document.querySelector('.mobile-menu');
+    const mobileMenuToggle = document.querySelector('.mobile-menu-toggle');
+    if (mobileMenu && mobileMenuToggle) {
+        mobileMenu.classList.remove('active');
+        mobileMenuToggle.classList.remove('active');
+        document.body.style.overflow = '';
+        setTimeout(() => {
+            if (!mobileMenu.classList.contains('active')) {
+                mobileMenu.style.display = '';
+            }
+        }, 300);
+    }
+}
+
+// Универсальные функции для модальных окон
+function openModal(modalId) {
+  const modal = document.getElementById(modalId);
+  if (modal) {
+    modal.style.display = 'block';
+    document.body.style.overflow = 'hidden';
+  }
+}
+
+function closeModal(modalId) {
+  const modal = document.getElementById(modalId);
+  if (modal) {
+    modal.style.display = 'none';
+    document.body.style.overflow = 'auto';
+  }
+}
+
+// Закрытие модалки по клику вне содержимого
+window.addEventListener('click', function(event) {
+  if (event.target.classList && event.target.classList.contains('modal')) {
+    closeModal(event.target.id);
+  }
+});
+
+// Глобальные функции для кнопок в dashboard-performer.html
+function openEditProfileModal() {
+  openModal('editProfileModal');
+}
+function openSubscriptionModal() {
+  openModal('subscriptionModal');
+}
+function openFilterModal() {
+  openModal('filterModal');
+}
+function openResponseModal() {
+  openModal('responseModal');
+}
+
+function openChatModal(orderId, performerId = null) {
+  openModal('chatModal');
+  // Можно добавить логику загрузки сообщений, если потребуется
+}
 
 // Profile Page Functionality
 function initializeProfile() {
@@ -669,43 +667,15 @@ function initializeProfile() {
     }
 
     // Modal functionality
-    function openModal(modal) {
-        if (modal) {
-            modal.style.display = 'block';
-            document.body.style.overflow = 'hidden';
-            
-            // Close on overlay click
-            modal.addEventListener('click', function(e) {
-                if (e.target === modal) {
-                    closeModal(modal);
-                }
-            });
-
-            // Close on escape key
-            document.addEventListener('keydown', function(e) {
-                if (e.key === 'Escape') {
-                    closeModal(modal);
-                }
-            });
-        }
-    }
-
-    function closeModal(modal) {
-        if (modal) {
-            modal.style.display = 'none';
-            document.body.style.overflow = '';
-        }
-    }
-
     // Initialize modals
     if (editProfileBtn) {
-        editProfileBtn.addEventListener('click', () => openModal(editProfileModal));
+        editProfileBtn.addEventListener('click', () => openModal('editProfileModal'));
     }
 
     document.querySelectorAll('.modal-close').forEach(btn => {
         btn.addEventListener('click', function() {
             const modal = this.closest('.modal');
-            closeModal(modal);
+            closeModal(modal.id);
         });
     });
 
@@ -737,218 +707,6 @@ function initializeProfile() {
                 showNotification('Ошибка при сохранении профиля', 'error');
             });
         });
-    }
-}
-
-// Order Form Functionality
-function initializeOrderForm() {
-    const orderForm = document.querySelector('.order-form');
-    const serviceCards = document.querySelectorAll('.service-card');
-    const budgetInputs = document.querySelectorAll('.budget-range input');
-    const dateInput = document.querySelector('input[type="date"]');
-    const timeInput = document.querySelector('input[type="time"]');
-    const submitBtn = document.querySelector('.btn.accent[type="submit"]');
-    const progressSteps = document.querySelectorAll('.progress-step');
-
-    // Service card selection
-    serviceCards.forEach(card => {
-        card.addEventListener('click', function() {
-            const input = this.querySelector('input[type="radio"]');
-            if (input) {
-                // Deselect all cards
-                serviceCards.forEach(c => c.classList.remove('selected'));
-                // Select clicked card
-                this.classList.add('selected');
-                input.checked = true;
-                
-                // Trigger validation
-                validateForm();
-            }
-        });
-    });
-
-    // Budget range validation and formatting
-    if (budgetInputs.length === 2) {
-        const [minInput, maxInput] = budgetInputs;
-
-        function formatNumber(value) {
-            return new Intl.NumberFormat('ru-RU').format(value);
-        }
-
-        function parseNumber(value) {
-            return parseInt(value.replace(/[^\d]/g, ''));
-        }
-
-        function updateBudgetInputs() {
-            let min = parseNumber(minInput.value) || 0;
-            let max = parseNumber(maxInput.value) || 0;
-
-            if (max && min > max) {
-                [min, max] = [max, min];
-            }
-
-            minInput.value = min ? formatNumber(min) : '';
-            maxInput.value = max ? formatNumber(max) : '';
-        }
-
-        budgetInputs.forEach(input => {
-            input.addEventListener('input', function() {
-                this.value = this.value.replace(/[^\d]/g, '');
-                updateBudgetInputs();
-                validateForm();
-            });
-
-            input.addEventListener('blur', updateBudgetInputs);
-        });
-    }
-
-    // Date and time validation
-    if (dateInput) {
-        // Set minimum date to today
-        const today = new Date();
-        const yyyy = today.getFullYear();
-        const mm = String(today.getMonth() + 1).padStart(2, '0');
-        const dd = String(today.getDate()).padStart(2, '0');
-        dateInput.min = `${yyyy}-${mm}-${dd}`;
-
-        dateInput.addEventListener('change', validateForm);
-    }
-
-    if (timeInput) {
-        timeInput.addEventListener('change', validateForm);
-    }
-
-    // Form validation
-    function validateForm() {
-        let isValid = true;
-        const errors = new Map();
-
-        // Required fields validation
-        orderForm.querySelectorAll('[required]').forEach(field => {
-            if (!field.value.trim()) {
-                isValid = false;
-                errors.set(field, 'Это поле обязательно для заполнения');
-            }
-        });
-
-        // Service selection validation
-        const selectedService = orderForm.querySelector('input[name="service"]:checked');
-        if (!selectedService) {
-            isValid = false;
-            errors.set(document.querySelector('.services-grid'), 'Выберите услугу');
-        }
-
-        // Budget validation
-        if (budgetInputs.length === 2) {
-            const [minInput, maxInput] = budgetInputs;
-            const min = parseNumber(minInput.value);
-            const max = parseNumber(maxInput.value);
-
-            if (min && max && min > max) {
-                isValid = false;
-                errors.set(maxInput, 'Максимальный бюджет должен быть больше минимального');
-            }
-        }
-
-        // Date validation
-        if (dateInput && dateInput.value) {
-            const selectedDate = new Date(dateInput.value);
-            const today = new Date();
-            today.setHours(0, 0, 0, 0);
-
-            if (selectedDate < today) {
-                isValid = false;
-                errors.set(dateInput, 'Дата не может быть в прошлом');
-            }
-        }
-
-        // Display errors
-        orderForm.querySelectorAll('.error-message').forEach(msg => msg.remove());
-        orderForm.querySelectorAll('.form-input').forEach(input => {
-            input.classList.remove('error');
-        });
-
-        errors.forEach((message, element) => {
-            element.classList.add('error');
-            const errorDiv = document.createElement('div');
-            errorDiv.className = 'error-message';
-            errorDiv.innerHTML = `<i class="ri-error-warning-line"></i>${message}`;
-            element.parentNode.appendChild(errorDiv);
-        });
-
-        // Update submit button state
-        if (submitBtn) {
-            submitBtn.disabled = !isValid;
-            submitBtn.style.opacity = isValid ? '1' : '0.7';
-        }
-
-        return isValid;
-    }
-
-    // Form submission
-    if (orderForm) {
-        orderForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-
-            if (validateForm()) {
-                const formData = new FormData(this);
-                
-                // Show loading state
-                submitBtn.disabled = true;
-                submitBtn.innerHTML = '<i class="ri-loader-4-line"></i> Отправка...';
-
-                fetch(this.action, {
-                    method: 'POST',
-                    body: formData,
-                    headers: {
-                        'X-CSRFToken': formData.get('csrfmiddlewaretoken')
-                    }
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        showNotification('Заявка успешно отправлена', 'success');
-                        setTimeout(() => {
-                            window.location.href = data.redirect_url;
-                        }, 1500);
-                    } else {
-                        showNotification(data.message || 'Ошибка при отправке заявки', 'error');
-                        submitBtn.disabled = false;
-                        submitBtn.innerHTML = 'Отправить заявку';
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    showNotification('Ошибка при отправке заявки', 'error');
-                    submitBtn.disabled = false;
-                    submitBtn.innerHTML = 'Отправить заявку';
-                });
-            }
-        });
-
-        // Initial validation
-        validateForm();
-    }
-
-    // Progress steps animation
-    function updateProgressSteps() {
-        const validSections = Array.from(document.querySelectorAll('.form-section')).map(section => {
-            const inputs = section.querySelectorAll('input, select, textarea');
-            return Array.from(inputs).every(input => input.value.trim());
-        });
-
-        progressSteps.forEach((step, index) => {
-            if (validSections[index]) {
-                step.classList.add('completed');
-            } else {
-                step.classList.remove('completed');
-            }
-        });
-    }
-
-    if (progressSteps.length) {
-        orderForm.addEventListener('input', updateProgressSteps);
-        updateProgressSteps();
     }
 }
 

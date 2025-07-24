@@ -3,9 +3,10 @@ from django.contrib.auth.forms import UserCreationForm
 from .models import User, Order, Review, Portfolio, Tariff
 
 class UserRegistrationForm(UserCreationForm):
+    city = forms.CharField(max_length=100, required=True, label='Город')
     class Meta:
         model = User
-        fields = ('username', 'email', 'first_name', 'last_name', 'phone_number', 'user_type', 'profile_photo')
+        fields = ('username', 'email', 'first_name', 'last_name', 'phone_number', 'user_type', 'profile_photo', 'city')
 
 class UserProfileForm(forms.ModelForm):
     class Meta:

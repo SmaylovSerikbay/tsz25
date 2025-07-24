@@ -3,6 +3,7 @@
 
 {% block content %}
 <div class="container">
+  <!-- Весь контент заказа, ничего лишнего, только заказ -->
   <div class="order-detail">
     <div class="order-header">
       <div class="order-title">
@@ -113,36 +114,39 @@
       </div>
       {% endif %}
 
-      {% if order.performer %}
+      {% if order.selected_performers %}
       <div class="order-section">
-        <h3>Исполнитель</h3>
-        <div class="performer-card">
-          <div class="performer-info">
-            {% if order.performer.profile_photo %}
-              <img src="{{ order.performer.profile_photo.url }}" alt="Фото исполнителя" class="performer-avatar">
-            {% else %}
-              <div class="performer-avatar-placeholder">
-                <i class="ri-user-line"></i>
+        <h3>Выбранные исполнители</h3>
+        <div class="selected-performers">
+          {% for service, performer_id in order.selected_performers.items %}
+            {% for pid, performer in performers_by_id.items %}
+              {% if pid == performer_id %}
+                {% if performer %}
+                  <div class="selected-performer">
+                    <div class="selected-performer-info">
+                      <h4>
+                        {% if service == 'photo' %}Фотограф{% elif service == 'video' %}Видеограф{% elif service == 'music' %}Музыкант{% elif service == 'host' %}Ведущий{% elif service == 'dance' %}Шоу-программа{% else %}{{ service }}{% endif %}: 
+                        {{ performer.get_full_name }}
+                      </h4>
+                      <p>{{ performer.city }}</p>
               </div>
+                    {% if user == order.customer %}
+                    <a href="{% url 'main:view_profile' performer.id %}" class="btn outline small">Профиль</a>
+                    <button class="btn outline small" onclick="openChatModal('{{ order.id }}', '{{ performer.id }}')">
+                      <i class="ri-message-2-line"></i> Открыть чат
+                    </button>
             {% endif %}
-            <div class="performer-details">
-              <h4>{{ order.performer.get_full_name }}</h4>
-              <div class="performer-meta">
-                <div class="performer-rating">
-                  <i class="ri-star-fill"></i>
-                  <span>{{ order.performer.rating|floatformat:1 }}</span>
                 </div>
-                <div class="performer-city">
-                  <i class="ri-map-pin-line"></i>
-                  <span>{{ order.performer.city }}</span>
+                {% else %}
+                  <div class="selected-performer">
+                    <div class="selected-performer-info">
+                      <h4>{% if service == 'photo' %}Фотограф{% elif service == 'video' %}Видеограф{% elif service == 'music' %}Музыкант{% elif service == 'host' %}Ведущий{% elif service == 'dance' %}Шоу-программа{% else %}{{ service }}{% endif %}: <span style='color:#888'>Исполнитель не найден</span></h4>
                 </div>
               </div>
-              <a href="{% url 'main:view_profile' order.performer.id %}" class="btn outline small">
-                <i class="ri-user-line"></i>
-                Профиль исполнителя
-              </a>
-            </div>
-          </div>
+                {% endif %}
+              {% endif %}
+            {% endfor %}
+          {% endfor %}
         </div>
       </div>
       {% endif %}
@@ -171,6 +175,15 @@
                   <span>{{ order.customer.city }}</span>
                 </div>
               </div>
+              {# Удаляем старый двойной цикл и обращения к order.selected_performers[service] #}
+              {% if is_selected_performer %}
+              <div style="display: flex; gap: 8px;">
+                <button class="btn outline small" onclick="openChatModal('{{ order.id }}', '{{ user.id }}')">
+                  <i class="ri-message-2-line"></i>
+                  Открыть чат с заказчиком
+                </button>
+              </div>
+              {% endif %}
             </div>
           </div>
         </div>
@@ -189,11 +202,11 @@
       </div>
       {% endif %}
 
-      {% if is_performer or is_customer %}
-      <button class="btn outline" onclick="openChatModal('{{ order.id }}')">
-        <i class="ri-message-2-line"></i>
-        Открыть чат
-      </button>
+      {% if is_performer and order.status == 'in_progress' %}
+      <a href="{% url 'main:performer_cancel_order' order.id %}" class="btn delete">
+        <i class="ri-close-circle-line"></i>
+        Отменить участие
+      </a>
       {% endif %}
 
       {% if is_customer and order.status == 'new' %}
@@ -243,6 +256,9 @@
             <div class="response-message">{{ response.message }}</div>
           </div>
           <div class="response-actions">
+              <button class="btn outline" onclick="openChatModal('{{ order.id }}', '{{ response.performer.id }}')">
+                <i class="ri-message-2-line"></i> Открыть чат
+              </button>
             <form action="" method="POST" style="display: inline;">
               {% csrf_token %}
               <input type="hidden" name="response_id" value="{{ response.id }}">
@@ -397,6 +413,12 @@
   background: #f8f9fa;
   border-radius: 16px;
   padding: 24px;
+}
+
+.selected-performer {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
 }
 
 .order-section h3 {
@@ -743,143 +765,25 @@
 }
 
 @media (max-width: 768px) {
-  .order-detail {
-    padding: 24px;
-    margin: 16px 0;
-  }
-
-  .order-header {
+  .chat-input {
     flex-direction: column;
-    gap: 16px;
+    gap: 8px;
   }
-
-  .order-status {
-    align-self: flex-start;
+  .chat-input .form-input {
+    font-size: 1.1rem;
+    min-height: 48px;
+    padding: 16px;
   }
-
-  .info-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .services-grid {
-    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-  }
-
-  .performer-info {
-    flex-direction: column;
-    text-align: center;
-  }
-
-  .performer-meta {
-    justify-content: center;
-  }
-
-  .order-actions {
-    flex-direction: column;
-  }
-
-  .order-manage-actions {
-    flex-direction: column;
-    margin-left: 0;
+  .chat-input button.btn {
     width: 100%;
-  }
-
-  .btn {
-    width: 100%;
-    justify-content: center;
-  }
-
-  .response-actions {
-    flex-direction: column;
-  }
-  
-  .response-actions .btn {
-    width: 100%;
+    font-size: 1.2rem;
+    padding: 16px 0;
+    min-height: 48px;
   }
 }
 </style>
 
-<script>
-let chatUpdateInterval;
+{% block extra_js %}
+{% endblock %}
 
-function openChatModal(orderId) {
-  document.getElementById('chatModal').style.display = 'block';
-  document.body.style.overflow = 'hidden';
-  loadMessages(orderId);
-  
-  // Обновляем сообщения каждые 5 секунд
-  chatUpdateInterval = setInterval(() => loadMessages(orderId), 5000);
-}
-
-function closeModal(modalId) {
-  document.getElementById(modalId).style.display = 'none';
-  document.body.style.overflow = 'auto';
-  
-  // Останавливаем обновление сообщений
-  if (chatUpdateInterval) {
-    clearInterval(chatUpdateInterval);
-  }
-}
-
-function loadMessages(orderId) {
-  fetch(`/chat/${orderId}/messages/`)
-    .then(response => response.json())
-    .then(data => {
-      const chatMessages = document.getElementById('chatMessages');
-      chatMessages.innerHTML = '';
-      
-      data.messages.forEach(message => {
-        const messageDiv = document.createElement('div');
-        messageDiv.className = `message ${message.is_mine ? 'sent' : 'received'}`;
-        messageDiv.innerHTML = `
-          <div class="message-content">${message.content}</div>
-          <div class="message-time">${message.timestamp}</div>
-        `;
-        chatMessages.appendChild(messageDiv);
-      });
-      
-      // Прокручиваем к последнему сообщению
-      chatMessages.scrollTop = chatMessages.scrollHeight;
-    });
-}
-
-function sendMessage(event) {
-  event.preventDefault();
-  const form = event.target;
-  const input = form.querySelector('input');
-  const message = input.value.trim();
-  
-  if (!message) return;
-  
-  const orderId = '{{ order.id }}';
-  
-  fetch(`/chat/${orderId}/send/`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'X-CSRFToken': form.querySelector('[name=csrfmiddlewaretoken]').value
-    },
-    body: JSON.stringify({ message })
-  })
-  .then(response => response.json())
-  .then(data => {
-    if (data.success) {
-      input.value = '';
-      loadMessages(orderId);
-    }
-  });
-}
-
-function openResponseModal() {
-  document.getElementById('responseModal').style.display = 'block';
-  document.body.style.overflow = 'hidden';
-}
-
-// Закрытие модальных окон при клике вне их содержимого
-window.onclick = function(event) {
-  if (event.target.classList.contains('modal')) {
-    closeModal(event.target.id);
-  }
-};
-</script>
 {% endblock %} 

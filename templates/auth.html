@@ -10,12 +10,114 @@
   <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
 </head>
 <body>
+  <!-- Mobile Menu -->
+  <div class="mobile-menu">
+    <div class="mobile-menu-content">
+      <nav class="mobile-nav">
+        <a href="{% url 'main:index' %}" class="mobile-nav-link">
+          <i class="ri-home-line"></i>
+          <span>Главная</span>
+        </a>
+        <a href="{% url 'main:catalog' %}" class="mobile-nav-link">
+          <i class="ri-group-line"></i>
+          <span>Исполнители</span>
+        </a>
+        {% if user.is_authenticated %}
+          {% if user.user_type == 'customer' %}
+            <a href="{% url 'main:create_order' %}" class="mobile-nav-link">
+              <i class="ri-add-circle-line"></i>
+              <span>Создать заявку</span>
+            </a>
+          {% endif %}
+          <a href="{% url 'main:dashboard' %}" class="mobile-nav-link">
+            <i class="ri-dashboard-line"></i>
+            <span>Личный кабинет</span>
+          </a>
+          <div class="mobile-nav-dropdown">
+            <button class="mobile-nav-dropdown-toggle">
+              <div class="user-info">
+                {% if user.profile_photo %}
+                  <img src="{{ user.profile_photo.url }}" alt="{{ user.get_full_name }}" class="nav-avatar">
+                {% else %}
+                  <i class="ri-user-line"></i>
+                {% endif %}
+                <span>{{ user.get_full_name|default:user.phone_number }}</span>
+              </div>
+              <i class="ri-arrow-down-s-line"></i>
+            </button>
+            <div class="mobile-nav-dropdown-menu">
+              <a href="{% url 'main:profile_settings' %}" class="mobile-nav-link">
+                <i class="ri-settings-line"></i>
+                <span>Настройки</span>
+              </a>
+              <a href="{% url 'main:logout' %}" class="mobile-nav-link">
+                <i class="ri-logout-box-line"></i>
+                <span>Выйти</span>
+              </a>
+            </div>
+          </div>
+        {% else %}
+          <a href="{% url 'main:auth' %}" class="mobile-nav-link auth-link">
+            <i class="ri-login-box-line"></i>
+            <span>Войти по номеру телефона</span>
+          </a>
+        {% endif %}
+      </nav>
+    </div>
+  </div>
+
   <header class="header">
     <div class="container">
       <a href="{% url 'main:index' %}" class="logo">Той со звездой</a>
-      <nav class="nav">
-        <a href="{% url 'main:index' %}" class="nav-link">Главная</a>
-        <a href="{% url 'main:catalog' %}" class="nav-link">Исполнители</a>
+      <nav class="nav desktop-nav">
+        <a href="{% url 'main:index' %}" class="nav-link">
+          <i class="ri-home-line"></i>
+          <span>Главная</span>
+        </a>
+        <a href="{% url 'main:catalog' %}" class="nav-link">
+          <i class="ri-group-line"></i>
+          <span>Исполнители</span>
+        </a>
+        {% if user.is_authenticated %}
+          {% if user.user_type == 'customer' %}
+            <a href="{% url 'main:create_order' %}" class="nav-link">
+              <i class="ri-add-circle-line"></i>
+              <span>Создать заявку</span>
+            </a>
+          {% endif %}
+          <a href="{% url 'main:dashboard' %}" class="nav-link">
+            <i class="ri-dashboard-line"></i>
+            <span>Личный кабинет</span>
+          </a>
+          <div class="nav-dropdown">
+            <button class="nav-dropdown-toggle">
+              <div class="user-info">
+                {% if user.profile_photo %}
+                  <img src="{{ user.profile_photo.url }}" alt="{{ user.get_full_name }}" class="nav-avatar">
+                {% else %}
+                  <i class="ri-user-line"></i>
+                {% endif %}
+                <span>{{ user.get_full_name|default:user.phone_number }}</span>
+              </div>
+              <i class="ri-arrow-down-s-line"></i>
+            </button>
+            <div class="nav-dropdown-menu">
+              <a href="{% url 'main:profile_settings' %}">
+                <i class="ri-settings-line"></i>
+                <span>Настройки</span>
+              </a>
+              <a href="{% url 'main:logout' %}">
+                <i class="ri-logout-box-line"></i>
+                <span>Выйти</span>
+              </a>
+            </div>
+          </div>
+        {% else %}
+          <a href="{% url 'main:auth' %}" class="nav-link auth-link">
+            <i class="ri-login-box-line"></i>
+            <span>Войти по номеру телефона</span>
+          </a>
+        {% endif %}
       </nav>
     </div>
   </header>
@@ -41,9 +143,8 @@
         <!-- Phone verification form -->
         <form id="phoneForm" class="auth-form active">
           <div class="form-group">
-            <label class="form-label">Номер телефона</label>
-            <input type="tel" class="form-input" name="phone_number" id="phone_number" required 
-                   placeholder="+7 (XXX) XXX-XX-XX">
+            <label class="form-label" for="phone_number">Номер телефона</label>
+            <input type="tel" class="form-input" name="phone_number" id="phone_number" required placeholder="+7 (XXX) XXX-XX-XX" autocomplete="tel">
           </div>
           <div class="form-actions">
             <button type="submit" class="btn accent">Получить код</button>
@@ -53,9 +154,8 @@
         <!-- OTP verification form -->
         <form id="otpForm" class="auth-form" style="display: none;">
           <div class="form-group">
-            <label class="form-label">Введите код из WhatsApp</label>
-            <input type="text" class="form-input" name="otp_code" id="otp_code" required 
-                   maxlength="6" placeholder="XXXXXX">
+            <label class="form-label" for="otp_code">Введите код из WhatsApp</label>
+            <input type="text" class="form-input" name="otp_code" id="otp_code" required maxlength="6" placeholder="XXXXXX" autocomplete="one-time-code">
           </div>
           <div class="form-actions">
             <button type="submit" class="btn accent">Подтвердить</button>
@@ -66,16 +166,21 @@
         <!-- Registration form (shown after OTP verification) -->
         <form id="registerForm" class="auth-form" style="display: none;" method="post" action="{% url 'main:register' %}" enctype="multipart/form-data">
           {% csrf_token %}
-          <input type="hidden" name="phone_number" id="reg_phone_number">
+          <input type="hidden" name="phone_number" id="reg_phone_number" autocomplete="tel">
           
           <div class="form-group">
-            <label class="form-label">Имя</label>
-            <input type="text" class="form-input" name="first_name" required placeholder="Введите ваше имя">
+            <label class="form-label" for="first_name">Имя</label>
+            <input type="text" class="form-input" name="first_name" id="first_name" required placeholder="Введите ваше имя" autocomplete="given-name">
           </div>
 
           <div class="form-group">
-            <label class="form-label">Фамилия</label>
-            <input type="text" class="form-input" name="last_name" required placeholder="Введите вашу фамилию">
+            <label class="form-label" for="last_name">Фамилия</label>
+            <input type="text" class="form-input" name="last_name" id="last_name" required placeholder="Введите вашу фамилию" autocomplete="family-name">
+          </div>
+          
+          <div class="form-group">
+            <label class="form-label" for="city">Город проживания</label>
+            <input type="text" class="form-input" name="city" id="city" required placeholder="Введите ваш город" autocomplete="address-level2">
           </div>
           
           <div class="user-type-select">
@@ -105,12 +210,11 @@
               <label class="form-label">Вид услуг</label>
               <select class="form-input" name="service_type">
                 <option value="">Выберите вид услуг</option>
-                <option value="photographer">Фотограф</option>
-                <option value="videographer">Видеограф</option>
-                <option value="musician">Музыкант</option>
+                <option value="photo">Фотограф</option>
+                <option value="video">Видеограф</option>
+                <option value="music">Музыкант</option>
                 <option value="host">Ведущий</option>
-                <option value="decorator">Декоратор</option>
-                <option value="makeup">Визажист</option>
+                <option value="dance">Шоу-программа</option>
               </select>
             </div>
             
@@ -118,6 +222,23 @@
               <label class="form-label">О себе</label>
               <textarea class="form-input" name="bio" placeholder="Расскажите о своем опыте и услугах"></textarea>
             </div>
+          </div>
+          
+          <div class="form-group">
+            <label class="form-label" for="username">Имя пользователя</label>
+            <input type="text" class="form-input" name="username" id="username" required placeholder="Придумайте логин" autocomplete="username">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="email">Email</label>
+            <input type="email" class="form-input" name="email" id="email" required placeholder="Введите ваш email" autocomplete="email">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="password1">Пароль</label>
+            <input type="password" class="form-input" name="password1" id="password1" required placeholder="Придумайте пароль" autocomplete="new-password">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="password2">Повторите пароль</label>
+            <input type="password" class="form-input" name="password2" id="password2" required placeholder="Повторите пароль" autocomplete="new-password">
           </div>
           
           <input type="hidden" name="user_type" id="userTypeInput" value="customer">
@@ -289,6 +410,7 @@
     }
   </style>
 
+  <script src="{% static 'js/main.js' %}"></script>
   <script>
     let currentPhoneNumber = '';
 
@@ -392,6 +514,23 @@
         serviceTypeSelect.required = (type === 'performer');
       }
     }
+
+    document.getElementById('registerForm').addEventListener('submit', function(e) {
+      const userType = document.getElementById('userTypeInput').value;
+      if (!userType) {
+        alert('Пожалуйста, выберите тип аккаунта!');
+        e.preventDefault();
+        return false;
+      }
+      if (userType === 'performer') {
+        const serviceType = document.querySelector('select[name="service_type"]').value;
+        if (!serviceType) {
+          alert('Пожалуйста, выберите специализацию!');
+          e.preventDefault();
+          return false;
+        }
+      }
+    });
   </script>
 </body>
 </html> 
