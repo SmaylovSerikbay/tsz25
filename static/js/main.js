@@ -519,9 +519,73 @@ function openResponseModal() {
   openModal('responseModal');
 }
 
+function loadMessages(orderId, performerId = null) {
+  let url = `/chat/${orderId}/messages/`;
+  if (performerId) {
+    url += `?performer_id=${performerId}`;
+  }
+  fetch(url)
+    .then(response => response.json())
+    .then(data => {
+      const chatMessages = document.getElementById('chatMessages');
+      if (!chatMessages) return;
+      chatMessages.innerHTML = '';
+      data.messages.forEach(message => {
+        const messageDiv = document.createElement('div');
+        messageDiv.className = `message ${message.is_mine ? 'sent' : 'received'}`;
+        messageDiv.innerHTML = `
+          <div class="message-content">${message.content}</div>
+          <div class="message-time">${message.timestamp}</div>
+        `;
+        chatMessages.appendChild(messageDiv);
+      });
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+    });
+}
+
+// Обновляю openChatModal, чтобы подгружать сообщения при открытии
 function openChatModal(orderId, performerId = null) {
   openModal('chatModal');
-  // Можно добавить логику загрузки сообщений, если потребуется
+  const chatModal = document.getElementById('chatModal');
+  chatModal.setAttribute('data-order-id', orderId);
+  chatModal.setAttribute('data-performer-id', performerId || '');
+  loadMessages(orderId, performerId);
+}
+
+function sendMessage(event) {
+  event.preventDefault();
+  const form = event.target;
+  const input = form.querySelector('input.form-input');
+  const message = input.value.trim();
+  if (!message) return;
+
+  const chatModal = document.getElementById('chatModal');
+  const orderId = chatModal.getAttribute('data-order-id');
+  const performerId = chatModal.getAttribute('data-performer-id');
+  const csrfToken = form.querySelector('[name=csrfmiddlewaretoken]').value;
+
+  const payload = { message };
+  if (performerId) {
+    payload.performer_id = performerId;
+  }
+
+  fetch(`/chat/${orderId}/send/`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-CSRFToken': csrfToken
+    },
+    body: JSON.stringify(payload)
+  })
+  .then(response => response.json())
+  .then(data => {
+    if (data.success) {
+      input.value = '';
+      if (typeof loadMessages === 'function') {
+        loadMessages(orderId, performerId);
+      }
+    }
+  });
 }
 
 // Profile Page Functionality
