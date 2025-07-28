@@ -75,6 +75,27 @@
             {% elif service == 'dance' %}
               <i class="ri-emotion-happy-line"></i>
               <span>Шоу-программа</span>
+            {% elif service == 'restaurant' %}
+              <i class="ri-restaurant-line"></i>
+              <span>Ресторан</span>
+            {% elif service == 'makeup' %}
+              <i class="ri-palette-line"></i>
+              <span>Визожист</span>
+            {% elif service == 'registry' %}
+              <i class="ri-heart-line"></i>
+              <span>Регистрация брака</span>
+            {% elif service == 'cottage' %}
+              <i class="ri-home-line"></i>
+              <span>Коттеджы</span>
+            {% elif service == 'recreation_areas' %}
+              <i class="ri-tree-line"></i>
+              <span>Зоны отдыха</span>
+            {% elif service == 'star' %}
+              <i class="ri-star-line"></i>
+              <span>Звезда Эстрады</span>
+            {% elif service == 'aphishe' %}
+              <i class="ri-file-text-line"></i>
+              <span>Концертные Афишы</span>
             {% else %}
               <i class="ri-checkbox-circle-line"></i>
               <span>{{ service }}</span>
@@ -125,7 +146,7 @@
                   <div class="selected-performer">
                     <div class="selected-performer-info">
                       <h4>
-                        {% if service == 'photo' %}Фотограф{% elif service == 'video' %}Видеограф{% elif service == 'music' %}Музыкант{% elif service == 'host' %}Ведущий{% elif service == 'dance' %}Шоу-программа{% else %}{{ service }}{% endif %}: 
+                        {% if service == 'photo' %}Фотограф{% elif service == 'video' %}Видеограф{% elif service == 'music' %}Музыкант{% elif service == 'host' %}Ведущий{% elif service == 'dance' %}Шоу-программа{% elif service == 'restaurant' %}Ресторан{% elif service == 'makeup' %}Визожист{% elif service == 'registry' %}Регистрация брака{% elif service == 'star' %}Звезда Эстрады{% elif service == 'cottage' %}Коттеджы{% elif service == 'recreation_areas' %}Зоны отдыха{% elif service == 'aphishe' %}Концертные Афишы{% else %}{{ service }}{% endif %}: 
                         {{ performer.get_full_name }}
                       </h4>
                       <p>{{ performer.city }}</p>
@@ -248,7 +269,38 @@
         {% for response in responses %}
         <div class="response-card">
           <div class="response-header">
-            <h3>{{ response.performer.get_full_name }}</h3>
+            <div class="performer-info">
+              <h3>{{ response.performer.get_full_name }}</h3>
+              <span class="performer-specialization">
+                {% if response.performer.service_type == 'photo' %}
+                  <i class="ri-camera-line"></i> Фотограф
+                {% elif response.performer.service_type == 'video' %}
+                  <i class="ri-video-line"></i> Видеограф
+                {% elif response.performer.service_type == 'music' %}
+                  <i class="ri-music-2-line"></i> Музыкант
+                {% elif response.performer.service_type == 'host' %}
+                  <i class="ri-mic-line"></i> Ведущий
+                {% elif response.performer.service_type == 'dance' %}
+                  <i class="ri-emotion-happy-line"></i> Шоу-программа
+                {% elif response.performer.service_type == 'restaurant' %}
+                  <i class="ri-restaurant-line"></i> Ресторан
+                {% elif response.performer.service_type == 'makeup' %}
+                  <i class="ri-palette-line"></i> Визожист
+                {% elif response.performer.service_type == 'registry' %}
+                  <i class="ri-heart-line"></i> Регистрация брака
+                {% elif response.performer.service_type == 'cottage' %}
+                  <i class="ri-home-line"></i> Коттеджы
+                {% elif response.performer.service_type == 'recreation_areas' %}
+                  <i class="ri-tree-line"></i> Зоны отдыха
+                {% elif response.performer.service_type == 'star' %}
+                  <i class="ri-star-line"></i> Звезда Эстрады
+                {% elif response.performer.service_type == 'aphishe' %}
+                  <i class="ri-file-text-line"></i> Концертные Афишы
+                {% else %}
+                  <i class="ri-user-line"></i> {{ response.performer.service_type|default:"Исполнитель" }}
+                {% endif %}
+              </span>
+            </div>
             <span class="response-date">{{ response.created_at|date:"d.m.Y" }}</span>
           </div>
           <div class="response-details">
@@ -722,14 +774,34 @@
 .response-header {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-start;
   margin-bottom: 16px;
+}
+
+.performer-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 }
 
 .response-header h3 {
   font-size: 1.2rem;
   font-weight: 600;
   margin: 0;
+}
+
+.performer-specialization {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 1.1rem;
+  color: #666;
+  font-weight: 600;
+}
+
+.performer-specialization i {
+  color: #2e6cff;
+  font-size: 1.2rem;
 }
 
 .response-date {

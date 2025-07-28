@@ -243,9 +243,17 @@
 
     .performer-type {
       color: var(--primary-color);
-      font-size: 0.875rem;
-      font-weight: 500;
+      font-size: 1.1rem;
+      font-weight: 600;
       margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .performer-type i {
+      color: var(--primary-color);
+      font-size: 1.2rem;
     }
 
     .performer-meta {
@@ -880,7 +888,35 @@
             {% endif %}
             <div class="performer-info">
               <h3 class="performer-name">{{ performer.get_full_name }}</h3>
-              <div class="performer-type">{{ performer.get_user_type_display }}</div>
+              <div class="performer-type">
+                {% if performer.service_type == 'photo' %}
+                  <i class="ri-camera-line"></i> Фотограф
+                {% elif performer.service_type == 'video' %}
+                  <i class="ri-video-line"></i> Видеограф
+                {% elif performer.service_type == 'music' %}
+                  <i class="ri-music-2-line"></i> Музыкант
+                {% elif performer.service_type == 'host' %}
+                  <i class="ri-mic-line"></i> Ведущий
+                {% elif performer.service_type == 'dance' %}
+                  <i class="ri-emotion-happy-line"></i> Шоу-программа
+                {% elif performer.service_type == 'restaurant' %}
+                  <i class="ri-restaurant-line"></i> Ресторан
+                {% elif performer.service_type == 'makeup' %}
+                  <i class="ri-palette-line"></i> Визожист
+                {% elif performer.service_type == 'registry' %}
+                  <i class="ri-heart-line"></i> Регистрация брака
+                {% elif performer.service_type == 'cottage' %}
+                  <i class="ri-home-line"></i> Коттеджы
+                {% elif performer.service_type == 'recreation_areas' %}
+                  <i class="ri-tree-line"></i> Зоны отдыха
+                {% elif performer.service_type == 'star' %}
+                  <i class="ri-star-line"></i> Звезда Эстрады
+                {% elif performer.service_type == 'aphishe' %}
+                  <i class="ri-file-text-line"></i> Концертные Афишы
+                {% else %}
+                  <i class="ri-briefcase-line"></i> {{ performer.service_type|default:"Исполнитель" }}
+                {% endif %}
+              </div>
               <div class="performer-meta">
                 <div class="rating">
                   <i class="ri-star-fill"></i>
@@ -922,15 +958,17 @@
         </div>
         <div class="footer-section">
           <h3>Контакты</h3>
-          <p>Email: info@toisozvezdoi.kz</p>
-          <p>Телефон: +7 (777) 777-77-77</p>
+          <p>Email: <a href="mailto:miras.abildin@bk.ru">miras.abildin@bk.ru</a></p>
+          <p>Телефон: <a href="tel:+77754184629">+7 (775)-418-46-29</a></p>
         </div>
         <div class="footer-section">
-          <h3>Мы в соцсетях</h3>
+          <h3>Соцсети</h3>
           <div class="social-links">
-            <a href="#"><i class="ri-instagram-line"></i></a>
-            <a href="#"><i class="ri-facebook-line"></i></a>
-            <a href="#"><i class="ri-whatsapp-line"></i></a>
+            <a href="https://www.instagram.com/_miras_event_/" target="_blank"><i class="ri-instagram-line"></i></a>
+            <a href="https://www.tiktok.com/@miras_abildin_?_t=ZM-8yOktSAtIhi&_r=1" target="_blank"><i class="ri-tiktok-line"></i></a>
+            <a href="https://wa.me/77754184629" target="_blank">
+              <i class="ri-whatsapp-line"></i>
+            </a>  
           </div>
         </div>
       </div>

@@ -12,7 +12,7 @@ from datetime import datetime, timedelta
 from django.views.decorators.http import require_http_methods, require_GET, require_POST
 from django.views.decorators.csrf import csrf_exempt
 
-SERVICE_TYPE_CODES = {'photo', 'video', 'music', 'host', 'dance'}
+SERVICE_TYPE_CODES = {'photo', 'video', 'music', 'host', 'dance', 'restaurant', 'makeup', 'registry', 'star', 'cottage', 'recreation_areas', 'aphishe'}
 
 def index(request):
     if request.user.is_authenticated:
@@ -145,25 +145,55 @@ def user_login(request):
 @login_required
 def profile(request):
     if request.method == 'POST':
-        # Update basic user information
-        request.user.first_name = request.POST.get('first_name', '')
-        request.user.last_name = request.POST.get('last_name', '')
-        request.user.email = request.POST.get('email', '')
-        request.user.city = request.POST.get('city', '')
-        
-        # Update performer-specific fields if applicable
-        if request.user.user_type == 'performer':
-            request.user.company_name = request.POST.get('company_name', '')
-            request.user.service_type = request.POST.get('service_type', '')
-            request.user.bio = request.POST.get('bio', '')
-        
-        # Handle profile photo upload
-        if request.FILES.get('profile_photo'):
-            request.user.profile_photo = request.FILES['profile_photo']
-        
-        request.user.save()
-        messages.success(request, 'Профиль успешно обновлен')
-        return redirect('main:profile')
+        try:
+            print(f"PROFILE UPDATE - POST data: {dict(request.POST)}")
+            print(f"PROFILE UPDATE - FILES: {dict(request.FILES)}")
+            
+            # Update basic user information
+            request.user.first_name = request.POST.get('first_name', '')
+            request.user.last_name = request.POST.get('last_name', '')
+            
+            # Check email uniqueness
+            new_email = request.POST.get('email', '')
+            if new_email != request.user.email:
+                if User.objects.filter(email=new_email).exclude(id=request.user.id).exists():
+                    raise ValueError('Пользователь с таким email уже существует')
+            request.user.email = new_email
+            
+            request.user.city = request.POST.get('city', '')
+            request.user.phone_number = request.POST.get('phone', '')
+            
+            # Update performer-specific fields if applicable
+            if request.user.user_type == 'performer':
+                request.user.company_name = request.POST.get('company_name', '')
+                request.user.service_type = request.POST.get('service_type', '')
+                request.user.bio = request.POST.get('bio', '')
+            
+            # Handle profile photo upload
+            if request.FILES.get('profile_photo'):
+                request.user.profile_photo = request.FILES['profile_photo']
+            
+            print(f"PROFILE UPDATE - Before save: user={request.user.id}, email={request.user.email}, phone={request.user.phone_number}")
+            request.user.save()
+            print(f"PROFILE UPDATE - After save: success")
+            
+            # Check if it's an AJAX request
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return JsonResponse({'success': True, 'message': 'Профиль успешно обновлен'})
+            
+            messages.success(request, 'Профиль успешно обновлен')
+            return redirect('main:profile')
+        except Exception as e:
+            print(f"PROFILE UPDATE - ERROR: {str(e)}")
+            import traceback
+            traceback.print_exc()
+            
+            # Check if it's an AJAX request
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return JsonResponse({'success': False, 'message': f'Ошибка при сохранении профиля: {str(e)}'})
+            
+            messages.error(request, f'Ошибка при сохранении профиля: {str(e)}')
+            return redirect('main:profile')
         
     context = {
         'user': request.user,
@@ -340,6 +370,7 @@ def dashboard(request):
             'completed_orders_count': completed_orders_count,
             'rating': request.user.rating,
             'all_orders_debug': all_orders_debug,
+            'new_requests_count': len(available_orders),
         })
     elif request.user.user_type == 'customer':
         # Получаем только неотменённые заказы клиента
@@ -413,7 +444,21 @@ def order_detail(request, order_id):
     # Проверяем, что пользователь имеет право просматривать заказ
     if request.user.user_type == 'performer':
         # Исполнители могут видеть новые заказы и свои заказы
-        if order.status != 'new' and request.user != order.performer:
+        can_access = False
+        if order.status == 'new':
+            # Новые заказы может видеть любой исполнитель
+            can_access = True
+        elif order.performer == request.user:
+            # Старые заказы (где performer установлен напрямую)
+            can_access = True
+        elif order.selected_performers:
+            # Новые заказы с selected_performers
+            selected_performers = order.selected_performers or {}
+            if request.user.service_type in selected_performers:
+                if str(selected_performers[request.user.service_type]) == str(request.user.id):
+                    can_access = True
+        
+        if not can_access:
             messages.error(request, 'У вас нет доступа к этому заказу')
             return redirect('main:dashboard')
     elif request.user != order.customer:

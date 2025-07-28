@@ -398,12 +398,21 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Message alerts functionality
     function showNotification(message, type = 'info') {
-        const messagesContainer = document.querySelector('.messages');
+        if (!document.body) {
+            console.error('Document body not available');
+            return;
+        }
+        
+        let messagesContainer = document.querySelector('.messages');
         
         if (!messagesContainer) {
-            const container = document.createElement('div');
-            container.className = 'messages';
-            document.querySelector('.main').insertAdjacentElement('afterbegin', container);
+            const mainContainer = document.querySelector('.main');
+            if (mainContainer) {
+                const container = document.createElement('div');
+                container.className = 'messages';
+                mainContainer.insertAdjacentElement('afterbegin', container);
+                messagesContainer = container;
+            }
         }
         
         const alert = document.createElement('div');
@@ -415,11 +424,18 @@ document.addEventListener('DOMContentLoaded', function() {
             </button>
         `;
         
-        messagesContainer.appendChild(alert);
+        if (messagesContainer) {
+            messagesContainer.appendChild(alert);
+        } else {
+            // Fallback: append to body if no messages container
+            document.body.appendChild(alert);
+        }
         
         // Auto-remove after 5 seconds
         setTimeout(() => {
-            alert.remove();
+            if (alert.parentNode) {
+                alert.remove();
+            }
         }, 5000);
     }
 
@@ -598,6 +614,71 @@ function initializeProfile() {
     const portfolioGrid = document.querySelector('.portfolio-grid');
     const deletePhotoForms = document.querySelectorAll('.delete-photo');
 
+    // Edit Profile Modal Form Handler
+    const editProfileForm = document.getElementById('editProfileForm');
+    if (editProfileForm) {
+        editProfileForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            
+            fetch(this.action, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-CSRFToken': formData.get('csrfmiddlewaretoken'),
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    showNotification('Профиль успешно обновлен', 'success');
+                    closeModal('editProfileModal');
+                    setTimeout(() => {
+                        location.reload();
+                    }, 1000);
+                } else {
+                    showNotification(data.message || 'Ошибка при сохранении профиля', 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showNotification(`Ошибка при сохранении профиля: ${error.message}`, 'error');
+            });
+        });
+    }
+
+    // Portfolio photo click to enlarge
+    const portfolioItems = document.querySelectorAll('.portfolio-item img');
+    portfolioItems.forEach(img => {
+        img.addEventListener('click', function() {
+            const modal = document.createElement('div');
+            modal.className = 'image-modal';
+            modal.innerHTML = `
+                <div class="image-modal-content">
+                    <button class="image-modal-close">&times;</button>
+                    <img src="${this.src}" alt="Увеличенное фото">
+                </div>
+            `;
+            
+            modal.addEventListener('click', function(e) {
+                if (e.target === modal || e.target.classList.contains('image-modal-close')) {
+                    modal.remove();
+                }
+            });
+            
+            if (document.body) {
+                document.body.appendChild(modal);
+            }
+        });
+    });
+
     // Profile photo preview
     if (profilePhotoInput) {
         profilePhotoInput.addEventListener('change', function(e) {
@@ -636,7 +717,9 @@ function initializeProfile() {
                                     <i class="ri-close-line"></i>
                                 </button>
                             `;
-                            previewContainer.appendChild(previewItem);
+                            if (previewContainer) {
+                                previewContainer.appendChild(previewItem);
+                            }
 
                             // Remove preview functionality
                             previewItem.querySelector('.remove-preview').addEventListener('click', function() {
@@ -742,36 +825,6 @@ function initializeProfile() {
             closeModal(modal.id);
         });
     });
-
-    // Form validation and submission
-    const editProfileForm = document.querySelector('#editProfileModal form');
-    if (editProfileForm) {
-        editProfileForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            const formData = new FormData(this);
-            
-            fetch(this.action, {
-                method: 'POST',
-                body: formData,
-                headers: {
-                    'X-CSRFToken': formData.get('csrfmiddlewaretoken')
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    location.reload();
-                } else {
-                    showNotification(data.message || 'Ошибка при сохранении профиля', 'error');
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                showNotification('Ошибка при сохранении профиля', 'error');
-            });
-        });
-    }
 }
 
 // Catalog Page Functionality
@@ -949,7 +1002,9 @@ function initializeCatalog() {
             const loadingIndicator = document.createElement('div');
             loadingIndicator.className = 'loading-indicator';
             loadingIndicator.innerHTML = '<i class="ri-loader-4-line"></i>';
-            catalogGrid.appendChild(loadingIndicator);
+            if (catalogGrid) {
+                catalogGrid.appendChild(loadingIndicator);
+            }
             
             // Fetch next page
             fetch(`?page=${++page}`, {
@@ -969,7 +1024,9 @@ function initializeCatalog() {
                     
                     const newPerformers = temp.querySelectorAll('.performer-card');
                     newPerformers.forEach(performer => {
-                        catalogGrid.appendChild(performer);
+                        if (catalogGrid) {
+                            catalogGrid.appendChild(performer);
+                        }
                     });
                     
                     loading = false;

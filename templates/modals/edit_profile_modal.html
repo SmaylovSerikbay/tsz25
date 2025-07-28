@@ -19,17 +19,44 @@
           <input type="text" class="form-input" name="last_name" value="{{ user.last_name }}" required>
         </div>
         <div class="form-group">
+          <label class="form-label">Email</label>
+          <input type="email" class="form-input" name="email" value="{{ user.email }}" required>
+        </div>
+        <div class="form-group">
           <label class="form-label">Город</label>
           <input type="text" class="form-input" name="city" value="{{ user.city }}" required>
         </div>
         <div class="form-group">
           <label class="form-label">Телефон</label>
-          <input type="tel" class="form-input" name="phone" value="{{ user.phone }}">
+          <input type="tel" class="form-input" name="phone" value="{{ user.phone_number }}">
         </div>
       </div>
+      {% if user.user_type == 'performer' %}
+      <div class="form-group" style="margin-top: 20px;">
+        <label class="form-label">Название компании</label>
+        <input type="text" class="form-input" name="company_name" value="{{ user.company_name }}">
+      </div>
+      <div class="form-group" style="margin-top: 20px;">
+        <label class="form-label">Специализация</label>
+        <select class="form-input" name="service_type">
+          <option value="photo" {% if user.service_type == 'photo' %}selected{% endif %}>Фотограф</option>
+          <option value="video" {% if user.service_type == 'video' %}selected{% endif %}>Видеограф</option>
+          <option value="music" {% if user.service_type == 'music' %}selected{% endif %}>Музыкант</option>
+          <option value="host" {% if user.service_type == 'host' %}selected{% endif %}>Ведущий</option>
+          <option value="dance" {% if user.service_type == 'dance' %}selected{% endif %}>Шоу-программа</option>
+          <option value="restaurant" {% if user.service_type == 'restaurant' %}selected{% endif %}>Ресторан</option>
+          <option value="makeup" {% if user.service_type == 'makeup' %}selected{% endif %}>Визожист</option>
+          <option value="registry" {% if user.service_type == 'registry' %}selected{% endif %}>Регистрация брака</option>
+          <option value="cottage" {% if user.service_type == 'cottage' %}selected{% endif %}>Коттеджы</option>
+          <option value="recreation_areas" {% if user.service_type == 'recreation_areas' %}selected{% endif %}>Зоны отдыха</option>
+          <option value="star" {% if user.service_type == 'star' %}selected{% endif %}>Звезда Эстрады</option>
+          <option value="aphishe" {% if user.service_type == 'aphishe' %}selected{% endif %}>Концертные Афишы</option>
+        </select>
+      </div>
+      {% endif %}
       <div class="form-group" style="margin-top: 20px;">
         <label class="form-label">О себе</label>
-        <textarea class="form-input" name="bio" rows="4" required>{{ user.bio }}</textarea>
+        <textarea class="form-input" name="bio" rows="4">{{ user.bio }}</textarea>
       </div>
       <div class="form-group" style="margin-top: 20px;">
         <label class="form-label">Фото профиля</label>
@@ -40,4 +67,5 @@
       </div>
     </form>
   </div>
+</div> 
 </div> 

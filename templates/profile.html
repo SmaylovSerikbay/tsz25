@@ -2,6 +2,21 @@
 {% load static %}
 
 {% block content %}
+<style>
+.profile-specialty {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--primary-color);
+  font-weight: 600;
+  font-size: 1.2rem;
+  margin-bottom: 12px;
+}
+
+.profile-specialty i {
+  font-size: 1.3rem;
+}
+</style>
 <div class="profile-container">
     <!-- Profile Header -->
     <div class="profile-header">
@@ -14,13 +29,32 @@
         <h1 class="profile-name">{{ profile_user.get_full_name }}</h1>
         {% if profile_user.user_type == 'performer' and profile_user.service_type %}
           <div class="profile-specialty">
-            <i class="ri-briefcase-line"></i>
-            {% if profile_user.service_type == 'photo' %}Фотограф
-            {% elif profile_user.service_type == 'video' %}Видеограф
-            {% elif profile_user.service_type == 'music' %}Музыкант
-            {% elif profile_user.service_type == 'host' %}Ведущий
-            {% elif profile_user.service_type == 'dance' %}Шоу-программа
-            {% else %}{{ profile_user.service_type }}
+            {% if profile_user.service_type == 'photo' %}
+              <i class="ri-camera-line"></i> Фотограф
+            {% elif profile_user.service_type == 'video' %}
+              <i class="ri-video-line"></i> Видеограф
+            {% elif profile_user.service_type == 'music' %}
+              <i class="ri-music-2-line"></i> Музыкант
+            {% elif profile_user.service_type == 'host' %}
+              <i class="ri-mic-line"></i> Ведущий
+            {% elif profile_user.service_type == 'dance' %}
+              <i class="ri-emotion-happy-line"></i> Шоу-программа
+            {% elif profile_user.service_type == 'restaurant' %}
+              <i class="ri-restaurant-line"></i> Ресторан
+            {% elif profile_user.service_type == 'makeup' %}
+              <i class="ri-palette-line"></i> Визожист
+            {% elif profile_user.service_type == 'registry' %}
+              <i class="ri-heart-line"></i> Регистрация брака
+            {% elif profile_user.service_type == 'cottage' %}
+              <i class="ri-home-line"></i> Коттеджы
+            {% elif profile_user.service_type == 'recreation_areas' %}
+              <i class="ri-tree-line"></i> Зоны отдыха
+            {% elif profile_user.service_type == 'star' %}
+              <i class="ri-star-line"></i> Звезда Эстрады
+            {% elif profile_user.service_type == 'aphishe' %}
+              <i class="ri-file-text-line"></i> Концертные Афишы
+            {% else %}
+              <i class="ri-briefcase-line"></i> {{ profile_user.service_type|default:"Исполнитель" }}
             {% endif %}
           </div>
         {% endif %}
