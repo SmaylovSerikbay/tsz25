@@ -15,7 +15,7 @@ SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-@#x@@v3+y#qg5!gcp!6q=
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-ALLOWED_HOSTS = ['*']  # Измените на ваш домен
+ALLOWED_HOSTS = ['toisozvezdoi.kz', 'www.toisozvezdoi.kz', '77.246.247.137', 'localhost', '127.0.0.1']
 
 # Application definition
 INSTALLED_APPS = [
