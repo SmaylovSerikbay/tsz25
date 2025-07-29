@@ -145,24 +145,6 @@ function nextMonthCalendar() {
   updateCalendar();
 }
 
-// Initialize with any existing busy dates
-{% if busy_dates %}
-  {% for date in busy_dates %}
-    selectedDates.add('{{ date.date|date:"Y-m-d" }}');
-  {% endfor %}
-{% endif %}
-
-// Initialize calendar when modal opens
-document.getElementById('calendarModal').addEventListener('show', function() {
-  selectedDates.clear();
-  {% if busy_dates %}
-    {% for date in busy_dates %}
-      selectedDates.add('{{ date.date|date:"Y-m-d" }}');
-    {% endfor %}
-  {% endif %}
-  updateCalendar();
-});
-
 // Initialize calendar immediately when page loads
 document.addEventListener('DOMContentLoaded', function() {
   updateCalendar();

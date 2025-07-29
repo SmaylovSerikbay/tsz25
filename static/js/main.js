@@ -512,6 +512,15 @@ function openModal(modalId) {
         if (typeof selectedDates !== 'undefined') {
           selectedDates.clear();
         }
+        
+        // Добавляем существующие занятые даты из Django контекста
+        // Эти данные должны быть доступны в глобальной переменной
+        if (typeof window.busyDates !== 'undefined') {
+          window.busyDates.forEach(date => {
+            selectedDates.add(date);
+          });
+        }
+        
         // Обновляем календарь
         updateCalendar();
       }

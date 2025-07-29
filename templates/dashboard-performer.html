@@ -1356,6 +1356,18 @@
   </footer>
 
   
+  <!-- Передаем данные о занятых датах в JavaScript -->
+  <script>
+    // Глобальная переменная с занятыми датами
+    window.busyDates = [
+      {% if busy_dates %}
+        {% for date in busy_dates %}
+          '{{ date.date|date:"Y-m-d" }}',
+        {% endfor %}
+      {% endif %}
+    ];
+  </script>
+  
   <script src="{% static 'js/main.js' %}"></script>
   {% load static %}
 </body>
