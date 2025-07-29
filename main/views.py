@@ -18,7 +18,7 @@ def index(request):
     if request.user.is_authenticated:
         return redirect('main:dashboard')
     
-    # Получаем 10 последних зарегистрированных исполнителей
+    # Получаем 10 последних зарегистрированных исполнителейss
     latest_performers = User.objects.filter(
         user_type='performer',
         is_active=True
