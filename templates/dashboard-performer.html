@@ -1022,8 +1022,13 @@
           </div>
           <div class="stat-card">
             <i class="ri-message-3-line" style="font-size: 1.5rem; color: var(--primary-color);"></i>
-            <div class="stat-value">{{ active_orders_count }}</div>
+            <div class="stat-value">{{ new_requests_count }}</div>
             <div class="stat-label">Новых заявок</div>
+          </div>
+          <div class="stat-card">
+            <i class="ri-calendar-check-line" style="font-size: 1.5rem; color: var(--primary-color);"></i>
+            <div class="stat-value">{{ active_bookings_count }}</div>
+            <div class="stat-label">Активных бронирований</div>
           </div>
         </div>
 
@@ -1191,7 +1196,12 @@
                 <div class="request-title">
                   {{ order.title }}
                   <div style="font-size: 0.9rem; color: #666; margin-top: 4px;">
-                    {{ order.get_event_type_display }} — {{ order.event_date|date:"d.m.Y" }}
+                    {% if order.order_type == 'booking' %}
+                      <i class="ri-calendar-check-line"></i> Прямое бронирование
+                    {% else %}
+                      <i class="ri-file-list-line"></i> Заявка-запрос
+                    {% endif %}
+                    — {{ order.event_date|date:"d.m.Y" }}
                   </div>
                 </div>
                 <span class="request-status {{ order.status }}">{{ order.get_status_display }}</span>
@@ -1216,48 +1226,42 @@
           </div>
         </div>
 
-        <!-- Booking Proposals Section -->
+        <!-- My Responses Section -->
         <div class="section" style="grid-column: span 6;">
           <div class="section-header">
-            <h2 class="section-title">Предложения о бронировании</h2>
+            <h2 class="section-title">Мои отклики на заявки</h2>
           </div>
           <div class="responses-grid">
-            {% for proposal in booking_proposals %}
+            {% for response in my_responses %}
             <div class="response-card">
               <div class="response-header">
                 <div class="request-title">
-                  {{ proposal.order.title }}
+                  {{ response.order.title }}
                   <div style="font-size: 0.9rem; color: #666; margin-top: 4px;">
-                    Дата мероприятия: {{ proposal.date|date:"d.m.Y" }}
+                    Дата мероприятия: {{ response.order.event_date|date:"d.m.Y" }}
                   </div>
                 </div>
-                <span class="response-date">{{ proposal.created_at|date:"d.m.Y" }}</span>
+                <span class="response-date">{{ response.created_at|date:"d.m.Y" }}</span>
               </div>
               <div class="response-details">
-                <p><strong>Заказчик:</strong> {{ proposal.order.customer.get_full_name }}</p>
-                <p><strong>Тариф:</strong> {{ proposal.tariff.name }} ({{ proposal.tariff.price }} ₸)</p>
-                <p><strong>Город:</strong> {{ proposal.order.city }}</p>
+                <p><strong>Заказчик:</strong> {{ response.order.customer.get_full_name }}</p>
+                <p><strong>Моя цена:</strong> {{ response.price }} ₸</p>
+                <p><strong>Город:</strong> {{ response.order.city }}</p>
+                {% if response.message %}
+                <p><strong>Сообщение:</strong> {{ response.message|truncatechars:100 }}</p>
+                {% endif %}
               </div>
               <div class="response-actions">
-                <form action="{% url 'main:accept_proposal' proposal.id %}" method="POST" style="display: inline;">
-                  {% csrf_token %}
-                  <button type="submit" class="btn accent">
-                    <i class="ri-check-line"></i> Принять
-                  </button>
-                </form>
-                <form action="{% url 'main:reject_proposal' proposal.id %}" method="POST" style="display: inline;">
-                  {% csrf_token %}
-                  <button type="submit" class="btn delete">
-                    <i class="ri-close-line"></i> Отклонить
-                  </button>
-                </form>
+                <a href="{% url 'main:order_detail' response.order.id %}" class="btn outline">
+                  <i class="ri-eye-line"></i> Посмотреть заявку
+                </a>
               </div>
             </div>
             {% empty %}
             <div class="empty-state">
-              <i class="ri-calendar-check-line" style="font-size: 48px; color: #ccc; margin-bottom: 16px;"></i>
-              <h3 style="margin-bottom: 8px; color: #1a1a1a;">Нет новых предложений</h3>
-              <p style="color: #666;">Здесь будут отображаться предложения о бронировании от заказчиков</p>
+              <i class="ri-message-3-line" style="font-size: 48px; color: #ccc; margin-bottom: 16px;"></i>
+              <h3 style="margin-bottom: 8px; color: #1a1a1a;">Нет откликов</h3>
+              <p style="color: #666;">Здесь будут отображаться ваши отклики на заявки заказчиков</p>
             </div>
             {% endfor %}
           </div>

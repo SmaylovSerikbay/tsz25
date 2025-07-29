@@ -49,6 +49,7 @@ urlpatterns = [
     
     # API endpoints
     path('api/orders/', views.get_user_orders, name='get_user_orders'),
+    path('api/user/orders/', views.get_user_orders_api, name='get_user_orders_api'),
     path('api/orders/<int:order_id>/attach/<int:performer_id>/', views.attach_performer_to_order, name='attach_performer'),
     path('api/performer/<int:performer_id>/busy-dates/', views.get_performer_busy_dates, name='get_performer_busy_dates'),
     path('api/performer/<int:performer_id>/tariffs/', views.get_performer_tariffs, name='get_performer_tariffs'),

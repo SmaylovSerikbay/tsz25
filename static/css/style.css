@@ -3098,5 +3098,447 @@ select.form-input {
 }
 
 .portfolio-item img:hover {
-    transform: scale(1.05);
+  transform: scale(1.05);
+}
+
+/* Пагинация */
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  margin-top: 40px;
+  padding: 20px 0;
+}
+
+.pagination-item {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 40px;
+  height: 40px;
+  padding: 0 12px;
+  border: 1px solid var(--gray-200);
+  border-radius: 8px;
+  background: white;
+  color: var(--text-primary);
+  text-decoration: none;
+  font-weight: 500;
+  transition: var(--transition);
+}
+
+.pagination-item:hover {
+  border-color: var(--primary-color);
+  color: var(--primary-color);
+  background: var(--primary-light);
+}
+
+.pagination-item.active {
+  background: var(--primary-color);
+  border-color: var(--primary-color);
+  color: white;
+}
+
+.pagination-item.active:hover {
+  background: var(--primary-dark);
+  color: white;
+}
+
+@media (max-width: 768px) {
+  .pagination {
+    gap: 4px;
+    margin-top: 30px;
+  }
+  
+  .pagination-item {
+    min-width: 36px;
+    height: 36px;
+    padding: 0 8px;
+    font-size: 14px;
+  }
+}
+
+/* Стили для модального окна бронирования */
+.booking-modal {
+  max-width: 600px;
+  width: 90%;
+}
+
+.booking-modal .modal-header h3 {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--text-primary);
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.booking-modal .modal-header h3 i {
+  color: var(--primary-color);
+  font-size: 1.25rem;
+}
+
+.booking-type-selector {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.booking-type-option {
+  display: block;
+  cursor: pointer;
+  margin: 0;
+}
+
+.booking-type-option input[type="radio"] {
+  display: none;
+}
+
+.booking-type-content {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px;
+  border: 2px solid var(--gray-200);
+  border-radius: 12px;
+  background: white;
+  transition: var(--transition);
+}
+
+.booking-type-option input[type="radio"]:checked + .booking-type-content {
+  border-color: var(--primary-color);
+  background: var(--primary-light);
+}
+
+.booking-type-content i {
+  font-size: 1.5rem;
+  color: var(--primary-color);
+  flex-shrink: 0;
+}
+
+.booking-type-content div {
+  flex: 1;
+}
+
+.booking-type-content strong {
+  display: block;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+}
+
+.booking-type-content small {
+  display: block;
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+}
+
+.booking-modal .form-group {
+  position: relative;
+  margin-bottom: 20px;
+}
+
+.booking-modal .form-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 8px;
+}
+
+.booking-modal .form-label i {
+  color: var(--primary-color);
+  font-size: 1.125rem;
+}
+
+.booking-modal .form-input {
+  width: 100%;
+  padding: 12px 16px;
+  border: 2px solid var(--gray-200);
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: var(--transition);
+  background: white;
+}
+
+.booking-modal .form-input:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.1);
+}
+
+.booking-modal .form-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid var(--gray-200);
+}
+
+.booking-modal .btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: var(--transition);
+  border: none;
+  cursor: pointer;
+  font-size: 1rem;
+}
+
+.booking-modal .btn.outline {
+  background: transparent;
+  color: var(--text-secondary);
+  border: 2px solid var(--gray-200);
+}
+
+.booking-modal .btn.outline:hover {
+  border-color: var(--text-secondary);
+  color: var(--text-primary);
+}
+
+.booking-modal .btn.accent {
+  background: var(--primary-color);
+  color: white;
+}
+
+.booking-modal .btn.accent:hover {
+  background: var(--primary-dark);
+  transform: translateY(-1px);
+}
+
+@media (max-width: 768px) {
+  .booking-modal {
+    width: 95%;
+    margin: 20px;
+  }
+  
+  .booking-type-content {
+    padding: 12px;
+    gap: 12px;
+  }
+  
+  .booking-type-content i {
+    font-size: 1.25rem;
+  }
+  
+  .booking-modal .form-actions {
+    flex-direction: column;
+  }
+  
+  .booking-modal .btn {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+/* Стили для предупреждения о занятой дате */
+.date-warning {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+  padding: 12px;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 8px;
+  color: #dc2626;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.date-warning i {
+  font-size: 1rem;
+  flex-shrink: 0;
+}
+
+.date-warning span {
+  flex: 1;
+}
+
+/* Стили для отключенной кнопки */
+.booking-modal .btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.booking-modal .btn:disabled:hover {
+  transform: none;
+  background: var(--primary-color);
+}
+
+/* Стили для выбора даты */
+.date-selection-wrapper {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.calendar-btn {
+  flex-shrink: 0;
+  padding: 12px 16px;
+  white-space: nowrap;
+  width: 100%;
+  justify-content: flex-start;
+  background: white;
+  border: 2px solid var(--gray-200);
+  color: var(--text-secondary);
+  text-align: left;
+}
+
+.calendar-btn:hover {
+  border-color: var(--primary-color);
+  color: var(--text-primary);
+}
+
+.calendar-btn.has-date {
+  color: var(--text-primary);
+  border-color: var(--primary-color);
+}
+
+.calendar-picker {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: white;
+  border: 2px solid var(--gray-200);
+  border-radius: 12px;
+  padding: 16px;
+  margin-top: 8px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+}
+
+.calendar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.calendar-header h4 {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.calendar-nav-btn {
+  background: none;
+  border: none;
+  padding: 8px;
+  border-radius: 6px;
+  cursor: pointer;
+  color: var(--text-secondary);
+  transition: var(--transition);
+}
+
+.calendar-nav-btn:hover {
+  background: var(--gray-100);
+  color: var(--text-primary);
+}
+
+.calendar-weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+  margin-bottom: 8px;
+  text-align: center;
+  font-weight: 600;
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+}
+
+.calendar-days {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+}
+
+.calendar-day-cell,
+.calendar-day-empty {
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  font-weight: 500;
+  font-size: 0.875rem;
+  transition: var(--transition);
+}
+
+.calendar-day-empty {
+  background: transparent;
+}
+
+.calendar-day-available {
+  background: white;
+  border: 1px solid var(--gray-200);
+  color: var(--text-primary);
+  cursor: pointer;
+}
+
+.calendar-day-available:hover {
+  background: var(--primary-light);
+  border-color: var(--primary-color);
+  color: var(--primary-color);
+}
+
+.calendar-day-busy {
+  background: #fee2e2;
+  border: 1px solid #fecaca;
+  color: #dc2626;
+  cursor: not-allowed;
+  position: relative;
+}
+
+.calendar-day-busy::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 2px;
+  height: 2px;
+  background: #dc2626;
+  border-radius: 50%;
+}
+
+.calendar-day-past {
+  background: var(--gray-100);
+  border: 1px solid var(--gray-200);
+  color: var(--text-tertiary);
+  cursor: not-allowed;
+}
+
+/* Адаптивность для календаря */
+@media (max-width: 768px) {
+  .date-selection-wrapper {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .calendar-btn {
+    width: 100%;
+    justify-content: flex-start;
+  }
+  
+  .calendar-picker {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 90%;
+    max-width: 350px;
+    max-height: 80vh;
+    overflow-y: auto;
+  }
 } 

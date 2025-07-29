@@ -604,6 +604,386 @@ function sendMessage(event) {
   });
 }
 
+function openBookingModal(performerId) {
+    // Создаем модальное окно для бронирования
+    const modalId = 'bookingModal';
+    const existingModal = document.getElementById(modalId);
+    if (existingModal) {
+        existingModal.remove();
+    }
+
+    const modal = document.createElement('div');
+    modal.id = modalId;
+    modal.className = 'modal';
+    modal.innerHTML = `
+        <div class="modal-content booking-modal">
+            <div class="modal-header">
+                <h3><i class="ri-calendar-check-line"></i> Забронировать исполнителя</h3>
+                <button onclick="closeModal('${modalId}')" class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="bookingForm" method="POST" action="/create-order/${performerId}/">
+                    <input type="hidden" name="csrfmiddlewaretoken" value="${getCookie('csrftoken')}">
+                    
+                    <!-- Выбор типа бронирования -->
+                    <div class="form-group">
+                        <label class="form-label">
+                            <i class="ri-file-list-line"></i> Тип бронирования
+                        </label>
+                        <div class="booking-type-selector">
+                            <label class="booking-type-option">
+                                <input type="radio" name="booking_type" value="new" checked>
+                                <span class="booking-type-content">
+                                    <i class="ri-add-circle-line"></i>
+                                    <div>
+                                        <strong>Новое бронирование</strong>
+                                        <small>Создать новую заявку</small>
+                                    </div>
+                                </span>
+                            </label>
+                            <label class="booking-type-option">
+                                <input type="radio" name="booking_type" value="existing">
+                                <span class="booking-type-content">
+                                    <i class="ri-link"></i>
+                                    <div>
+                                        <strong>Прикрепить к заявке</strong>
+                                        <small>Использовать существующую заявку</small>
+                                    </div>
+                                </span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Выбор существующей заявки (скрыто по умолчанию) -->
+                    <div class="form-group" id="existingOrderGroup" style="display: none;">
+                        <label for="order_id" class="form-label">
+                            <i class="ri-file-list-line"></i> Выберите заявку
+                        </label>
+                        <select id="order_id" name="order_id" class="form-input">
+                            <option value="">Загрузка заявок...</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="event_date" class="form-label">
+                            <i class="ri-calendar-line"></i> Дата мероприятия *
+                        </label>
+                        <div class="date-selection-wrapper">
+                            <input type="hidden" id="event_date" name="event_date" required>
+                            <button type="button" class="btn outline calendar-btn" onclick="openDatePicker()">
+                                <i class="ri-calendar-line"></i> Выбрать дату
+                            </button>
+                        </div>
+                        <div id="calendarPicker" class="calendar-picker" style="display: none;">
+                            <div class="calendar-header">
+                                <button type="button" class="calendar-nav-btn" onclick="prevMonth()">
+                                    <i class="ri-arrow-left-s-line"></i>
+                                </button>
+                                <h4 id="currentMonthDisplay"></h4>
+                                <button type="button" class="calendar-nav-btn" onclick="nextMonth()">
+                                    <i class="ri-arrow-right-s-line"></i>
+                                </button>
+                            </div>
+                            <div class="calendar-weekdays">
+                                <div>Пн</div><div>Вт</div><div>Ср</div><div>Чт</div><div>Пт</div><div>Сб</div><div>Вс</div>
+                            </div>
+                            <div id="calendarDays" class="calendar-days"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="tariff" class="form-label">
+                            <i class="ri-price-tag-line"></i> Выберите тариф *
+                        </label>
+                        <select id="tariff" name="tariff" class="form-input" required>
+                            <option value="">Загрузка тарифов...</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="details" class="form-label">
+                            <i class="ri-file-text-line"></i> Дополнительная информация
+                        </label>
+                        <textarea id="details" name="details" class="form-input" rows="4" placeholder="Опишите детали вашего мероприятия..."></textarea>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="button" onclick="closeModal('${modalId}')" class="btn outline">
+                            <i class="ri-close-line"></i> Отмена
+                        </button>
+                        <button type="submit" class="btn accent">
+                            <i class="ri-check-line"></i> Забронировать
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    `;
+
+    document.body.appendChild(modal);
+    modal.style.display = 'flex';
+
+    // Загружаем тарифы исполнителя
+    loadPerformerTariffs(performerId);
+    
+    // Загружаем заявки заказчика
+    loadCustomerOrders();
+
+    // Устанавливаем минимальную дату
+    const dateInput = document.getElementById('event_date');
+    const today = new Date();
+    dateInput.min = today.toISOString().split('T')[0];
+
+    // Сохраняем ID исполнителя для использования в календаре
+    window.currentPerformerId = performerId;
+    
+    // Загружаем занятые даты исполнителя
+    loadPerformerBusyDates(performerId);
+
+    // Обработчик переключения типа бронирования
+    const bookingTypeRadios = document.querySelectorAll('input[name="booking_type"]');
+    const existingOrderGroup = document.getElementById('existingOrderGroup');
+    
+    bookingTypeRadios.forEach(radio => {
+        radio.addEventListener('change', function() {
+            if (this.value === 'existing') {
+                existingOrderGroup.style.display = 'block';
+            } else {
+                existingOrderGroup.style.display = 'none';
+            }
+        });
+    });
+
+    // Обработчик изменения даты
+    dateInput.addEventListener('change', function() {
+        checkDateAvailability(performerId, this.value);
+    });
+}
+
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+function loadPerformerTariffs(performerId) {
+    fetch(`/api/performer/${performerId}/tariffs/`)
+        .then(response => response.json())
+        .then(data => {
+            const tariffSelect = document.getElementById('tariff');
+            tariffSelect.innerHTML = '<option value="">Выберите тариф</option>';
+            
+            if (data.tariffs && data.tariffs.length > 0) {
+                data.tariffs.forEach(tariff => {
+                    const option = document.createElement('option');
+                    option.value = tariff.id;
+                    option.textContent = `${tariff.name} - ${tariff.price} ₸`;
+                    tariffSelect.appendChild(option);
+                });
+            } else {
+                tariffSelect.innerHTML = '<option value="">Нет доступных тарифов</option>';
+            }
+        })
+        .catch(error => {
+            console.error('Ошибка загрузки тарифов:', error);
+            const tariffSelect = document.getElementById('tariff');
+            tariffSelect.innerHTML = '<option value="">Ошибка загрузки тарифов</option>';
+        });
+}
+
+function loadCustomerOrders() {
+    fetch('/api/user/orders/')
+        .then(response => response.json())
+        .then(data => {
+            const orderSelect = document.getElementById('order_id');
+            orderSelect.innerHTML = '<option value="">Выберите заявку</option>';
+            
+            if (data.orders && data.orders.length > 0) {
+                data.orders.forEach(order => {
+                    if (order.status === 'new') {  // Только новые заявки
+                        const option = document.createElement('option');
+                        option.value = order.id;
+                        option.textContent = `${order.title} (${order.event_date})`;
+                        orderSelect.appendChild(option);
+                    }
+                });
+            } else {
+                orderSelect.innerHTML = '<option value="">Нет доступных заявок</option>';
+            }
+        })
+        .catch(error => {
+            console.error('Ошибка загрузки заявок:', error);
+            const orderSelect = document.getElementById('order_id');
+            orderSelect.innerHTML = '<option value="">Ошибка загрузки заявок</option>';
+        });
+}
+
+function loadPerformerBusyDates(performerId) {
+    fetch(`/api/performer/${performerId}/busy-dates/`)
+        .then(response => response.json())
+        .then(data => {
+            window.performerBusyDates = data.busy_dates || [];
+            // Обновляем календарь, если он открыт
+            if (window.currentCalendar && window.currentCalendar.updateCalendar) {
+                window.currentCalendar.updateCalendar();
+            }
+        })
+        .catch(error => {
+            console.error('Ошибка загрузки занятых дат:', error);
+            window.performerBusyDates = [];
+        });
+}
+
+function checkDateAvailability(performerId, selectedDate) {
+    const dateInput = document.getElementById('event_date');
+    const submitButton = document.querySelector('#bookingForm button[type="submit"]');
+    const dateWarning = document.getElementById('dateWarning');
+    
+    // Удаляем предыдущее предупреждение
+    if (dateWarning) {
+        dateWarning.remove();
+    }
+    
+    if (!selectedDate) return;
+    
+    // Проверяем, занята ли дата
+    if (window.performerBusyDates && window.performerBusyDates.includes(selectedDate)) {
+        // Создаем предупреждение
+        const warning = document.createElement('div');
+        warning.id = 'dateWarning';
+        warning.className = 'date-warning';
+        warning.innerHTML = `
+            <i class="ri-error-warning-line"></i>
+            <span>Эта дата уже занята. Выберите другую дату.</span>
+        `;
+        
+        dateInput.parentNode.appendChild(warning);
+        submitButton.disabled = true;
+        submitButton.style.opacity = '0.5';
+    } else {
+        submitButton.disabled = false;
+        submitButton.style.opacity = '1';
+    }
+}
+
+// Календарь для выбора даты
+let calendarCurrentDate = new Date();
+const calendarMonths = [
+    'Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь',
+    'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'
+];
+
+function openDatePicker() {
+    const calendarPicker = document.getElementById('calendarPicker');
+    calendarPicker.style.display = 'block';
+    updateCalendarDisplay();
+}
+
+function closeDatePicker() {
+    const calendarPicker = document.getElementById('calendarPicker');
+    calendarPicker.style.display = 'none';
+}
+
+function updateCalendarDisplay() {
+    const year = calendarCurrentDate.getFullYear();
+    const month = calendarCurrentDate.getMonth();
+    
+    document.getElementById('currentMonthDisplay').textContent = `${calendarMonths[month]} ${year}`;
+    
+    const firstDay = new Date(year, month, 1);
+    const lastDay = new Date(year, month + 1, 0);
+    
+    let firstDayIndex = firstDay.getDay() || 7;
+    firstDayIndex--;
+    
+    const calendarDays = document.getElementById('calendarDays');
+    calendarDays.innerHTML = '';
+    
+    // Добавляем пустые ячейки
+    for (let i = 0; i < firstDayIndex; i++) {
+        const emptyCell = document.createElement('div');
+        emptyCell.className = 'calendar-day-empty';
+        calendarDays.appendChild(emptyCell);
+    }
+    
+    // Добавляем дни месяца
+    for (let day = 1; day <= lastDay.getDate(); day++) {
+        const cell = document.createElement('div');
+        cell.className = 'calendar-day-cell';
+        
+        const date = new Date(year, month, day);
+        const dateString = formatDateString(date);
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        
+        // Проверяем, занята ли дата
+        const isBusy = window.performerBusyDates && window.performerBusyDates.includes(dateString);
+        const isPast = date < today;
+        
+        if (isBusy) {
+            cell.classList.add('calendar-day-busy');
+            cell.title = 'Дата занята';
+        } else if (isPast) {
+            cell.classList.add('calendar-day-past');
+            cell.title = 'Прошедшая дата';
+        } else {
+            cell.classList.add('calendar-day-available');
+            cell.onclick = () => selectDate(dateString);
+        }
+        
+        cell.textContent = day;
+        calendarDays.appendChild(cell);
+    }
+}
+
+function formatDateString(date) {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+}
+
+function selectDate(dateString) {
+    const dateInput = document.getElementById('event_date');
+    const calendarBtn = document.querySelector('.calendar-btn');
+    
+    dateInput.value = dateString;
+    
+    // Форматируем дату для отображения
+    const date = new Date(dateString);
+    const formattedDate = date.toLocaleDateString('ru-RU', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric'
+    });
+    
+    // Обновляем текст кнопки
+    calendarBtn.innerHTML = `<i class="ri-calendar-line"></i> ${formattedDate}`;
+    calendarBtn.classList.add('has-date');
+    
+    closeDatePicker();
+    checkDateAvailability(window.currentPerformerId, dateString);
+}
+
+function prevMonth() {
+    calendarCurrentDate.setMonth(calendarCurrentDate.getMonth() - 1);
+    updateCalendarDisplay();
+}
+
+function nextMonth() {
+    calendarCurrentDate.setMonth(calendarCurrentDate.getMonth() + 1);
+    updateCalendarDisplay();
+}
+
 // Profile Page Functionality
 function initializeProfile() {
     const editProfileBtn = document.querySelector('.profile-edit-btn');

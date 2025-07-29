@@ -330,13 +330,23 @@ def dashboard(request):
             ):
                 available_orders.append(order)
         
-        # Получаем активные заказы исполнителя (теперь по selected_performers, если исполнитель выбран по своей услуге, и статус не cancelled/completed)
+        # Получаем активные заказы исполнителя
         active_orders = []
-        extra_orders = Order.objects.filter(
-            status__in=['in_progress', 'new'],  # Можно добавить сюда и другие статусы, если нужно
+        
+        # 1. Прямые бронирования (order_type='booking')
+        booking_orders = Order.objects.filter(
+            performer=request.user,
+            order_type='booking',
+            status__in=['in_progress', 'new']
+        )
+        active_orders.extend(booking_orders)
+        
+        # 2. Заявки-запросы, где исполнитель выбран
+        request_orders = Order.objects.filter(
+            status__in=['in_progress', 'new'],
             order_type='request'
         )
-        for order in extra_orders:
+        for order in request_orders:
             selected = order.selected_performers or {}
             # Показываем, если исполнитель выбран по своей услуге
             if str(selected.get(request.user.service_type)) == str(request.user.id):
@@ -344,6 +354,7 @@ def dashboard(request):
             # Для старых заказов (без selected_performers)
             elif not selected and order.performer_id == request.user.id and request.user.service_type in (order.services or []):
                 active_orders.append(order)
+        
         active_orders = sorted(active_orders, key=lambda o: o.created_at, reverse=True)
         
         # Получаем отклики исполнителя
@@ -351,11 +362,11 @@ def dashboard(request):
             performer=request.user
         ).select_related('order').order_by('-created_at')
         
-        # Получаем предложения о бронировании
-        booking_proposals = BookingProposal.objects.filter(
-            performer=request.user,
-            status='pending'
-        ).select_related('order', 'tariff').order_by('-created_at')
+        # Получаем предложения о бронировании (устаревший механизм)
+        # booking_proposals = BookingProposal.objects.filter(
+        #     performer=request.user,
+        #     status='pending'
+        # ).select_related('order', 'tariff').order_by('-created_at')
         
         # Получаем портфолио
         portfolio_photos = Portfolio.objects.filter(user=request.user).order_by('-id')
@@ -372,16 +383,23 @@ def dashboard(request):
             status='completed'
         ).count()
         
+        # Получаем активные бронирования
+        active_bookings_count = Order.objects.filter(
+            performer=request.user,
+            order_type='booking',
+            status__in=['in_progress', 'new']
+        ).count()
+        
         all_orders_debug = Order.objects.filter(status__in=['in_progress', 'new'], order_type='request')
         return render(request, 'dashboard-performer.html', {
             'available_orders': available_orders,
             'active_orders': active_orders,
             'my_responses': my_responses,
-            'booking_proposals': booking_proposals,
             'portfolio_photos': portfolio_photos,
             'tariffs': tariffs,
             'busy_dates': busy_dates,
             'completed_orders_count': completed_orders_count,
+            'active_bookings_count': active_bookings_count,
             'rating': request.user.rating,
             'all_orders_debug': all_orders_debug,
             'new_requests_count': len(available_orders),
@@ -397,8 +415,10 @@ def dashboard(request):
     return redirect('main:index')
 
 def catalog(request):
-    performers = User.objects.filter(user_type='performer')\
-        .prefetch_related('tariffs', 'orders_received')
+    # Базовый запрос с правильной группировкой
+    performers = User.objects.filter(user_type='performer', is_active=True)\
+        .prefetch_related('tariffs', 'orders_received')\
+        .distinct()
 
     # Фильтры
     category = request.GET.get('category')
@@ -424,19 +444,28 @@ def catalog(request):
     # Сортировка
     sort = request.GET.get('sort', '-rating')
     if sort == 'price_low':
-        performers = performers.order_by('tariffs__price')
+        performers = performers.order_by('tariffs__price').distinct()
     elif sort == 'price_high':
-        performers = performers.order_by('-tariffs__price')
+        performers = performers.order_by('-tariffs__price').distinct()
     elif sort == 'rating':
-        performers = performers.order_by('-rating')
+        performers = performers.order_by('-rating').distinct()
     elif sort == 'newest':
-        performers = performers.order_by('-date_joined')
+        performers = performers.order_by('-date_joined').distinct()
+    else:
+        performers = performers.order_by('-rating').distinct()
+
+    # Пагинация
+    from django.core.paginator import Paginator
+    paginator = Paginator(performers, 12)  # 12 исполнителей на страницу
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
 
     # Получаем уникальные города для фильтра
-    cities = User.objects.filter(user_type='performer').values_list('city', flat=True).distinct()
+    cities = User.objects.filter(user_type='performer', is_active=True).values_list('city', flat=True).distinct()
 
     context = {
-        'performers': performers.distinct(),
+        'performers': page_obj,
+        'page_obj': page_obj,
         'cities': cities,
         'current_filters': {
             'category': category,
@@ -626,6 +655,7 @@ def create_order_booking(request, performer_id):
         event_date_str = request.POST.get('event_date')
         tariff_id = request.POST.get('tariff')
         details = request.POST.get('details')
+        order_id = request.POST.get('order_id')  # ID существующей заявки
         
         # Парсим дату
         try:
@@ -658,33 +688,57 @@ def create_order_booking(request, performer_id):
             messages.error(request, 'Выбранный тариф не существует')
             return redirect('main:profile', performer_id)
         
-        # Создаем заказ
-        order = Order.objects.create(
-            customer=request.user,
-            performer=performer,
-            title=f'Заказ на {event_date}',
-            event_type='other',
-            event_date=event_date,
-            city=performer.city,
-            venue='',
-            guest_count=1,
-            description=details,
-            budget_min=tariff.price,
-            budget_max=tariff.price,
-            services=[],  # Пустой список услуг, так как это бронирование
-            tariff=tariff,
-            details=details,
-            order_type='booking',  # Указываем, что это бронирование
-            status='in_progress'  # Сразу ставим статус "в работе"
-        )
+        # Если указан ID заявки, прикрепляем исполнителя к существующей заявке
+        if order_id:
+            try:
+                order = Order.objects.get(id=order_id, customer=request.user, status='new')
+                order.performer = performer
+                order.event_date = event_date
+                order.tariff = tariff
+                order.details = details
+                order.status = 'in_progress'
+                order.order_type = 'booking'
+                order.save()
+                
+                # Добавляем дату в занятые (если еще не занята)
+                if not BusyDate.objects.filter(user=performer, date=event_date).exists():
+                    BusyDate.objects.create(user=performer, date=event_date)
+                
+                messages.success(request, 'Исполнитель успешно прикреплен к заявке')
+                return redirect('main:order_detail', order_id=order.id)
+                
+            except Order.DoesNotExist:
+                messages.error(request, 'Заявка не найдена или недоступна')
+                return redirect('main:view_profile', user_id=performer_id)
+        else:
+            # Создаем новое бронирование
+            order = Order.objects.create(
+                customer=request.user,
+                performer=performer,
+                title=f'Заказ на {event_date}',
+                event_type='other',
+                event_date=event_date,
+                city=performer.city,
+                venue='',
+                guest_count=1,
+                description=details,
+                budget_min=tariff.price,
+                budget_max=tariff.price,
+                services=[],  # Пустой список услуг, так как это бронирование
+                tariff=tariff,
+                details=details,
+                order_type='booking',  # Указываем, что это бронирование
+                status='in_progress'  # Сразу ставим статус "в работе"
+            )
+            
+            # Добавляем дату в занятые (если еще не занята)
+            if not BusyDate.objects.filter(user=performer, date=event_date).exists():
+                BusyDate.objects.create(user=performer, date=event_date)
+            
+            messages.success(request, 'Бронирование успешно создано')
+            return redirect('main:order_detail', order_id=order.id)
         
-        # Добавляем дату в занятые
-        BusyDate.objects.create(user=performer, date=event_date)
-        
-        messages.success(request, 'Бронирование успешно создано')
-        return redirect('main:order_detail', order.id)
-        
-    return redirect('main:profile', performer_id)
+    return redirect('main:view_profile', user_id=performer_id)
 
 @login_required
 def create_review(request, order_id):
@@ -1079,8 +1133,23 @@ def get_performer_busy_dates(request, performer_id):
     try:
         performer = User.objects.get(id=performer_id, user_type='performer')
         busy_dates = BusyDate.objects.filter(user=performer).values_list('date', flat=True)
+        
+        # Также получаем даты из заказов
+        order_dates = Order.objects.filter(
+            performer=performer,
+            status__in=['in_progress', 'completed']
+        ).values_list('event_date', flat=True)
+        
+        # Объединяем даты и убираем дубликаты
+        all_busy_dates = set()
+        for date in busy_dates:
+            all_busy_dates.add(date.strftime('%Y-%m-%d'))
+        for date in order_dates:
+            if date:
+                all_busy_dates.add(date.strftime('%Y-%m-%d'))
+        
         return JsonResponse({
-            'busy_dates': [date.strftime('%Y-%m-%d') for date in busy_dates]
+            'busy_dates': sorted(list(all_busy_dates))
         })
     except User.DoesNotExist:
         return JsonResponse({'error': 'Performer not found'}, status=404)
@@ -1096,6 +1165,36 @@ def get_performer_tariffs(request, performer_id):
         })
     except User.DoesNotExist:
         return JsonResponse({'error': 'Performer not found'}, status=404)
+
+@login_required
+@require_http_methods(["GET"])
+def get_user_orders_api(request):
+    """API для получения заявок пользователя"""
+    try:
+        orders = Order.objects.filter(customer=request.user).order_by('-created_at')
+        
+        orders_data = []
+        for order in orders:
+            orders_data.append({
+                'id': order.id,
+                'title': order.title,
+                'event_date': order.event_date.strftime('%d.%m.%Y') if order.event_date else '',
+                'status': order.status,
+                'budget_min': str(order.budget_min) if order.budget_min else '0',
+                'budget_max': str(order.budget_max) if order.budget_max else '0',
+                'city': order.city or '',
+                'description': order.description or ''
+            })
+        
+        return JsonResponse({
+            'success': True,
+            'orders': orders_data
+        })
+    except Exception as e:
+        return JsonResponse({
+            'success': False,
+            'error': str(e)
+        }, status=500)
 
 @login_required
 def accept_proposal(request, proposal_id):
