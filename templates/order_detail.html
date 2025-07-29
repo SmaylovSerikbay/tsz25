@@ -2,7 +2,7 @@
 {% load static %}
 
 {% block content %}
-<div class="container">
+  <div class="container">
   <!-- Весь контент заказа, ничего лишнего, только заказ -->
   <div class="order-detail">
     <div class="order-header">
@@ -270,7 +270,7 @@
         <div class="response-card">
           <div class="response-header">
             <div class="performer-info">
-              <h3>{{ response.performer.get_full_name }}</h3>
+            <h3>{{ response.performer.get_full_name }}</h3>
               <span class="performer-specialization">
                 {% if response.performer.service_type == 'photo' %}
                   <i class="ri-camera-line"></i> Фотограф
@@ -838,17 +838,17 @@
 
 @media (max-width: 768px) {
   .chat-input {
-    flex-direction: column;
+  flex-direction: column;
     gap: 8px;
-  }
+}
   .chat-input .form-input {
-    font-size: 1.1rem;
+  font-size: 1.1rem;
     min-height: 48px;
     padding: 16px;
   }
   .chat-input button.btn {
-    width: 100%;
-    font-size: 1.2rem;
+  width: 100%;
+  font-size: 1.2rem;
     padding: 16px 0;
     min-height: 48px;
   }

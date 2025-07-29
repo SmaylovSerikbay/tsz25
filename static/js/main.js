@@ -408,8 +408,8 @@ document.addEventListener('DOMContentLoaded', function() {
         if (!messagesContainer) {
             const mainContainer = document.querySelector('.main');
             if (mainContainer) {
-                const container = document.createElement('div');
-                container.className = 'messages';
+            const container = document.createElement('div');
+            container.className = 'messages';
                 mainContainer.insertAdjacentElement('afterbegin', container);
                 messagesContainer = container;
             }
@@ -425,7 +425,7 @@ document.addEventListener('DOMContentLoaded', function() {
         `;
         
         if (messagesContainer) {
-            messagesContainer.appendChild(alert);
+        messagesContainer.appendChild(alert);
         } else {
             // Fallback: append to body if no messages container
             document.body.appendChild(alert);
@@ -434,7 +434,7 @@ document.addEventListener('DOMContentLoaded', function() {
         // Auto-remove after 5 seconds
         setTimeout(() => {
             if (alert.parentNode) {
-                alert.remove();
+            alert.remove();
             }
         }, 5000);
     }
@@ -718,7 +718,7 @@ function initializeProfile() {
                                 </button>
                             `;
                             if (previewContainer) {
-                                previewContainer.appendChild(previewItem);
+                            previewContainer.appendChild(previewItem);
                             }
 
                             // Remove preview functionality
@@ -1003,7 +1003,7 @@ function initializeCatalog() {
             loadingIndicator.className = 'loading-indicator';
             loadingIndicator.innerHTML = '<i class="ri-loader-4-line"></i>';
             if (catalogGrid) {
-                catalogGrid.appendChild(loadingIndicator);
+            catalogGrid.appendChild(loadingIndicator);
             }
             
             // Fetch next page
@@ -1025,7 +1025,7 @@ function initializeCatalog() {
                     const newPerformers = temp.querySelectorAll('.performer-card');
                     newPerformers.forEach(performer => {
                         if (catalogGrid) {
-                            catalogGrid.appendChild(performer);
+                        catalogGrid.appendChild(performer);
                         }
                     });
                     

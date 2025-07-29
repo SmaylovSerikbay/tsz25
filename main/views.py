@@ -50,46 +50,53 @@ def register(request):
             msg = 'Пожалуйста, заполните все обязательные поля.'
             print('REGISTER ERROR:', msg)
             messages.error(request, msg)
-            return render(request, 'auth.html', {'is_register': True})
+            return redirect('main:auth')
         if user_type == 'performer' and service_type not in SERVICE_TYPE_CODES:
             msg = 'Выберите корректную специализацию исполнителя!'
             print('REGISTER ERROR:', msg)
             messages.error(request, msg)
-            return render(request, 'auth.html', {'is_register': True})
+            return redirect('main:auth')
         if password1 != password2:
             msg = 'Пароли не совпадают!'
             print('REGISTER ERROR:', msg)
             messages.error(request, msg)
-            return render(request, 'auth.html', {'is_register': True})
+            return redirect('main:auth')
         if User.objects.filter(username=username).exists():
             msg = 'Пользователь с таким именем уже существует!'
             print('REGISTER ERROR:', msg)
             messages.error(request, msg)
-            return render(request, 'auth.html', {'is_register': True})
+            return redirect('main:auth')
         if User.objects.filter(email=email).exists():
             msg = 'Пользователь с таким email уже существует!'
             print('REGISTER ERROR:', msg)
             messages.error(request, msg)
-            return render(request, 'auth.html', {'is_register': True})
+            return redirect('main:auth')
         # Создание пользователя
-        user = User.objects.create_user(
-            username=username,
-            phone_number=phone_number,
-            first_name=request.POST.get('first_name', ''),
-            last_name=request.POST.get('last_name', ''),
-            city=city,
-            user_type=user_type,
-            service_type=service_type,
-            is_phone_verified=True,
-            email=email,
-            password=password1,
-        )
-        if user_type == 'performer':
-            user.company_name = request.POST.get('company_name', '')
-            user.bio = request.POST.get('bio', '')
-        if request.FILES.get('profile_photo'):
-            user.profile_photo = request.FILES['profile_photo']
-        user.save()
+        try:
+            user = User.objects.create_user(
+                username=username,
+                phone_number=phone_number,
+                first_name=request.POST.get('first_name', ''),
+                last_name=request.POST.get('last_name', ''),
+                city=city,
+                user_type=user_type,
+                service_type=service_type,
+                is_phone_verified=True,
+                email=email,
+                password=password1,
+            )
+            if user_type == 'performer':
+                user.company_name = request.POST.get('company_name', '')
+                user.bio = request.POST.get('bio', '')
+            if request.FILES.get('profile_photo'):
+                user.profile_photo = request.FILES['profile_photo']
+            user.save()
+            print('REGISTER SUCCESS: user created successfully')
+        except Exception as e:
+            msg = f'Ошибка при создании пользователя: {str(e)}'
+            print('REGISTER ERROR:', msg)
+            messages.error(request, msg)
+            return redirect('main:auth')
         # Явная аутентификация
         user = authenticate(request, username=username, password=password1)
         if user is not None:
@@ -98,10 +105,17 @@ def register(request):
             messages.success(request, 'Регистрация прошла успешно!')
             return redirect('main:dashboard')
         else:
-            msg = 'Ошибка при автоматическом входе. Попробуйте войти вручную.'
-            print('REGISTER ERROR:', msg)
-            messages.error(request, msg)
-            return redirect('main:login')
+            # Если аутентификация не сработала, попробуем войти напрямую
+            try:
+                user = User.objects.get(username=username)
+                login(request, user)
+                messages.success(request, 'Регистрация прошла успешно!')
+                return redirect('main:dashboard')
+            except User.DoesNotExist:
+                msg = 'Ошибка при автоматическом входе. Попробуйте войти вручную.'
+                print('REGISTER ERROR:', msg)
+                messages.error(request, msg)
+                return redirect('main:auth')
     return render(request, 'auth.html', {'is_register': True})
 
 def user_login(request):
@@ -162,17 +176,17 @@ def profile(request):
             
             request.user.city = request.POST.get('city', '')
             request.user.phone_number = request.POST.get('phone', '')
-            
+        
             # Update performer-specific fields if applicable
             if request.user.user_type == 'performer':
                 request.user.company_name = request.POST.get('company_name', '')
                 request.user.service_type = request.POST.get('service_type', '')
                 request.user.bio = request.POST.get('bio', '')
-            
+        
             # Handle profile photo upload
             if request.FILES.get('profile_photo'):
                 request.user.profile_photo = request.FILES['profile_photo']
-            
+        
             print(f"PROFILE UPDATE - Before save: user={request.user.id}, email={request.user.email}, phone={request.user.phone_number}")
             request.user.save()
             print(f"PROFILE UPDATE - After save: success")

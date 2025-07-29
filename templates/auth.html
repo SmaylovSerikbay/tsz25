@@ -1,546 +1,396 @@
+{% extends 'base.html' %}
 {% load static %}
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Вход и регистрация — Той со звездой</title>
-  <link rel="stylesheet" href="{% static 'css/style.css' %}">
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
-</head>
-<body>
-  <!-- Mobile Menu -->
-  <div class="mobile-menu">
-    <div class="mobile-menu-content">
-      <nav class="mobile-nav">
-        <a href="{% url 'main:index' %}" class="mobile-nav-link">
-          <i class="ri-home-line"></i>
-          <span>Главная</span>
-        </a>
-        <a href="{% url 'main:catalog' %}" class="mobile-nav-link">
-          <i class="ri-group-line"></i>
-          <span>Исполнители</span>
-        </a>
-        {% if user.is_authenticated %}
-          {% if user.user_type == 'customer' %}
-            <a href="{% url 'main:create_order' %}" class="mobile-nav-link">
-              <i class="ri-add-circle-line"></i>
-              <span>Создать заявку</span>
-            </a>
-          {% endif %}
-          <a href="{% url 'main:dashboard' %}" class="mobile-nav-link">
-            <i class="ri-dashboard-line"></i>
-            <span>Личный кабинет</span>
-          </a>
-          <div class="mobile-nav-dropdown">
-            <button class="mobile-nav-dropdown-toggle">
-              <div class="user-info">
-                {% if user.profile_photo %}
-                  <img src="{{ user.profile_photo.url }}" alt="{{ user.get_full_name }}" class="nav-avatar">
-                {% else %}
-                  <i class="ri-user-line"></i>
-                {% endif %}
-                <span>{{ user.get_full_name|default:user.phone_number }}</span>
-              </div>
-              <i class="ri-arrow-down-s-line"></i>
-            </button>
-            <div class="mobile-nav-dropdown-menu">
-              <a href="{% url 'main:profile_settings' %}" class="mobile-nav-link">
-                <i class="ri-settings-line"></i>
-                <span>Настройки</span>
-              </a>
-              <a href="{% url 'main:logout' %}" class="mobile-nav-link">
-                <i class="ri-logout-box-line"></i>
-                <span>Выйти</span>
-              </a>
+
+{% block title %}Вход и регистрация — Той со звездой{% endblock %}
+
+{% block content %}
+<main class="main">
+  <div class="container">
+    <div class="auth-container">
+      {% if messages %}
+      <div class="messages">
+        {% for message in messages %}
+        <div class="message {% if message.tags %}{{ message.tags }}{% endif %}">
+          {{ message }}
+        </div>
+        {% endfor %}
+      </div>
+      {% endif %}
+      
+      <div class="auth-header">
+        <h1>Добро пожаловать</h1>
+        <p>Войдите или создайте аккаунт</p>
+      </div>
+
+      <!-- Phone verification form -->
+      <form id="phoneForm" class="auth-form active">
+        <div class="form-group">
+          <label class="form-label" for="phone_number">Номер телефона</label>
+          <input type="tel" class="form-input" name="phone_number" id="phone_number" required placeholder="+7 (XXX) XXX-XX-XX" autocomplete="tel">
+        </div>
+        <div class="form-actions">
+          <button type="submit" class="btn accent">Получить код</button>
+        </div>
+      </form>
+
+      <!-- OTP verification form -->
+      <form id="otpForm" class="auth-form" style="display: none;">
+        <div class="form-group">
+          <label class="form-label" for="otp_code">Введите код из WhatsApp</label>
+          <input type="text" class="form-input" name="otp_code" id="otp_code" required maxlength="6" placeholder="XXXXXX" autocomplete="one-time-code">
+        </div>
+        <div class="form-actions">
+          <button type="submit" class="btn accent">Подтвердить</button>
+          <button type="button" class="btn outline" onclick="resendOTP()">Отправить код повторно</button>
+        </div>
+      </form>
+
+      <!-- Registration form (shown after OTP verification) -->
+      <form id="registerForm" class="auth-form" style="display: none;" method="post" action="{% url 'main:register' %}" enctype="multipart/form-data">
+        {% csrf_token %}
+        <input type="hidden" name="phone_number" id="reg_phone_number" autocomplete="tel">
+        
+        <div class="form-group">
+          <label class="form-label" for="first_name">Имя</label>
+          <input type="text" class="form-input" name="first_name" id="first_name" required placeholder="Введите ваше имя" autocomplete="given-name">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="last_name">Фамилия</label>
+          <input type="text" class="form-input" name="last_name" id="last_name" required placeholder="Введите вашу фамилию" autocomplete="family-name">
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label" for="city">Город проживания</label>
+          <input type="text" class="form-input" name="city" id="city" required placeholder="Введите ваш город" autocomplete="address-level2">
+        </div>
+        
+        <div class="user-type-select">
+          <h3>Выберите тип аккаунта</h3>
+          <div class="user-type-options">
+            <div class="user-type-option" onclick="selectUserType('customer', this)">
+              <i class="ri-user-line"></i>
+              <h3>Заказчик</h3>
+              <p>Ищу исполнителей</p>
+            </div>
+            <div class="user-type-option" onclick="selectUserType('performer', this)">
+              <i class="ri-briefcase-line"></i>
+              <h3>Исполнитель</h3>
+              <p>Предлагаю услуги</p>
             </div>
           </div>
-        {% else %}
-          <a href="{% url 'main:auth' %}" class="mobile-nav-link auth-link">
-            <i class="ri-login-box-line"></i>
-            <span>Войти по номеру телефона</span>
-          </a>
-        {% endif %}
-      </nav>
+        </div>
+
+        <!-- Дополнительные поля для исполнителя -->
+        <div id="performerFields" style="display: none;">
+          <div class="form-group">
+            <label class="form-label">Название компании или псевдоним</label>
+            <input type="text" class="form-input" name="company_name" placeholder="Необязательно">
+          </div>
+          
+          <div class="form-group">
+            <label class="form-label">Вид услуг</label>
+            <select class="form-input" name="service_type">
+              <option value="">Выберите вид услуг</option>
+              <option value="photo">Фотографы</option>
+              <option value="video">Видеографы</option>
+              <option value="music">Музыканты</option>
+              <option value="host">Ведущие</option>
+              <option value="dance">Шоу-программы</option>
+              <option value="restaurant">Рестораны</option>
+              <option value="makeup">Визожисты</option>
+              <option value="registry">Регистрация брака</option>
+              <option value="cottage">Коттеджы</option>
+              <option value="recreation_areas">Зоны отдыха</option>
+              <option value="star">Звезды Эстрады</option>
+              <option value="aphishe">Концертные Афишы</option>
+            </select>
+          </div>
+          
+          <div class="form-group">
+            <label class="form-label">О себе</label>
+            <textarea class="form-input" name="bio" placeholder="Расскажите о своем опыте и услугах"></textarea>
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label" for="username">Имя пользователя</label>
+          <input type="text" class="form-input" name="username" id="username" required placeholder="Придумайте логин" autocomplete="username">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="email">Email</label>
+          <input type="email" class="form-input" name="email" id="email" required placeholder="Введите ваш email" autocomplete="email">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="password1">Пароль</label>
+          <input type="password" class="form-input" name="password1" id="password1" required placeholder="Придумайте пароль" autocomplete="new-password">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="password2">Повторите пароль</label>
+          <input type="password" class="form-input" name="password2" id="password2" required placeholder="Повторите пароль" autocomplete="new-password">
+        </div>
+        
+        <input type="hidden" name="user_type" id="userTypeInput" value="customer">
+        
+        <div class="form-actions">
+          <button type="submit" class="btn accent">Создать аккаунт</button>
+        </div>
+      </form>
     </div>
   </div>
+</main>
 
-  <header class="header">
-    <div class="container">
-      <a href="{% url 'main:index' %}" class="logo">Той со звездой</a>
-      <nav class="nav desktop-nav">
-        <a href="{% url 'main:index' %}" class="nav-link">
-          <i class="ri-home-line"></i>
-          <span>Главная</span>
-        </a>
-        <a href="{% url 'main:catalog' %}" class="nav-link">
-          <i class="ri-group-line"></i>
-          <span>Исполнители</span>
-        </a>
-        {% if user.is_authenticated %}
-          {% if user.user_type == 'customer' %}
-            <a href="{% url 'main:create_order' %}" class="nav-link">
-              <i class="ri-add-circle-line"></i>
-              <span>Создать заявку</span>
-            </a>
-          {% endif %}
-          <a href="{% url 'main:dashboard' %}" class="nav-link">
-            <i class="ri-dashboard-line"></i>
-            <span>Личный кабинет</span>
-          </a>
-          <div class="nav-dropdown">
-            <button class="nav-dropdown-toggle">
-              <div class="user-info">
-                {% if user.profile_photo %}
-                  <img src="{{ user.profile_photo.url }}" alt="{{ user.get_full_name }}" class="nav-avatar">
-                {% else %}
-                  <i class="ri-user-line"></i>
-                {% endif %}
-                <span>{{ user.get_full_name|default:user.phone_number }}</span>
-              </div>
-              <i class="ri-arrow-down-s-line"></i>
-            </button>
-            <div class="nav-dropdown-menu">
-              <a href="{% url 'main:profile_settings' %}">
-                <i class="ri-settings-line"></i>
-                <span>Настройки</span>
-              </a>
-              <a href="{% url 'main:logout' %}">
-                <i class="ri-logout-box-line"></i>
-                <span>Выйти</span>
-              </a>
-            </div>
-          </div>
-        {% else %}
-          <a href="{% url 'main:auth' %}" class="nav-link auth-link">
-            <i class="ri-login-box-line"></i>
-            <span>Войти по номеру телефона</span>
-          </a>
-        {% endif %}
-      </nav>
-    </div>
-  </header>
+<style>
+  .auth-container {
+    max-width: 480px;
+    margin: 40px auto;
+    background: white;
+    border-radius: 20px;
+    padding: 32px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+  }
 
-  <main class="main">
-    <div class="container">
-      <div class="auth-container">
-        {% if messages %}
-        <div class="messages">
-          {% for message in messages %}
-          <div class="message {% if message.tags %}{{ message.tags }}{% endif %}">
-            {{ message }}
-          </div>
-          {% endfor %}
-        </div>
-        {% endif %}
-        
-        <div class="auth-header">
-          <h1>Добро пожаловать</h1>
-          <p>Войдите или создайте аккаунт</p>
-        </div>
+  .form-group {
+    margin-bottom: 20px;
+  }
 
-        <!-- Phone verification form -->
-        <form id="phoneForm" class="auth-form active">
-          <div class="form-group">
-            <label class="form-label" for="phone_number">Номер телефона</label>
-            <input type="tel" class="form-input" name="phone_number" id="phone_number" required placeholder="+7 (XXX) XXX-XX-XX" autocomplete="tel">
-          </div>
-          <div class="form-actions">
-            <button type="submit" class="btn accent">Получить код</button>
-          </div>
-        </form>
+  .form-actions {
+    margin-top: 32px;
+    display: flex;
+    gap: 16px;
+  }
 
-        <!-- OTP verification form -->
-        <form id="otpForm" class="auth-form" style="display: none;">
-          <div class="form-group">
-            <label class="form-label" for="otp_code">Введите код из WhatsApp</label>
-            <input type="text" class="form-input" name="otp_code" id="otp_code" required maxlength="6" placeholder="XXXXXX" autocomplete="one-time-code">
-          </div>
-          <div class="form-actions">
-            <button type="submit" class="btn accent">Подтвердить</button>
-            <button type="button" class="btn outline" onclick="resendOTP()">Отправить код повторно</button>
-          </div>
-        </form>
+  .form-actions .btn {
+    width: 100%;
+  }
 
-        <!-- Registration form (shown after OTP verification) -->
-        <form id="registerForm" class="auth-form" style="display: none;" method="post" action="{% url 'main:register' %}" enctype="multipart/form-data">
-          {% csrf_token %}
-          <input type="hidden" name="phone_number" id="reg_phone_number" autocomplete="tel">
-          
-          <div class="form-group">
-            <label class="form-label" for="first_name">Имя</label>
-            <input type="text" class="form-input" name="first_name" id="first_name" required placeholder="Введите ваше имя" autocomplete="given-name">
-          </div>
+  .form-input {
+    width: 100%;
+    padding: 12px;
+    border: 2px solid #e3e8ff;
+    border-radius: 12px;
+    font-size: 1rem;
+    transition: all 0.2s;
+  }
 
-          <div class="form-group">
-            <label class="form-label" for="last_name">Фамилия</label>
-            <input type="text" class="form-input" name="last_name" id="last_name" required placeholder="Введите вашу фамилию" autocomplete="family-name">
-          </div>
-          
-          <div class="form-group">
-            <label class="form-label" for="city">Город проживания</label>
-            <input type="text" class="form-input" name="city" id="city" required placeholder="Введите ваш город" autocomplete="address-level2">
-          </div>
-          
-          <div class="user-type-select">
-            <h3>Выберите тип аккаунта</h3>
-            <div class="user-type-options">
-              <div class="user-type-option" onclick="selectUserType('customer', this)">
-                <i class="ri-user-line"></i>
-                <h3>Заказчик</h3>
-                <p>Ищу исполнителей</p>
-              </div>
-              <div class="user-type-option" onclick="selectUserType('performer', this)">
-                <i class="ri-briefcase-line"></i>
-                <h3>Исполнитель</h3>
-                <p>Предлагаю услуги</p>
-              </div>
-            </div>
-          </div>
+  .form-input:focus {
+    border-color: var(--primary-color);
+    outline: none;
+  }
 
-          <!-- Дополнительные поля для исполнителя -->
-          <div id="performerFields" style="display: none;">
-            <div class="form-group">
-              <label class="form-label">Название компании или псевдоним</label>
-              <input type="text" class="form-input" name="company_name" placeholder="Необязательно">
-            </div>
-            
-            <div class="form-group">
-              <label class="form-label">Вид услуг</label>
-              <select class="form-input" name="service_type">
-                <option value="">Выберите вид услуг</option>
-                <option value="photo">Фотографы</option>
-                <option value="video">Видеографы</option>
-                <option value="music">Музыканты</option>
-                <option value="host">Ведущие</option>
-                <option value="dance">Шоу-программы</option>
-                <option value="restaurant">Рестораны</option>
-                <option value="makeup">Визожисты</option>
-                <option value="registry">Регистрация брака</option>
-                <option value="cottage">Коттеджы</option>
-                <option value="recreation_areas">Зоны отдыха</option>
-                <option value="star">Звезды Эстрады</option>
-                <option value="aphishe">Концертные Афишы</option>
+  textarea.form-input {
+    min-height: 100px;
+    resize: vertical;
+  }
 
-              </select>
-            </div>
-            
-            <div class="form-group">
-              <label class="form-label">О себе</label>
-              <textarea class="form-input" name="bio" placeholder="Расскажите о своем опыте и услугах"></textarea>
-            </div>
-          </div>
-          
-          <div class="form-group">
-            <label class="form-label" for="username">Имя пользователя</label>
-            <input type="text" class="form-input" name="username" id="username" required placeholder="Придумайте логин" autocomplete="username">
-          </div>
-          <div class="form-group">
-            <label class="form-label" for="email">Email</label>
-            <input type="email" class="form-input" name="email" id="email" required placeholder="Введите ваш email" autocomplete="email">
-          </div>
-          <div class="form-group">
-            <label class="form-label" for="password1">Пароль</label>
-            <input type="password" class="form-input" name="password1" id="password1" required placeholder="Придумайте пароль" autocomplete="new-password">
-          </div>
-          <div class="form-group">
-            <label class="form-label" for="password2">Повторите пароль</label>
-            <input type="password" class="form-input" name="password2" id="password2" required placeholder="Повторите пароль" autocomplete="new-password">
-          </div>
-          
-          <input type="hidden" name="user_type" id="userTypeInput" value="customer">
-          
-          <div class="form-actions">
-            <button type="submit" class="btn accent">Создать аккаунт</button>
-          </div>
-        </form>
-      </div>
-    </div>
-  </main>
+  input[type="file"].form-input {
+    padding: 8px;
+  }
 
-  <footer class="footer">
-    <div class="container">
-      <div class="footer-content">
-        <div class="footer-section">
-          <h3>О нас</h3>
-          <p>Той со звездой - платформа для поиска профессиональных исполнителей для вашего мероприятия.</p>
-        </div>
-        <div class="footer-section">
-          <h3>Контакты</h3>
-          <p>Email: <a href="mailto:miras.abildin@bk.ru">miras.abildin@bk.ru</a></p>
-          <p>Телефон: <a href="tel:+77754184629">+7 (775)-418-46-29</a></p>
-        </div>
-        <div class="footer-section">
-          <h3>Соцсети</h3>
-          <div class="social-links">
-            <a href="https://www.instagram.com/_miras_event_/" target="_blank"><i class="ri-instagram-line"></i></a>
-            <a href="https://www.tiktok.com/@miras_abildin_?_t=ZM-8yOktSAtIhi&_r=1" target="_blank"><i class="ri-tiktok-line"></i></a>
-            <a href="https://wa.me/77754184629" target="_blank">
-              <i class="ri-whatsapp-line"></i>
-            </a>  
-          </div>
-        </div>
-      </div>
-      <div class="footer-bottom">
-        <p>© 2024 Той со звездой. Все права защищены.</p>
-      </div>
-    </div>
-  </footer>
+  .form-label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+    color: #1a1a1a;
+  }
 
-  <style>
+  .auth-header {
+    text-align: center;
+    margin-bottom: 32px;
+  }
+
+  .auth-header h1 {
+    font-size: 1.8rem;
+    margin: 0 0 8px 0;
+  }
+
+  .auth-header p {
+    color: #666;
+    margin: 0;
+  }
+
+  .user-type-select {
+    margin: 32px 0;
+  }
+
+  .user-type-options {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+    margin-top: 16px;
+  }
+
+  .user-type-option {
+    padding: 24px;
+    border: 2px solid #e3e8ff;
+    border-radius: 12px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .user-type-option:hover {
+    border-color: var(--primary-color);
+    background: var(--primary-light);
+  }
+
+  .user-type-option.selected {
+    border-color: var(--primary-color);
+    background: var(--primary-light);
+  }
+
+  .user-type-option i {
+    font-size: 32px;
+    color: var(--primary-color);
+    margin-bottom: 16px;
+  }
+
+  .user-type-option h3 {
+    margin: 0 0 8px 0;
+    font-size: 1.1rem;
+  }
+
+  .user-type-option p {
+    margin: 0;
+    color: #666;
+    font-size: 0.9rem;
+  }
+
+  @media (max-width: 480px) {
     .auth-container {
-      max-width: 480px;
-      margin: 40px auto;
-      background: white;
-      border-radius: 20px;
-      padding: 32px;
-      box-shadow: 0 2px 12px rgba(0,0,0,0.08);
-    }
-
-    .form-group {
-      margin-bottom: 20px;
-    }
-
-    .form-actions {
-      margin-top: 32px;
-      display: flex;
-      gap: 16px;
-    }
-
-    .form-actions .btn {
-      width: 100%;
-    }
-
-    .form-input {
-      width: 100%;
-      padding: 12px;
-      border: 2px solid #e3e8ff;
-      border-radius: 12px;
-      font-size: 1rem;
-      transition: all 0.2s;
-    }
-
-    .form-input:focus {
-      border-color: var(--primary-color);
-      outline: none;
-    }
-
-    textarea.form-input {
-      min-height: 100px;
-      resize: vertical;
-    }
-
-    input[type="file"].form-input {
-      padding: 8px;
-    }
-
-    .form-label {
-      display: block;
-      margin-bottom: 8px;
-      font-weight: 500;
-      color: #1a1a1a;
-    }
-
-    .auth-header {
-      text-align: center;
-      margin-bottom: 32px;
-    }
-
-    .auth-header h1 {
-      font-size: 1.8rem;
-      margin: 0 0 8px 0;
-    }
-
-    .auth-header p {
-      color: #666;
-      margin: 0;
-    }
-
-    .user-type-select {
-      margin: 32px 0;
+      margin: 20px;
+      padding: 24px;
     }
 
     .user-type-options {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 16px;
-      margin-top: 16px;
+      grid-template-columns: 1fr;
     }
 
-    .user-type-option {
-      padding: 24px;
-      border: 2px solid #e3e8ff;
-      border-radius: 12px;
-      text-align: center;
-      cursor: pointer;
-      transition: all 0.2s;
+    .form-actions {
+      flex-direction: column;
     }
+  }
+</style>
 
-    .user-type-option:hover {
-      border-color: var(--primary-color);
-      background: var(--primary-light);
-    }
+<script>
+  let currentPhoneNumber = '';
 
-    .user-type-option.selected {
-      border-color: var(--primary-color);
-      background: var(--primary-light);
-    }
-
-    .user-type-option i {
-      font-size: 32px;
-      color: var(--primary-color);
-      margin-bottom: 16px;
-    }
-
-    .user-type-option h3 {
-      margin: 0 0 8px 0;
-      font-size: 1.1rem;
-    }
-
-    .user-type-option p {
-      margin: 0;
-      color: #666;
-      font-size: 0.9rem;
-    }
-
-    @media (max-width: 480px) {
-      .auth-container {
-        margin: 20px;
-        padding: 24px;
-      }
-
-      .user-type-options {
-        grid-template-columns: 1fr;
-      }
-
-      .form-actions {
-        flex-direction: column;
-      }
-    }
-  </style>
-
-  <script src="{% static 'js/main.js' %}"></script>
-  <script>
-    let currentPhoneNumber = '';
-
-    document.getElementById('phoneForm').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const phoneNumber = document.getElementById('phone_number').value;
-      currentPhoneNumber = phoneNumber;
-      
-      try {
-        const response = await fetch('{% url "main:send_otp" %}', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-            'X-CSRFToken': '{{ csrf_token }}'
-          },
-          body: `phone_number=${encodeURIComponent(phoneNumber)}`
-        });
-        
-        const data = await response.json();
-        if (response.ok) {
-          document.getElementById('phoneForm').style.display = 'none';
-          document.getElementById('otpForm').style.display = 'block';
-        } else {
-          alert(data.error || 'Failed to send OTP');
-        }
-      } catch (error) {
-        alert('Error sending OTP');
-      }
-    });
-
-    document.getElementById('otpForm').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const otpCode = document.getElementById('otp_code').value;
-      
-      try {
-        const response = await fetch('{% url "main:verify_otp" %}', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-            'X-CSRFToken': '{{ csrf_token }}'
-          },
-          body: `phone_number=${encodeURIComponent(currentPhoneNumber)}&otp_code=${encodeURIComponent(otpCode)}`
-        });
-        
-        const data = await response.json();
-        if (response.ok) {
-          if (data.redirect) {
-            if (data.redirect === '/register/') {
-              // Show registration form
-              document.getElementById('otpForm').style.display = 'none';
-              document.getElementById('registerForm').style.display = 'block';
-              document.getElementById('reg_phone_number').value = currentPhoneNumber;
-            } else {
-              window.location.href = data.redirect;
-            }
-          }
-        } else {
-          alert(data.error || 'Invalid OTP');
-        }
-      } catch (error) {
-        alert('Error verifying OTP');
-      }
-    });
-
-    async function resendOTP() {
-      try {
-        const response = await fetch('{% url "main:send_otp" %}', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-            'X-CSRFToken': '{{ csrf_token }}'
-          },
-          body: `phone_number=${encodeURIComponent(currentPhoneNumber)}`
-        });
-        
-        const data = await response.json();
-        if (response.ok) {
-          alert('New OTP sent successfully');
-        } else {
-          alert(data.error || 'Failed to resend OTP');
-        }
-      } catch (error) {
-        alert('Error resending OTP');
-      }
-    }
-
-    function selectUserType(type, element) {
-      document.querySelectorAll('.user-type-option').forEach(opt => {
-        opt.classList.remove('selected');
+  document.getElementById('phoneForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const phoneNumber = document.getElementById('phone_number').value;
+    currentPhoneNumber = phoneNumber;
+    
+    try {
+      const response = await fetch('{% url "main:send_otp" %}', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          'X-CSRFToken': '{{ csrf_token }}'
+        },
+        body: `phone_number=${encodeURIComponent(phoneNumber)}`
       });
-      element.classList.add('selected');
-      document.getElementById('userTypeInput').value = type;
       
-      // Show/hide performer fields
-      document.getElementById('performerFields').style.display = 
-        type === 'performer' ? 'block' : 'none';
-      
-      // Make service_type required only for performers
-      const serviceTypeSelect = document.querySelector('select[name="service_type"]');
-      if (serviceTypeSelect) {
-        serviceTypeSelect.required = (type === 'performer');
+      const data = await response.json();
+      if (response.ok) {
+        document.getElementById('phoneForm').style.display = 'none';
+        document.getElementById('otpForm').style.display = 'block';
+      } else {
+        alert(data.error || 'Failed to send OTP');
       }
+    } catch (error) {
+      alert('Error sending OTP');
     }
+  });
 
-    document.getElementById('registerForm').addEventListener('submit', function(e) {
-      const userType = document.getElementById('userTypeInput').value;
-      if (!userType) {
-        alert('Пожалуйста, выберите тип аккаунта!');
+  document.getElementById('otpForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const otpCode = document.getElementById('otp_code').value;
+    
+    try {
+      const response = await fetch('{% url "main:verify_otp" %}', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          'X-CSRFToken': '{{ csrf_token }}'
+        },
+        body: `phone_number=${encodeURIComponent(currentPhoneNumber)}&otp_code=${encodeURIComponent(otpCode)}`
+      });
+      
+      const data = await response.json();
+      if (response.ok) {
+        if (data.redirect) {
+          if (data.redirect === '/register/') {
+            // Show registration form
+            document.getElementById('otpForm').style.display = 'none';
+            document.getElementById('registerForm').style.display = 'block';
+            document.getElementById('reg_phone_number').value = currentPhoneNumber;
+          } else {
+            window.location.href = data.redirect;
+          }
+        }
+      } else {
+        alert(data.error || 'Invalid OTP');
+      }
+    } catch (error) {
+      alert('Error verifying OTP');
+    }
+  });
+
+  async function resendOTP() {
+    try {
+      const response = await fetch('{% url "main:send_otp" %}', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          'X-CSRFToken': '{{ csrf_token }}'
+        },
+        body: `phone_number=${encodeURIComponent(currentPhoneNumber)}`
+      });
+      
+      const data = await response.json();
+      if (response.ok) {
+        alert('New OTP sent successfully');
+      } else {
+        alert(data.error || 'Failed to resend OTP');
+      }
+    } catch (error) {
+      alert('Error resending OTP');
+    }
+  }
+
+  function selectUserType(type, element) {
+    document.querySelectorAll('.user-type-option').forEach(opt => {
+      opt.classList.remove('selected');
+    });
+    element.classList.add('selected');
+    document.getElementById('userTypeInput').value = type;
+    
+    // Show/hide performer fields
+    document.getElementById('performerFields').style.display = 
+      type === 'performer' ? 'block' : 'none';
+    
+    // Make service_type required only for performers
+    const serviceTypeSelect = document.querySelector('select[name="service_type"]');
+    if (serviceTypeSelect) {
+      serviceTypeSelect.required = (type === 'performer');
+    }
+  }
+
+  document.getElementById('registerForm').addEventListener('submit', function(e) {
+    const userType = document.getElementById('userTypeInput').value;
+    if (!userType) {
+      alert('Пожалуйста, выберите тип аккаунта!');
+      e.preventDefault();
+      return false;
+    }
+    if (userType === 'performer') {
+      const serviceType = document.querySelector('select[name="service_type"]').value;
+      if (!serviceType) {
+        alert('Пожалуйста, выберите специализацию!');
         e.preventDefault();
         return false;
       }
-      if (userType === 'performer') {
-        const serviceType = document.querySelector('select[name="service_type"]').value;
-        if (!serviceType) {
-          alert('Пожалуйста, выберите специализацию!');
-          e.preventDefault();
-          return false;
-        }
-      }
-    });
-  </script>
-</body>
-</html> 
+    }
+  });
+</script>
+{% endblock %} 
