@@ -12,11 +12,11 @@
       {% csrf_token %}
       <div class="calendar-controls" style="margin-bottom: 24px;">
         <div style="display: flex; justify-content: space-between; align-items: center;">
-          <button type="button" class="btn outline" onclick="prevMonth()">
+          <button type="button" class="btn outline" onclick="prevMonthCalendar()">
             <i class="ri-arrow-left-s-line"></i>
           </button>
           <h3 id="currentMonth" style="font-size: 1.2rem; font-weight: 600;"></h3>
-          <button type="button" class="btn outline" onclick="nextMonth()">
+          <button type="button" class="btn outline" onclick="nextMonthCalendar()">
             <i class="ri-arrow-right-s-line"></i>
           </button>
         </div>
@@ -135,20 +135,15 @@ function updateSelectedDatesInput() {
   document.getElementById('selectedDates').value = JSON.stringify(Array.from(selectedDates));
 }
 
-function prevMonth() {
+function prevMonthCalendar() {
   currentDate.setMonth(currentDate.getMonth() - 1);
   updateCalendar();
 }
 
-function nextMonth() {
+function nextMonthCalendar() {
   currentDate.setMonth(currentDate.getMonth() + 1);
   updateCalendar();
 }
-
-// Initialize calendar when modal opens
-document.getElementById('calendarModal').addEventListener('show', function() {
-  updateCalendar();
-});
 
 // Initialize with any existing busy dates
 {% if busy_dates %}
@@ -156,4 +151,20 @@ document.getElementById('calendarModal').addEventListener('show', function() {
     selectedDates.add('{{ date.date|date:"Y-m-d" }}');
   {% endfor %}
 {% endif %}
+
+// Initialize calendar when modal opens
+document.getElementById('calendarModal').addEventListener('show', function() {
+  selectedDates.clear();
+  {% if busy_dates %}
+    {% for date in busy_dates %}
+      selectedDates.add('{{ date.date|date:"Y-m-d" }}');
+    {% endfor %}
+  {% endif %}
+  updateCalendar();
+});
+
+// Initialize calendar immediately when page loads
+document.addEventListener('DOMContentLoaded', function() {
+  updateCalendar();
+});
 </script> 

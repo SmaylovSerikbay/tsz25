@@ -503,6 +503,19 @@ function openModal(modalId) {
   if (modal) {
     modal.style.display = 'block';
     document.body.style.overflow = 'hidden';
+    
+    // Специальная обработка для модального окна календаря
+    if (modalId === 'calendarModal') {
+      // Инициализируем календарь при открытии
+      if (typeof updateCalendar === 'function') {
+        // Очищаем существующие даты
+        if (typeof selectedDates !== 'undefined') {
+          selectedDates.clear();
+        }
+        // Обновляем календарь
+        updateCalendar();
+      }
+    }
   }
 }
 
@@ -897,7 +910,15 @@ function updateCalendarDisplay() {
     const year = calendarCurrentDate.getFullYear();
     const month = calendarCurrentDate.getMonth();
     
-    document.getElementById('currentMonthDisplay').textContent = `${calendarMonths[month]} ${year}`;
+    // Проверяем, какой элемент существует
+    const currentMonthDisplay = document.getElementById('currentMonthDisplay');
+    const currentMonth = document.getElementById('currentMonth');
+    
+    if (currentMonthDisplay) {
+        currentMonthDisplay.textContent = `${calendarMonths[month]} ${year}`;
+    } else if (currentMonth) {
+        currentMonth.textContent = `${calendarMonths[month]} ${year}`;
+    }
     
     const firstDay = new Date(year, month, 1);
     const lastDay = new Date(year, month + 1, 0);
