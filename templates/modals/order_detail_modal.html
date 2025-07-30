@@ -43,10 +43,7 @@ function openOrderDetailModal(orderId, action = 'view') {
           showResponseForm(orderId);
         }
         
-        // Проверяем, является ли пользователь выбранным исполнителем
-        if (data.order.is_selected_performer) {
-          showChatButton(orderId);
-        }
+
       } else {
         content.innerHTML = '<div style="text-align: center; padding: 40px; color: #dc3545;"><i class="ri-error-warning-line" style="font-size: 48px; margin-bottom: 16px;"></i><p>Ошибка загрузки данных</p></div>';
       }
@@ -251,19 +248,7 @@ function submitResponse(event, orderId) {
   });
 }
 
-function showChatButton(orderId) {
-  const container = document.getElementById('chatButtonContainer');
-  container.style.display = 'block';
-  
-  container.innerHTML = `
-    <div style="margin-top: 20px; padding-top: 16px; border-top: 1px solid #e9ecef;">
-      <h4 style="margin: 0 0 12px 0; color: #1a1a1a; font-size: 1rem;">Общение с заказчиком</h4>
-      <button onclick="openChatModal(${orderId}, null)" class="btn accent" style="width: 100%; padding: 12px 16px; font-size: 0.9rem;">
-        <i class="ri-message-2-line"></i> Открыть чат
-      </button>
-    </div>
-  `;
-}
+
 
 // Функция для получения CSRF токена
 function getCookie(name) {

@@ -603,13 +603,7 @@ function sendMessage(event) {
 
   const chatModal = document.getElementById('chatModal');
   const orderId = chatModal.getAttribute('data-order-id');
-  const performerId = chatModal.getAttribute('data-performer-id');
   const csrfToken = form.querySelector('[name=csrfmiddlewaretoken]').value;
-
-  const payload = { message };
-  if (performerId) {
-    payload.performer_id = performerId;
-  }
 
   fetch(`/chat/${orderId}/send/`, {
     method: 'POST',
@@ -617,16 +611,22 @@ function sendMessage(event) {
       'Content-Type': 'application/json',
       'X-CSRFToken': csrfToken
     },
-    body: JSON.stringify(payload)
+    body: JSON.stringify({ message })
   })
   .then(response => response.json())
   .then(data => {
     if (data.success) {
       input.value = '';
       if (typeof loadMessages === 'function') {
-        loadMessages(orderId, performerId);
+        loadMessages(orderId);
       }
+    } else {
+      alert('Ошибка: ' + (data.error || 'Неизвестная ошибка'));
     }
+  })
+  .catch(error => {
+    console.error('Error:', error);
+    alert('Ошибка при отправке сообщения');
   });
 }
 

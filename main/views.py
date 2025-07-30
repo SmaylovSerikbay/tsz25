@@ -1178,20 +1178,38 @@ def delete_tariff(request, tariff_id):
 @require_GET
 def get_chat_messages(request, order_id):
     order = get_object_or_404(Order, id=order_id)
-    performer_id = request.GET.get('performer_id')
-    if request.user != order.customer and (not performer_id or int(performer_id) != request.user.id):
-        return JsonResponse({'error': 'Access denied'}, status=403)
-    if performer_id:
-        messages_qs = Message.objects.filter(order=order, performer_id=performer_id).order_by('created_at')
-    else:
-        messages_qs = Message.objects.filter(order=order, performer=request.user).order_by('created_at')
+    
+    # Проверяем права доступа
+    if request.user != order.customer:
+        # Для исполнителей проверяем, что они участвуют в заказе
+        if order.selected_performers:
+            # Для новых заказов с selected_performers
+            is_performer = False
+            for service, performer_id in order.selected_performers.items():
+                if str(performer_id) == str(request.user.id):
+                    is_performer = True
+                    break
+            if not is_performer:
+                return JsonResponse({'error': 'Access denied'}, status=403)
+        elif order.performer:
+            # Для старых заказов
+            if request.user != order.performer:
+                return JsonResponse({'error': 'Access denied'}, status=403)
+        else:
+            return JsonResponse({'error': 'Access denied'}, status=403)
+    
+    # Получаем все сообщения для заказа
+    messages_qs = Message.objects.filter(order=order).order_by('created_at')
+    
     # Mark messages as read
     messages_qs.filter(to_user=request.user, is_read=False).update(is_read=True)
+    
     messages_data = [{
         'content': msg.content,
         'timestamp': msg.created_at.strftime('%H:%M'),
         'is_mine': msg.from_user == request.user
     } for msg in messages_qs]
+    
     return JsonResponse({'messages': messages_data})
 
 @login_required
@@ -1199,20 +1217,31 @@ def get_chat_messages(request, order_id):
 def send_chat_message(request, order_id):
     order = get_object_or_404(Order, id=order_id)
     data = json.loads(request.body)
-    performer_id = data.get('performer_id')
     content = data.get('message', '').strip()
     if not content:
         return JsonResponse({'error': 'Message cannot be empty'}, status=400)
+    
+    # Определяем получателя сообщения
     if request.user == order.customer:
-        if not performer_id:
-            return JsonResponse({'error': 'No performer specified'}, status=400)
-        performer = get_object_or_404(User, id=performer_id)
+        # Заказчик отправляет сообщение исполнителю
+        if order.selected_performers:
+            # Для новых заказов с selected_performers
+            for service, performer_id in order.selected_performers.items():
+                performer = get_object_or_404(User, id=performer_id)
+                break
+        elif order.performer:
+            # Для старых заказов
+            performer = order.performer
+        else:
+            return JsonResponse({'error': 'No performer found for this order'}, status=400)
         to_user = performer
-    elif request.user.user_type == 'performer' and request.user.id == int(performer_id):
+    elif request.user.user_type == 'performer':
+        # Исполнитель отправляет сообщение заказчику
         to_user = order.customer
         performer = request.user
     else:
         return JsonResponse({'error': 'Access denied'}, status=403)
+    
     Message.objects.create(
         order=order,
         from_user=request.user,
