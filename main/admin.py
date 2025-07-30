@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
-from .models import User, Category, Order, Review, Portfolio, Tariff, BusyDate, Message, OrderResponse, OTP
+from .models import User, Category, City, ServiceType, Order, Review, Portfolio, Tariff, BusyDate, Message, OrderResponse, OTP, BookingProposal
 
 class CustomUserAdmin(UserAdmin):
     fieldsets = (
