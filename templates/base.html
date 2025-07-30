@@ -196,6 +196,23 @@
 
     <!-- Scripts -->
     <script src="{% static 'js/main.js' %}"></script>
+    <script>
+      // Debug: Check if main.js is loaded
+      document.addEventListener('DOMContentLoaded', function() {
+        console.log('Base template loaded');
+        
+        // Check if dropdown elements exist
+        const dropdowns = document.querySelectorAll('.nav-dropdown-toggle');
+        console.log('Found dropdowns:', dropdowns.length);
+        
+        // Check if main.js functions are available
+        if (typeof openModal === 'function') {
+          console.log('main.js functions are available');
+        } else {
+          console.log('main.js functions are NOT available');
+        }
+      });
+    </script>
     {% block extra_js %}{% endblock %}
 </body>
 </html> 

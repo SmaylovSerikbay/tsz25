@@ -11,6 +11,7 @@ import json
 from datetime import datetime, timedelta
 from django.views.decorators.http import require_http_methods, require_GET, require_POST
 from django.views.decorators.csrf import csrf_exempt
+from django.db import models
 
 SERVICE_TYPE_CODES = {'photo', 'video', 'music', 'host', 'dance', 'restaurant', 'makeup', 'registry', 'star', 'cottage', 'recreation_areas', 'aphishe'}
 
@@ -415,67 +416,99 @@ def dashboard(request):
     return redirect('main:index')
 
 def catalog(request):
-    # Базовый запрос с правильной группировкой
+    # Базовый запрос исполнителей
     performers = User.objects.filter(user_type='performer', is_active=True)\
-        .prefetch_related('tariffs', 'orders_received')\
-        .distinct()
+        .prefetch_related('tariffs', 'reviews_received')\
+        .annotate(
+            reviews_count=Count('reviews_received'),
+            avg_rating=models.Avg('reviews_received__rating')
+        )
 
-    # Фильтры
+    # Получаем фильтры из GET параметров
     category = request.GET.get('category')
     city = request.GET.get('city')
     min_price = request.GET.get('min_price')
     max_price = request.GET.get('max_price')
     rating = request.GET.get('rating')
     date = request.GET.get('date')
-    
-    if category:
-        performers = performers.filter(service_type=category)
-    if city:
-        performers = performers.filter(city__iexact=city)
-    if min_price:
-        performers = performers.filter(tariffs__price__gte=min_price)
-    if max_price:
-        performers = performers.filter(tariffs__price__lte=max_price)
-    if rating:
-        performers = performers.filter(rating__gte=float(rating))
-    if date:
-        performers = performers.exclude(busydate__date=date)
+    sort = request.GET.get('sort', 'rating')
 
-    # Сортировка
-    sort = request.GET.get('sort', '-rating')
+    # Применяем фильтры
+    if category and category != 'all':
+        performers = performers.filter(service_type=category)
+    
+    if city and city != '':
+        performers = performers.filter(city__iexact=city)
+    
+    if min_price and min_price.isdigit():
+        performers = performers.filter(tariffs__price__gte=int(min_price))
+    
+    if max_price and max_price.isdigit():
+        performers = performers.filter(tariffs__price__lte=int(max_price))
+    
+    if rating and rating.isdigit():
+        performers = performers.filter(avg_rating__gte=float(rating))
+    
+    if date and date.strip():
+        try:
+            # Проверяем, что дата в правильном формате
+            from datetime import datetime
+            parsed_date = datetime.strptime(date, '%Y-%m-%d').date()
+            performers = performers.exclude(busydate__date=parsed_date)
+        except ValueError:
+            # Если дата в неправильном формате, игнорируем фильтр
+            pass
+
+    # Убираем дубликаты после фильтрации
+    performers = performers.distinct()
+
+    # Применяем сортировку
     if sort == 'price_low':
-        performers = performers.order_by('tariffs__price').distinct()
+        performers = performers.order_by('tariffs__price')
     elif sort == 'price_high':
-        performers = performers.order_by('-tariffs__price').distinct()
+        performers = performers.order_by('-tariffs__price')
     elif sort == 'rating':
-        performers = performers.order_by('-rating').distinct()
+        performers = performers.order_by('-avg_rating', '-reviews_count')
     elif sort == 'newest':
-        performers = performers.order_by('-date_joined').distinct()
+        performers = performers.order_by('-date_joined')
     else:
-        performers = performers.order_by('-rating').distinct()
+        performers = performers.order_by('-avg_rating', '-reviews_count')
 
     # Пагинация
     from django.core.paginator import Paginator
-    paginator = Paginator(performers, 12)  # 12 исполнителей на страницу
+    paginator = Paginator(performers, 12)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
+    
+    # Убеждаемся, что performers содержит только элементы текущей страницы
+    performers = page_obj.object_list
 
     # Получаем уникальные города для фильтра
-    cities = User.objects.filter(user_type='performer', is_active=True).values_list('city', flat=True).distinct()
+    cities = User.objects.filter(
+        user_type='performer', 
+        is_active=True
+    ).values_list('city', flat=True).distinct().order_by('city')
+
+    # Получаем категории из модели User
+    categories = User.SERVICE_TYPES
+
+    # Подготавливаем контекст фильтров
+    current_filters = {
+        'category': category,
+        'city': city,
+        'min_price': min_price,
+        'max_price': max_price,
+        'rating': rating,
+        'date': date,
+        'sort': sort
+    }
 
     context = {
         'performers': page_obj,
         'page_obj': page_obj,
         'cities': cities,
-        'current_filters': {
-            'category': category,
-            'city': city,
-            'min_price': min_price,
-            'max_price': max_price,
-            'rating': rating,
-            'date': date,
-            'sort': sort
-        }
+        'categories': categories,
+        'current_filters': current_filters
     }
     
     return render(request, 'catalog.html', context)
