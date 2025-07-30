@@ -11,6 +11,180 @@
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
   <style>
+    /* Навбар - используем стандартные стили из style.css */
+    .header {
+      background: white;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+    }
+
+    .logo {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--primary-color);
+    }
+
+    .desktop-nav {
+      display: flex;
+      align-items: center;
+      gap: 32px;
+    }
+
+    .nav-link {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: #333;
+      text-decoration: none;
+      font-weight: 500;
+      transition: color 0.2s;
+    }
+
+    .nav-link:hover {
+      color: var(--primary-color);
+    }
+
+    .nav-dropdown {
+      position: relative;
+    }
+
+    .nav-dropdown-toggle {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 8px;
+      border-radius: 8px;
+      transition: background-color 0.2s;
+    }
+
+    .nav-dropdown-toggle:hover {
+      background-color: #f8f9fa;
+    }
+
+    .user-info {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .nav-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      object-fit: cover;
+    }
+
+    .nav-dropdown-menu {
+      position: absolute;
+      top: 100%;
+      right: 0;
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      min-width: 200px;
+      display: none;
+      z-index: 1001;
+    }
+
+    .nav-dropdown:hover .nav-dropdown-menu {
+      display: block;
+    }
+
+    .nav-dropdown-menu a {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 16px;
+      color: #333;
+      text-decoration: none;
+      transition: background-color 0.2s;
+    }
+
+    .nav-dropdown-menu a:hover {
+      background-color: #f8f9fa;
+    }
+
+    .mobile-menu-toggle {
+      display: none;
+      flex-direction: column;
+      gap: 4px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 8px;
+    }
+
+    .mobile-menu-toggle span {
+      width: 24px;
+      height: 2px;
+      background-color: #333;
+      transition: all 0.3s;
+    }
+
+    .mobile-menu {
+      display: none;
+      position: fixed;
+      top: 70px;
+      left: 0;
+      right: 0;
+      background: white;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      z-index: 999;
+    }
+
+    .mobile-menu.active {
+      display: block;
+    }
+
+    .mobile-nav {
+      padding: 24px;
+    }
+
+    .mobile-nav-link {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 0;
+      color: #333;
+      text-decoration: none;
+      border-bottom: 1px solid #e9ecef;
+    }
+
+    .mobile-nav-dropdown {
+      margin-top: 16px;
+    }
+
+    .mobile-nav-dropdown-toggle {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      background: none;
+      border: none;
+      padding: 12px 0;
+      cursor: pointer;
+      border-bottom: 1px solid #e9ecef;
+    }
+
+    .mobile-nav-dropdown-menu {
+      padding-left: 24px;
+    }
+
+    @media (max-width: 768px) {
+      .desktop-nav {
+        display: none;
+      }
+      
+      .mobile-menu-toggle {
+        display: flex;
+      }
+    }
+
     .dashboard {
       padding: 32px 0;
     }
@@ -26,6 +200,34 @@
       margin: 0;
       font-size: 2rem;
       font-weight: 700;
+    }
+
+    /* Статистика */
+    .stats-section {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+      margin-bottom: 32px;
+    }
+
+    .stat-card {
+      background: white;
+      padding: 24px;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      text-align: center;
+    }
+
+    .stat-label {
+      font-size: 0.9rem;
+      color: #6c757d;
+      margin-bottom: 8px;
+    }
+
+    .stat-value {
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--primary-color);
     }
 
     /* Табы */
@@ -57,6 +259,7 @@
     .tab-button.active {
       color: var(--primary-color);
       border-bottom-color: var(--primary-color);
+      background-color: rgba(64, 112, 244, 0.05);
     }
 
     .tab-content {
@@ -92,12 +295,178 @@
       vertical-align: top;
     }
 
+    /* Кнопки действий */
+    .action-buttons {
+      display: flex;
+      gap: 6px;
+      flex-wrap: nowrap;
+      align-items: center;
+      justify-content: flex-start;
+    }
+
+    .btn-small {
+      padding: 6px 12px;
+      font-size: 0.75rem;
+      border-radius: 6px;
+      white-space: nowrap;
+      min-width: auto;
+      flex-shrink: 0;
+      border: 1px solid transparent;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-small:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    /* Статусы */
+    .status-badge {
+      padding: 4px 8px;
+      border-radius: 12px;
+      font-size: 0.75rem;
+      font-weight: 500;
+      text-transform: uppercase;
+    }
+
+    .status-new {
+      background-color: #e3f2fd;
+      color: #1976d2;
+    }
+
+    .status-in_progress {
+      background-color: #fff3e0;
+      color: #f57c00;
+    }
+
+    .status-completed {
+      background-color: #e8f5e8;
+      color: #388e3c;
+    }
+
+    .status-cancelled {
+      background-color: #ffebee;
+      color: #d32f2f;
+    }
+
+    /* Бюджет */
+    .budget-amount {
+      font-weight: 600;
+      color: var(--primary-color);
+    }
+
+    /* Информация о заказе */
+    .order-title {
+      font-weight: 600;
+      color: #333;
+      margin-bottom: 4px;
+    }
+
+    .order-event-type {
+      font-size: 0.8rem;
+      color: #6c757d;
+    }
+
+    .performer-info {
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Профиль */
+    .profile-section {
+      background: white;
+      border-radius: 12px;
+      padding: 32px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    .profile-header {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+      margin-bottom: 32px;
+    }
+
+    .profile-photo {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      object-fit: cover;
+    }
+
+    .profile-info h2 {
+      margin: 0 0 8px 0;
+      font-size: 1.5rem;
+      font-weight: 700;
+    }
+
+    .profile-info p {
+      margin: 4px 0;
+      color: #6c757d;
+    }
+
+    .profile-details {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 24px;
+    }
+
+    .profile-field {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .profile-field label {
+      font-weight: 600;
+      color: #333;
+    }
+
+    .profile-field span {
+      color: #6c757d;
+    }
+
     /* Адаптивные колонки для таблицы заказов */
+    .data-table {
+      table-layout: auto;
+      width: 100%;
+    }
+
     .data-table th:nth-child(1), /* Название */
     .data-table td:nth-child(1) {
-      width: 22%;
-      min-width: 160px;
-      max-width: 220px;
+      width: 25%;
+      min-width: 200px;
+    }
+
+    .data-table th:nth-child(2), /* Дата */
+    .data-table td:nth-child(2) {
+      width: 12%;
+      min-width: 90px;
+    }
+
+    .data-table th:nth-child(3), /* Тип */
+    .data-table td:nth-child(3) {
+      width: 12%;
+      min-width: 100px;
+    }
+
+    .data-table th:nth-child(4), /* Статус */
+    .data-table td:nth-child(4) {
+      width: 12%;
+      min-width: 100px;
+    }
+
+    .data-table th:nth-child(5), /* Бюджет */
+    .data-table td:nth-child(5) {
+      width: 15%;
+      min-width: 120px;
+    }
+
+    .data-table th:nth-child(6), /* Действия */
+    .data-table td:nth-child(6) {
+      width: 24%;
+      min-width: 200px;
     }
 
     /* Стили для названий заказов */
@@ -106,6 +475,7 @@
       color: #1a1a1a;
       line-height: 1.3;
       margin-bottom: 4px;
+      word-wrap: break-word;
     }
 
     .order-event-type {
@@ -119,36 +489,6 @@
       font-weight: 600;
       color: var(--primary-color);
       white-space: nowrap;
-    }
-
-    .data-table th:nth-child(2), /* Дата */
-    .data-table td:nth-child(2) {
-      width: 10%;
-      min-width: 80px;
-    }
-
-    .data-table th:nth-child(3), /* Тип */
-    .data-table td:nth-child(3) {
-      width: 10%;
-      min-width: 80px;
-    }
-
-    .data-table th:nth-child(4), /* Статус */
-    .data-table td:nth-child(4) {
-      width: 10%;
-      min-width: 80px;
-    }
-
-    .data-table th:nth-child(5), /* Бюджет */
-    .data-table td:nth-child(5) {
-      width: 13%;
-      min-width: 100px;
-    }
-
-    .data-table th:nth-child(6), /* Действия */
-    .data-table td:nth-child(6) {
-      width: 25%;
-      min-width: 180px;
     }
 
     .data-table th {
@@ -177,21 +517,7 @@
     .status-completed { background: #f3e5f5; color: #7b1fa2; }
     .status-cancelled { background: #ffebee; color: #c62828; }
 
-    .action-buttons {
-      display: flex;
-      gap: 4px;
-      flex-wrap: nowrap;
-      align-items: center;
-    }
 
-    .btn-small {
-      padding: 4px 8px;
-      font-size: 0.7rem;
-      border-radius: 4px;
-      white-space: nowrap;
-      min-width: auto;
-      flex-shrink: 0;
-    }
 
     .btn-danger {
       background: #dc3545;
@@ -386,6 +712,77 @@
       font-size: 1.5rem;
     }
 
+    /* Chat Modal Styles */
+    .chat-container {
+      display: flex;
+      flex-direction: column;
+      height: 400px;
+      max-height: 60vh;
+    }
+
+    .chat-messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px;
+      background: #f8f9fa;
+      border-radius: 8px;
+      margin-bottom: 16px;
+    }
+
+    .chat-input {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .chat-input .form-input {
+      flex: 1;
+      padding: 10px 12px;
+      border: 2px solid #e3e8ff;
+      border-radius: 6px;
+      font-size: 0.9rem;
+    }
+
+    .chat-input .btn {
+      padding: 10px 16px;
+      font-size: 0.9rem;
+    }
+
+    .message {
+      margin-bottom: 12px;
+      max-width: 80%;
+    }
+
+    .message.sent {
+      margin-left: auto;
+      text-align: right;
+    }
+
+    .message.received {
+      margin-right: auto;
+      text-align: left;
+    }
+
+    .message-content {
+      background: var(--primary-color);
+      color: white;
+      padding: 8px 12px;
+      border-radius: 12px;
+      display: inline-block;
+      word-wrap: break-word;
+    }
+
+    .message.received .message-content {
+      background: #e9ecef;
+      color: #495057;
+    }
+
+    .message-time {
+      font-size: 0.75rem;
+      color: #6c757d;
+      margin-top: 4px;
+    }
+
     /* Адаптивность */
     @media (max-width: 768px) {
       .dashboard-header {
@@ -434,49 +831,47 @@
   <!-- Header -->
   <header class="header">
     <div class="container">
-      <nav class="nav">
-        <a href="{% url 'main:index' %}" class="nav-logo">
-          <i class="ri-star-fill"></i>
-          <span>Той со звездой</span>
+      <div class="logo">Той со звездой</div>
+      <nav class="nav desktop-nav">
+        <a href="{% url 'main:index' %}" class="nav-link">
+          <i class="ri-home-line"></i>
+          <span>Главная</span>
         </a>
-        <div class="nav-links">
-          <a href="{% url 'main:index' %}" class="nav-link">
-            <i class="ri-home-line"></i>
-            <span>Главная</span>
-          </a>
-          <a href="{% url 'main:catalog' %}" class="nav-link">
-            <i class="ri-user-star-line"></i>
-            <span>Исполнители</span>
-          </a>
-          {% if user.is_authenticated %}
+        <a href="{% url 'main:catalog' %}" class="nav-link">
+          <i class="ri-group-line"></i>
+          <span>Исполнители</span>
+        </a>
+        {% if user.is_authenticated %}
+          {% if user.user_type == 'customer' %}
             <a href="{% url 'main:create_order' %}" class="nav-link">
               <i class="ri-add-circle-line"></i>
               <span>Создать заявку</span>
             </a>
-            <div class="nav-dropdown">
-              <button class="nav-dropdown-toggle">
-                <div class="user-info">
-                  {% if user.profile_photo %}
-                    <img src="{{ user.profile_photo.url }}" alt="{{ user.get_full_name }}" class="nav-avatar">
-                  {% else %}
-                    <i class="ri-user-line"></i>
-                  {% endif %}
-                  <span>{{ user.get_full_name|default:user.phone_number }}</span>
-                </div>
-                <i class="ri-arrow-down-s-line"></i>
-              </button>
-              <div class="nav-dropdown-menu">
-                <a href="{% url 'main:dashboard' %}">
-                  <i class="ri-dashboard-line"></i>
-                  <span>Личный кабинет</span>
-                </a>
-                <a href="{% url 'main:logout' %}">
-                  <i class="ri-logout-box-line"></i>
-                  <span>Выйти</span>
-                </a>
+          {% endif %}
+          <div class="nav-dropdown">
+            <button class="nav-dropdown-toggle" type="button">
+              <div class="user-info">
+                {% if user.profile_photo %}
+                  <img src="{{ user.profile_photo.url }}" alt="{{ user.get_full_name }}" class="nav-avatar">
+                {% else %}
+                  <i class="ri-user-line"></i>
+                {% endif %}
+                <span>{{ user.get_full_name|default:user.phone_number }}</span>
               </div>
+              <i class="ri-arrow-down-s-line"></i>
+            </button>
+            <div class="nav-dropdown-menu">
+              <a href="{% url 'main:dashboard' %}">
+                <i class="ri-dashboard-line"></i>
+                <span>Личный кабинет</span>
+              </a>
+              <a href="{% url 'main:logout' %}">
+                <i class="ri-logout-box-line"></i>
+                <span>Выйти</span>
+              </a>
             </div>
-          {% else %}
+          </div>
+        {% else %}
           <a href="{% url 'main:auth' %}" class="nav-link auth-link">
             <i class="ri-login-box-line"></i>
             <span>Войти по номеру телефона</span>
@@ -569,6 +964,10 @@
             <div class="stat-value">{{ responses_count }}</div>
           </div>
           <div class="stat-card">
+            <div class="stat-label">Мои бронирования</div>
+            <div class="stat-value">{{ bookings_count }}</div>
+          </div>
+          <div class="stat-card">
             <div class="stat-label">Потрачено всего</div>
             <div class="stat-value">{{ total_spent|floatformat:0 }} ₸</div>
           </div>
@@ -576,13 +975,16 @@
 
         <!-- Табы -->
         <div class="tab-buttons">
-          <button class="tab-button active" onclick="showTab('orders')">
+          <button class="tab-button active" onclick="showTab('orders', this)">
             <i class="ri-file-list-line"></i> Мои заказы
           </button>
-          <button class="tab-button" onclick="showTab('responses')">
+          <button class="tab-button" onclick="showTab('bookings', this)">
+            <i class="ri-calendar-check-line"></i> Бронирования
+          </button>
+          <button class="tab-button" onclick="showTab('responses', this)">
             <i class="ri-message-3-line"></i> Отклики
           </button>
-          <button class="tab-button" onclick="showTab('profile')">
+          <button class="tab-button" onclick="showTab('profile', this)">
             <i class="ri-user-settings-line"></i> Профиль
           </button>
         </div>
@@ -694,6 +1096,58 @@
           </div>
         </div>
 
+        <!-- Таб Бронирования -->
+        <div id="bookings" class="tab-content">
+          <h3>Мои бронирования ({{ bookings_count }})</h3>
+          <div class="table-container">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Исполнитель</th>
+                  <th>Дата</th>
+                  <th>Статус</th>
+                  <th>Бюджет</th>
+                  <th>Действия</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for booking in bookings %}
+                <tr>
+                  <td>
+                    <div class="performer-info">
+                      <div class="order-title">{{ booking.performer.get_full_name }}</div>
+                      <div class="order-event-type">{{ booking.performer.service_type.name|default:"Не указано" }}</div>
+                    </div>
+                  </td>
+                  <td>{{ booking.event_date|date:"d.m.Y" }}</td>
+                  <td><span class="status-badge status-{{ booking.status }}">{{ booking.get_status_display }}</span></td>
+                  <td><span class="budget-amount">{{ booking.budget_min }} - {{ booking.budget_max }} ₸</span></td>
+                  <td>
+                    <div class="action-buttons">
+                      <button onclick="openOrderDetailModal({{ booking.id }}, 'view')" class="btn btn-small btn-outline">Подробнее</button>
+                      {% if booking.status == 'in_progress' %}
+                        <button onclick="openChatModal({{ booking.id }}, null)" class="btn btn-small btn-primary">Чат</button>
+                      {% endif %}
+                      {% if booking.status == 'new' %}
+                        <button onclick="cancelOrder({{ booking.id }})" class="btn btn-small btn-danger">Отменить</button>
+                      {% endif %}
+                    </div>
+                  </td>
+                </tr>
+                {% empty %}
+                <tr>
+                  <td colspan="5" style="text-align: center; padding: 40px; color: #6c757d;">
+                    <i class="ri-calendar-check-line" style="font-size: 48px; margin-bottom: 16px; display: block;"></i>
+                    <p>У вас пока нет бронирований</p>
+                    <a href="{% url 'main:catalog' %}" class="btn btn-accent" style="margin-top: 16px;">Найти исполнителя</a>
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
         <!-- Таб Профиль -->
         <div id="profile" class="tab-content">
           <div class="profile-section">
@@ -771,8 +1225,20 @@
 
   <script src="{% static 'js/main.js' %}"></script>
   <script>
+    // Мобильное меню
+    document.addEventListener('DOMContentLoaded', function() {
+      const mobileMenuToggle = document.querySelector('.mobile-menu-toggle');
+      const mobileMenu = document.querySelector('.mobile-menu');
+      
+      if (mobileMenuToggle && mobileMenu) {
+        mobileMenuToggle.addEventListener('click', function() {
+          mobileMenu.classList.toggle('active');
+        });
+      }
+    });
+
     // Функции для табов
-    function showTab(tabName) {
+    function showTab(tabName, element) {
       // Скрываем все табы
       const tabContents = document.querySelectorAll('.tab-content');
       tabContents.forEach(content => content.classList.remove('active'));
@@ -785,7 +1251,9 @@
       document.getElementById(tabName).classList.add('active');
       
       // Добавляем активный класс к кнопке
-      event.target.classList.add('active');
+      if (element) {
+        element.classList.add('active');
+      }
     }
 
     // Функция принятия отклика
@@ -893,8 +1361,8 @@
     }
 
     // CSS анимации для уведомлений
-    const style = document.createElement('style');
-    style.textContent = `
+    const notificationStyle = document.createElement('style');
+    notificationStyle.textContent = `
       @keyframes slideIn {
         from { transform: translateX(100%); opacity: 0; }
         to { transform: translateX(0); opacity: 1; }
@@ -904,7 +1372,7 @@
         to { transform: translateX(100%); opacity: 0; }
       }
     `;
-    document.head.appendChild(style);
+    document.head.appendChild(notificationStyle);
   </script>
 </body>
 </html> 

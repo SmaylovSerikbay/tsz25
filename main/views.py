@@ -545,6 +545,13 @@ def dashboard(request):
             order__status='new'
         ).select_related('order', 'performer').order_by('-created_at')
         
+        # Получаем бронирования (прямые заказы исполнителей)
+        bookings = Order.objects.filter(
+            customer=request.user,
+            order_type='booking',
+            status__in=['new', 'in_progress', 'completed']
+        ).select_related('performer').order_by('-created_at')
+        
         # Статистика
         active_orders_count = Order.objects.filter(
             customer=request.user,
@@ -557,12 +564,22 @@ def dashboard(request):
         ).count()
         
         responses_count = responses.count()
+        bookings_count = bookings.count()
         
         # Подсчитываем общую сумму потраченную на завершенные заказы
         total_spent = OrderResponse.objects.filter(
             order__customer=request.user,
             order__status='completed'
         ).aggregate(total=models.Sum('price'))['total'] or 0
+        
+        # Добавляем сумму потраченную на бронирования
+        bookings_spent = Order.objects.filter(
+            customer=request.user,
+            order_type='booking',
+            status='completed'
+        ).aggregate(total=models.Sum('budget_max'))['total'] or 0
+        
+        total_spent += bookings_spent
         
         # Получаем города и типы услуг для модальных окон
         cities = City.objects.filter(is_active=True).order_by('name')
@@ -571,9 +588,11 @@ def dashboard(request):
         return render(request, 'dashboard-customer.html', {
             'orders': orders,
             'responses': responses,
+            'bookings': bookings,
             'active_orders_count': active_orders_count,
             'completed_orders_count': completed_orders_count,
             'responses_count': responses_count,
+            'bookings_count': bookings_count,
             'total_spent': total_spent,
             'orders_count': orders.count(),
             'cities': cities,
