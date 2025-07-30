@@ -33,58 +33,65 @@ def auth_page(request):
     """Render the authentication page"""
     if request.user.is_authenticated:
         return redirect('main:dashboard')
-    return render(request, 'auth.html')
+    
+    # Получаем уникальные города для формы регистрации
+    cities = User.objects.filter(
+        user_type='performer', 
+        is_active=True
+    ).values_list('city', flat=True).distinct().order_by('city')
+    
+    return render(request, 'auth.html', {'cities': cities})
 
 def register(request):
     if request.method == 'POST':
         print('REGISTER POST DATA:', dict(request.POST))
         user_type = request.POST.get('user_type')
         service_type = request.POST.get('service_type') if user_type == 'performer' else None
-        password1 = request.POST.get('password1')
-        password2 = request.POST.get('password2')
-        username = request.POST.get('username')
-        email = request.POST.get('email')
+        first_name = request.POST.get('first_name')
+        last_name = request.POST.get('last_name')
         phone_number = request.POST.get('phone_number')
         city = request.POST.get('city')
+        
         # Проверка обязательных полей
-        if not username or not email or not password1 or not password2 or not user_type or not city:
+        if not first_name or not last_name or not phone_number or not user_type or not city:
             msg = 'Пожалуйста, заполните все обязательные поля.'
             print('REGISTER ERROR:', msg)
             messages.error(request, msg)
             return redirect('main:auth')
-        if user_type == 'performer' and service_type not in SERVICE_TYPE_CODES:
+        
+        if user_type == 'performer' and service_type not in [code for code, name in User.SERVICE_TYPES]:
             msg = 'Выберите корректную специализацию исполнителя!'
             print('REGISTER ERROR:', msg)
             messages.error(request, msg)
             return redirect('main:auth')
-        if password1 != password2:
-            msg = 'Пароли не совпадают!'
-            print('REGISTER ERROR:', msg)
-            messages.error(request, msg)
-            return redirect('main:auth')
-        if User.objects.filter(username=username).exists():
-            msg = 'Пользователь с таким именем уже существует!'
-            print('REGISTER ERROR:', msg)
-            messages.error(request, msg)
-            return redirect('main:auth')
-        if User.objects.filter(email=email).exists():
-            msg = 'Пользователь с таким email уже существует!'
+        
+        # Проверяем, не занят ли номер телефона
+        if User.objects.filter(phone_number=phone_number).exists():
+            msg = 'Пользователь с таким номером телефона уже существует!'
             print('REGISTER ERROR:', msg)
             messages.error(request, msg)
             return redirect('main:auth')
         # Создание пользователя
         try:
+            # Генерируем уникальный username на основе телефона
+            username = f"user_{phone_number.replace('+', '').replace(' ', '').replace('-', '').replace('(', '').replace(')', '')}"
+            
+            # Генерируем случайный пароль (пользователь будет входить по номеру телефона)
+            import random
+            import string
+            password = ''.join(random.choices(string.ascii_letters + string.digits, k=12))
+            
             user = User.objects.create_user(
                 username=username,
                 phone_number=phone_number,
-                first_name=request.POST.get('first_name', ''),
-                last_name=request.POST.get('last_name', ''),
+                first_name=first_name,
+                last_name=last_name,
                 city=city,
                 user_type=user_type,
                 service_type=service_type,
                 is_phone_verified=True,
-                email=email,
-                password=password1,
+                email=f"{username}@example.com",  # Временный email
+                password=password,
             )
             if user_type == 'performer':
                 user.company_name = request.POST.get('company_name', '')
@@ -93,31 +100,27 @@ def register(request):
                 user.profile_photo = request.FILES['profile_photo']
             user.save()
             print('REGISTER SUCCESS: user created successfully')
+            
+            # Автоматически входим в систему
+            login(request, user)
+            messages.success(request, 'Регистрация прошла успешно!')
+            return redirect('main:dashboard')
+            
         except Exception as e:
             msg = f'Ошибка при создании пользователя: {str(e)}'
             print('REGISTER ERROR:', msg)
             messages.error(request, msg)
             return redirect('main:auth')
-        # Явная аутентификация
-        user = authenticate(request, username=username, password=password1)
-        if user is not None:
-            print('REGISTER SUCCESS: user created and authenticated')
-            login(request, user)
-            messages.success(request, 'Регистрация прошла успешно!')
-            return redirect('main:dashboard')
-        else:
-            # Если аутентификация не сработала, попробуем войти напрямую
-            try:
-                user = User.objects.get(username=username)
-                login(request, user)
-                messages.success(request, 'Регистрация прошла успешно!')
-                return redirect('main:dashboard')
-            except User.DoesNotExist:
-                msg = 'Ошибка при автоматическом входе. Попробуйте войти вручную.'
-                print('REGISTER ERROR:', msg)
-                messages.error(request, msg)
-                return redirect('main:auth')
-    return render(request, 'auth.html', {'is_register': True})
+    # Получаем уникальные города для формы регистрации
+    cities = User.objects.filter(
+        user_type='performer', 
+        is_active=True
+    ).values_list('city', flat=True).distinct().order_by('city')
+    
+    return render(request, 'auth.html', {
+        'is_register': True,
+        'cities': cities
+    })
 
 def user_login(request):
     if request.method == 'POST':
