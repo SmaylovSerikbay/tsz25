@@ -40,20 +40,7 @@ class User(AbstractUser):
         ('performer', 'Исполнитель'),
     )
     
-    SERVICE_TYPES = (
-        ('photo', 'Фотограф'),
-        ('video', 'Видеограф'),
-        ('music', 'Музыкант'),
-        ('host', 'Ведущий'),
-        ('dance', 'Шоу-программа'),
-        ('restaurant', 'Ресторан'),
-        ('makeup', 'Визожист'),
-        ('registry', 'Регистрация брака'),
-        ('star', 'Звезда Эстрады'),
-        ('cottage', 'Коттеджы'),
-        ('recreation_areas', 'Зоны отдыха'),
-        ('aphishe', 'Концертные Афишы'),
-    )
+
     
     user_type = models.CharField(max_length=20, choices=USER_TYPES)
     phone_number = models.CharField(max_length=20, unique=True, null=True)
