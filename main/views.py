@@ -16,7 +16,7 @@ from django.db import models
 
 
 def index(request):
-    if request.user.is_authenticated:
+    if request.user.is_authenticated and request.user.user_type in ['performer', 'customer']:
         return redirect('main:dashboard')
     
     # Получаем 10 последних зарегистрированных исполнителейss
@@ -31,7 +31,7 @@ def index(request):
 
 def auth_page(request):
     """Render the authentication page"""
-    if request.user.is_authenticated:
+    if request.user.is_authenticated and request.user.user_type in ['performer', 'customer']:
         return redirect('main:dashboard')
     
     # Получаем города из базы данных
@@ -469,7 +469,8 @@ def dashboard(request):
         ).order_by('-created_at')
         return render(request, 'dashboard-customer.html', {'orders': orders})
     
-    return redirect('main:index')
+    # Если пользователь не performer и не customer (например, админ), показываем главную страницу
+    return redirect('main:catalog')
 
 def catalog(request):
     # Базовый запрос исполнителей
@@ -682,6 +683,9 @@ def order_detail(request, order_id):
             or request.user.service_type not in order.selected_performers
         )
     )
+    # Получаем типы услуг из базы данных
+    service_types = ServiceType.objects.filter(is_active=True).order_by('sort_order')
+    
     context = {
         'order': order,
         'can_take_order': can_take_order,
@@ -690,6 +694,7 @@ def order_detail(request, order_id):
         'responses': unselected_responses if request.user == order.customer else None,
         'performers_by_id': {pid: User.objects.filter(id=pid).first() for pid in (order.selected_performers or {}).values()} if order.selected_performers else {},
         'is_selected_performer': is_selected_performer,
+        'service_types': service_types,
     }
             
     return render(request, 'order_detail.html', context)
@@ -723,9 +728,13 @@ def create_order_request(request):
     else:
         form = OrderForm()
     
+    # Получаем типы услуг из базы данных
+    service_types = ServiceType.objects.filter(is_active=True).order_by('sort_order')
+    
     return render(request, 'order.html', {
         'form': form,
-        'is_edit': False
+        'is_edit': False,
+        'service_types': service_types
     })
 
 @login_required

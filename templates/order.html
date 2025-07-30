@@ -95,124 +95,17 @@
             Необходимые услуги
           </h2>
           <div class="services-grid">
-            <div class="service-card" data-service="photo">
+            {% for service_type in service_types %}
+            <div class="service-card" data-service="{{ service_type.code }}">
               <div class="service-icon">
-                <i class="ri-camera-line"></i>
+                <i class="{{ service_type.icon }}"></i>
               </div>
               <div class="service-card-content">
-                <h3>Фотографы</h3>
-                <p>Профессиональная фотосъемка</p>
+                <h3>{{ service_type.name }}</h3>
+                <p>{{ service_type.description|default:"Услуга" }}</p>
               </div>
             </div>
-            <div class="service-card" data-service="video">
-              <div class="service-icon">
-                <i class="ri-video-line"></i>
-              </div>
-              <div class="service-card-content">
-                <h3>Видеографы</h3>
-                <p>Видеосъемка и монтаж</p>
-              </div>
-            </div>
-            <div class="service-card" data-service="music">
-              <div class="service-icon">
-                <i class="ri-music-2-line"></i>
-              </div>
-              <div class="service-card-content">
-                <h3>Музыканты</h3>
-                <p>Живая музыка и DJ</p>
-              </div>
-            </div>
-            <div class="service-card" data-service="host">
-              <div class="service-icon">
-                <i class="ri-mic-line"></i>
-              </div>
-              <div class="service-card-content">
-                <h3>Ведущие</h3>
-                <p>Тамада и организатор</p>
-              </div>
-            </div>
-            <div class="service-card" data-service="dance">
-              <div class="service-icon">
-                <i class="ri-emotion-happy-line"></i>
-              </div>
-              <div class="service-card-content">
-                <h3>Шоу-программы</h3>
-                <p>Танцоры и артисты</p>
-              </div>
-            </div>
-            <div class="service-card" data-service="restaurant">
-              <div class="service-icon">
-                <i class="ri-restaurant-line"></i>
-              </div>
-              <div class="service-card-content">
-                <h3>Рестораны</h3>
-                <p>Питание и банкет</p>
-              </div>
-            </div>
-            <div class="service-card" data-service="makeup">
-              <div class="service-icon">
-                <i class="ri-palette-line"></i>
-              </div>
-              <div class="service-card-content">
-                <h3>Визожисты</h3>
-                <p>Макияж и прически</p>
-              </div>
-            </div>
-            <div class="service-card" data-service="registry">
-              <div class="service-icon">
-                <i class="ri-heart-line"></i>
-              </div>
-              <div class="service-card-content">
-                <h3>Регистрация брака</h3>
-                <p>Организация церемонии</p>
-              </div>
-            </div>
-            <div class="service-card" data-service="cottage">
-              <div class="service-icon">
-                <i class="ri-home-line"></i>
-              </div>
-              <div class="service-card-content">
-                <h3>Коттеджы</h3>
-                <p>Коттеджи для мини-мероприятий</p>
-              </div>
-            </div>
-            <div class="service-card" data-service="recreation_areas">
-              <div class="service-icon">
-                <i class="ri-tree-line"></i>
-              </div>
-              <div class="service-card-content">
-                <h3>Зоны отдыха</h3>
-                <p>Зоны для отдыха</p>
-              </div>
-            </div>
-            <div class="service-card" data-service="registry">
-              <div class="service-icon">
-                <i class="ri-heart-line"></i>
-              </div>
-              <div class="service-card-content">
-                <h3>Регистрация брака</h3>
-                <p>Регистрация брака в любом городе Казахстана</p>
-              </div>
-            </div>
-            <div class="service-card" data-service="star">
-              <div class="service-icon">
-                <i class="ri-star-line"></i>
-              </div>
-              <div class="service-card-content">
-                <h3>Звезда Эстрады</h3>
-                <p>Известные артисты</p>
-              </div>
-            </div>
-            <div class="service-card" data-service="aphishe">
-              <div class="service-icon">
-                <i class="ri-file-text-line"></i>
-              </div>
-              <div class="service-card-content">
-                <h3>Концертные афиши</h3>
-                <p>Концертные афиши для мероприятий</p>
-              </div>
-            </div>
-
+            {% endfor %}
           </div>
           <input type="hidden" name="services" id="selectedServices" value="[]">
         </div>
