@@ -1,0 +1,122 @@
+<!-- Quick Profile Modal -->
+<div id="quickProfileModal" class="modal">
+  <div class="modal-content" style="max-width: 550px; max-height: 85vh; overflow-y: auto;">
+    <button class="modal-close" onclick="closeModal('quickProfileModal')">
+      <i class="ri-close-line"></i>
+    </button>
+    
+    <div class="modal-header">
+      <h2 class="modal-title" id="quickProfileTitle">Профиль исполнителя</h2>
+    </div>
+    
+    <div id="quickProfileContent">
+      <!-- Контент будет загружаться динамически -->
+    </div>
+  </div>
+</div>
+
+<script>
+function openQuickProfileModal(userId) {
+  const modal = document.getElementById('quickProfileModal');
+  const content = document.getElementById('quickProfileContent');
+  
+  // Показываем загрузку
+  content.innerHTML = '<div style="text-align: center; padding: 40px;"><i class="ri-loader-4-line" style="font-size: 24px; animation: spin 1s linear infinite;"></i><p>Загрузка профиля...</p></div>';
+  
+  // Загружаем данные профиля
+  fetch(`/profile/${userId}/quick/`)
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        content.innerHTML = generateQuickProfileHTML(data.profile);
+      } else {
+        content.innerHTML = '<div style="text-align: center; padding: 40px; color: #dc3545;"><i class="ri-error-warning-line" style="font-size: 48px; margin-bottom: 16px;"></i><p>Ошибка загрузки профиля</p></div>';
+      }
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      content.innerHTML = '<div style="text-align: center; padding: 40px; color: #dc3545;"><i class="ri-error-warning-line" style="font-size: 48px; margin-bottom: 16px;"></i><p>Ошибка загрузки профиля</p></div>';
+    });
+  
+  openModal('quickProfileModal');
+}
+
+function generateQuickProfileHTML(profile) {
+  return `
+    <div class="quick-profile-content">
+      <!-- Основная информация -->
+      <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 20px; padding-bottom: 16px; border-bottom: 1px solid #e9ecef;">
+        <div style="width: 60px; height: 60px; border-radius: 50%; background: #e3e8ff; display: flex; align-items: center; justify-content: center; border: 2px solid #f8f9fa;">
+          <i class="ri-user-line" style="font-size: 24px; color: var(--primary-color);"></i>
+        </div>
+        <div>
+          <h3 style="margin: 0 0 6px 0; color: #1a1a1a; font-size: 1.2rem;">${profile.name}</h3>
+          <div style="display: flex; gap: 12px; color: #6c757d; font-size: 0.85rem;">
+            <span><i class="ri-map-pin-line"></i> ${profile.city || 'Не указан'}</span>
+            <span><i class="ri-star-fill" style="color: #ffc107;"></i> ${profile.rating} (${profile.reviews_count} отзывов)</span>
+          </div>
+          <div style="margin-top: 6px;">
+            <span style="background: var(--primary-color); color: white; padding: 3px 10px; border-radius: 14px; font-size: 0.8rem;">
+              ${profile.service_type || 'Не указана'}
+            </span>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Статистика -->
+      <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 20px;">
+        <div style="background: #f8f9fa; padding: 12px; border-radius: 8px; text-align: center;">
+          <div style="font-size: 1.3rem; font-weight: 700; color: var(--primary-color); margin-bottom: 2px;">${profile.completed_orders}</div>
+          <div style="color: #6c757d; font-size: 0.8rem;">Выполнено</div>
+        </div>
+        <div style="background: #f8f9fa; padding: 12px; border-radius: 8px; text-align: center;">
+          <div style="font-size: 1.3rem; font-weight: 700; color: var(--primary-color); margin-bottom: 2px;">${profile.portfolio_count}</div>
+          <div style="color: #6c757d; font-size: 0.8rem;">Фото</div>
+        </div>
+        <div style="background: #f8f9fa; padding: 12px; border-radius: 8px; text-align: center;">
+          <div style="font-size: 1.3rem; font-weight: 700; color: var(--primary-color); margin-bottom: 2px;">${profile.tariffs_count}</div>
+          <div style="color: #6c757d; font-size: 0.8rem;">Тарифов</div>
+        </div>
+      </div>
+      
+      <!-- О себе -->
+      ${profile.bio ? `
+      <div style="margin-bottom: 20px;">
+        <h4 style="margin: 0 0 10px 0; color: #1a1a1a; font-size: 1rem;">О себе</h4>
+        <div style="background: #f8f9fa; padding: 12px; border-radius: 8px; line-height: 1.5; color: #495057; font-size: 0.9rem; max-height: 100px; overflow-y: auto;">
+          ${profile.bio}
+        </div>
+      </div>
+      ` : ''}
+      
+      <!-- Тарифы -->
+      ${profile.tariffs && profile.tariffs.length > 0 ? `
+      <div style="margin-bottom: 20px;">
+        <h4 style="margin: 0 0 10px 0; color: #1a1a1a; font-size: 1rem;">Тарифы</h4>
+        <div style="display: flex; flex-direction: column; gap: 6px;">
+          ${profile.tariffs.map(tariff => `
+            <div style="background: white; padding: 10px; border-radius: 6px; border: 1px solid #e9ecef; display: flex; justify-content: space-between; align-items: center;">
+              <div>
+                <div style="font-weight: 600; color: #1a1a1a; font-size: 0.9rem;">${tariff.name}</div>
+                ${tariff.description ? `<div style="color: #6c757d; font-size: 0.8rem; margin-top: 2px;">${tariff.description}</div>` : ''}
+              </div>
+              <div style="color: var(--primary-color); font-weight: 700; font-size: 1rem;">${tariff.price} ₸</div>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+      ` : ''}
+      
+      <!-- Действия -->
+      <div style="display: flex; gap: 10px; margin-top: 20px; padding-top: 16px; border-top: 1px solid #e9ecef;">
+        <a href="/profile/${profile.id}/" class="btn accent" style="flex: 1; text-align: center; padding: 10px 16px; font-size: 0.9rem;">
+          <i class="ri-user-line"></i> Полный профиль
+        </a>
+        <button onclick="closeModal('quickProfileModal')" class="btn outline" style="padding: 10px 16px; font-size: 0.9rem;">
+          Закрыть
+        </button>
+      </div>
+    </div>
+  `;
+}
+</script> 

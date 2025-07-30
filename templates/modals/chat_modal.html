@@ -11,12 +11,13 @@
       <div class="chat-messages" id="chatMessages">
         <!-- Messages will be loaded dynamically -->
       </div>
-      <div class="chat-input">
-        <input type="text" class="form-input" placeholder="Введите сообщение..." id="messageInput">
-        <button class="btn accent" onclick="sendMessage()">
+      <form onsubmit="sendMessage(event)" class="chat-input">
+        <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+        <input type="text" class="form-input" placeholder="Введите сообщение..." id="messageInput" name="message">
+        <button type="submit" class="btn accent">
           <i class="ri-send-plane-fill"></i>
         </button>
-      </div>
+      </form>
     </div>
   </div>
 </div> 

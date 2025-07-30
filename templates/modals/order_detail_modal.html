@@ -1,0 +1,322 @@
+<!-- Order Detail Modal -->
+<div id="orderDetailModal" class="modal">
+  <div class="modal-content" style="max-width: 700px; max-height: 85vh; overflow-y: auto;">
+    <button class="modal-close" onclick="closeModal('orderDetailModal')">
+      <i class="ri-close-line"></i>
+    </button>
+    
+    <div class="modal-header">
+      <h2 class="modal-title" id="orderDetailTitle">Детали заявки</h2>
+    </div>
+    
+    <div id="orderDetailContent">
+      <!-- Контент будет загружаться динамически -->
+    </div>
+  </div>
+</div>
+
+<script>
+function openOrderDetailModal(orderId, action = 'view') {
+  const modal = document.getElementById('orderDetailModal');
+  const title = document.getElementById('orderDetailTitle');
+  const content = document.getElementById('orderDetailContent');
+  
+  // Показываем загрузку
+  content.innerHTML = '<div style="text-align: center; padding: 40px;"><i class="ri-loader-4-line" style="font-size: 24px; animation: spin 1s linear infinite;"></i><p>Загрузка...</p></div>';
+  
+  // Устанавливаем заголовок
+  if (action === 'respond') {
+    title.textContent = 'Откликнуться на заявку';
+  } else {
+    title.textContent = 'Детали заявки';
+  }
+  
+  // Загружаем данные заявки
+  fetch(`/order/${orderId}/detail/`)
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        content.innerHTML = generateOrderDetailHTML(data.order, action);
+        
+        // Если это отклик, показываем форму отклика
+        if (action === 'respond') {
+          showResponseForm(orderId);
+        }
+        
+        // Проверяем, является ли пользователь выбранным исполнителем
+        if (data.order.is_selected_performer) {
+          showChatButton(orderId);
+        }
+      } else {
+        content.innerHTML = '<div style="text-align: center; padding: 40px; color: #dc3545;"><i class="ri-error-warning-line" style="font-size: 48px; margin-bottom: 16px;"></i><p>Ошибка загрузки данных</p></div>';
+      }
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      content.innerHTML = '<div style="text-align: center; padding: 40px; color: #dc3545;"><i class="ri-error-warning-line" style="font-size: 48px; margin-bottom: 16px;"></i><p>Ошибка загрузки данных</p></div>';
+    });
+  
+  openModal('orderDetailModal');
+}
+
+function generateOrderDetailHTML(order, action) {
+  const eventTypeLabels = {
+    'wedding': 'Свадьба',
+    'birthday': 'День рождения',
+    'corporate': 'Корпоратив',
+    'anniversary': 'Юбилей',
+    'graduation': 'Выпускной',
+    'party': 'Вечеринка'
+  };
+  
+  const statusLabels = {
+    'new': 'Новый',
+    'in_progress': 'В работе',
+    'completed': 'Завершен',
+    'cancelled': 'Отменен'
+  };
+  
+  const statusColors = {
+    'new': '#1976d2',
+    'in_progress': '#2e7d32',
+    'completed': '#7b1fa2',
+    'cancelled': '#c62828'
+  };
+  
+  return `
+    <div class="order-detail-content">
+      <!-- Заголовок заявки -->
+      <div style="background: #f8f9fa; padding: 16px; border-radius: 12px; margin-bottom: 20px;">
+        <h3 style="margin: 0 0 6px 0; color: #1a1a1a; font-size: 1.3rem;">${order.title}</h3>
+        <div style="display: flex; gap: 12px; color: #6c757d; font-size: 0.85rem;">
+          <span><i class="ri-calendar-line"></i> ${eventTypeLabels[order.event_type] || order.event_type}</span>
+          <span><i class="ri-time-line"></i> ${order.event_date}</span>
+          <span style="color: ${statusColors[order.status]}; font-weight: 500;">${statusLabels[order.status] || order.status}</span>
+        </div>
+      </div>
+      
+      <!-- Основная информация -->
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-bottom: 20px;">
+        <div style="background: white; padding: 12px; border-radius: 8px; border: 1px solid #e9ecef;">
+          <div style="font-weight: 600; color: #1a1a1a; margin-bottom: 2px; font-size: 0.85rem;">Город</div>
+          <div style="color: #6c757d; font-size: 0.9rem;">${order.city}</div>
+        </div>
+        ${order.venue ? `
+        <div style="background: white; padding: 12px; border-radius: 8px; border: 1px solid #e9ecef;">
+          <div style="font-weight: 600; color: #1a1a1a; margin-bottom: 2px; font-size: 0.85rem;">Место проведения</div>
+          <div style="color: #6c757d; font-size: 0.9rem;">${order.venue}</div>
+        </div>
+        ` : ''}
+        <div style="background: white; padding: 12px; border-radius: 8px; border: 1px solid #e9ecef;">
+          <div style="font-weight: 600; color: #1a1a1a; margin-bottom: 2px; font-size: 0.85rem;">Гостей</div>
+          <div style="color: #6c757d; font-size: 0.9rem;">${order.guest_count}</div>
+        </div>
+        <div style="background: white; padding: 12px; border-radius: 8px; border: 1px solid #e9ecef;">
+          <div style="font-weight: 600; color: #1a1a1a; margin-bottom: 2px; font-size: 0.85rem;">Бюджет</div>
+          <div style="color: var(--primary-color); font-weight: 600; font-size: 0.9rem;">${order.budget_min} - ${order.budget_max} ₸</div>
+        </div>
+      </div>
+      
+      <!-- Требуемые услуги -->
+      ${order.services && order.services.length > 0 ? `
+      <div style="margin-bottom: 20px;">
+        <h4 style="margin: 0 0 12px 0; color: #1a1a1a; font-size: 1rem;">Требуемые услуги</h4>
+        <div style="display: flex; flex-wrap: wrap; gap: 6px;">
+          ${order.services.map(service => `
+            <span style="background: var(--primary-color); color: white; padding: 4px 10px; border-radius: 16px; font-size: 0.8rem;">
+              <i class="ri-checkbox-circle-line"></i> ${service}
+            </span>
+          `).join('')}
+        </div>
+      </div>
+      ` : ''}
+      
+      <!-- Описание -->
+      ${order.description ? `
+      <div style="margin-bottom: 20px;">
+        <h4 style="margin: 0 0 12px 0; color: #1a1a1a; font-size: 1rem;">Описание заявки</h4>
+        <div style="background: white; padding: 12px; border-radius: 8px; border: 1px solid #e9ecef; line-height: 1.5; color: #495057; font-size: 0.9rem; max-height: 120px; overflow-y: auto;">
+          ${order.description}
+        </div>
+      </div>
+      ` : ''}
+      
+      <!-- Заказчик -->
+      ${order.customer ? `
+      <div style="margin-bottom: 20px;">
+        <h4 style="margin: 0 0 12px 0; color: #1a1a1a; font-size: 1rem;">Заказчик</h4>
+        <div style="background: white; padding: 12px; border-radius: 8px; border: 1px solid #e9ecef; display: flex; align-items: center; gap: 10px;">
+          <div style="width: 40px; height: 40px; border-radius: 50%; background: #e3e8ff; display: flex; align-items: center; justify-content: center;">
+            <i class="ri-user-line" style="font-size: 20px; color: var(--primary-color);"></i>
+          </div>
+          <div>
+            <div style="font-weight: 600; color: #1a1a1a; font-size: 0.95rem;">${order.customer.name}</div>
+            <div style="color: #6c757d; font-size: 0.85rem;">${order.customer.city || 'Город не указан'}</div>
+          </div>
+        </div>
+      </div>
+      ` : ''}
+      
+      <!-- Форма отклика (показывается только при action === 'respond') -->
+      <div id="responseFormContainer" style="display: none;">
+        <!-- Форма будет добавлена динамически -->
+      </div>
+      
+      <!-- Кнопка чата (показывается только для выбранных исполнителей) -->
+      <div id="chatButtonContainer" style="display: none;">
+        <!-- Кнопка будет добавлена динамически -->
+      </div>
+    </div>
+  `;
+}
+
+function showResponseForm(orderId) {
+  const container = document.getElementById('responseFormContainer');
+  container.style.display = 'block';
+  
+  container.innerHTML = `
+    <div style="margin-top: 20px; padding-top: 16px; border-top: 1px solid #e9ecef;">
+      <h4 style="margin: 0 0 12px 0; color: #1a1a1a; font-size: 1rem;">Откликнуться на заявку</h4>
+      <form id="responseForm" onsubmit="submitResponse(event, ${orderId})">
+        <div style="margin-bottom: 12px;">
+          <label style="display: block; font-weight: 500; margin-bottom: 4px; color: #1a1a1a; font-size: 0.9rem;">Ваша цена (₸)</label>
+          <input type="number" id="responsePrice" name="price" required min="0" 
+                 style="width: 100%; padding: 10px; border: 2px solid #e3e8ff; border-radius: 6px; font-size: 0.9rem;">
+        </div>
+        <div style="margin-bottom: 16px;">
+          <label style="display: block; font-weight: 500; margin-bottom: 4px; color: #1a1a1a; font-size: 0.9rem;">Сообщение заказчику</label>
+          <textarea id="responseMessage" name="message" rows="3" 
+                    style="width: 100%; padding: 10px; border: 2px solid #e3e8ff; border-radius: 6px; font-size: 0.9rem; resize: vertical;"
+                    placeholder="Расскажите о своем опыте и почему стоит выбрать вас..."></textarea>
+        </div>
+        <div style="display: flex; gap: 10px;">
+          <button type="submit" class="btn accent" style="flex: 1; padding: 10px 16px; font-size: 0.9rem;">
+            <i class="ri-send-plane-line"></i> Отправить отклик
+          </button>
+          <button type="button" class="btn outline" onclick="closeModal('orderDetailModal')" style="padding: 10px 16px; font-size: 0.9rem;">
+            Отмена
+          </button>
+        </div>
+      </form>
+    </div>
+  `;
+}
+
+function submitResponse(event, orderId) {
+  event.preventDefault();
+  
+  const price = document.getElementById('responsePrice').value;
+  const message = document.getElementById('responseMessage').value;
+  
+  // Показываем индикатор загрузки
+  const submitBtn = event.target.querySelector('button[type="submit"]');
+  const originalText = submitBtn.innerHTML;
+  submitBtn.innerHTML = '<i class="ri-loader-4-line" style="animation: spin 1s linear infinite;"></i> Отправка...';
+  submitBtn.disabled = true;
+  
+  fetch(`/order/${orderId}/respond/`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-CSRFToken': getCookie('csrftoken')
+    },
+    body: JSON.stringify({
+      price: price,
+      message: message
+    })
+  })
+  .then(response => response.json())
+  .then(data => {
+    if (data.success) {
+      // Показываем успех
+      document.getElementById('orderDetailContent').innerHTML = `
+        <div style="text-align: center; padding: 40px;">
+          <i class="ri-check-line" style="font-size: 48px; color: #28a745; margin-bottom: 16px;"></i>
+          <h3 style="color: #28a745; margin-bottom: 8px;">Отклик отправлен!</h3>
+          <p style="color: #6c757d; margin-bottom: 24px;">Заказчик получит уведомление о вашем отклике</p>
+          <button class="btn accent" onclick="closeModal('orderDetailModal')">Закрыть</button>
+        </div>
+      `;
+    } else {
+      alert('Ошибка: ' + (data.error || 'Неизвестная ошибка'));
+      submitBtn.innerHTML = originalText;
+      submitBtn.disabled = false;
+    }
+  })
+  .catch(error => {
+    console.error('Error:', error);
+    alert('Ошибка при отправке отклика');
+    submitBtn.innerHTML = originalText;
+    submitBtn.disabled = false;
+  });
+}
+
+function showChatButton(orderId) {
+  const container = document.getElementById('chatButtonContainer');
+  container.style.display = 'block';
+  
+  container.innerHTML = `
+    <div style="margin-top: 20px; padding-top: 16px; border-top: 1px solid #e9ecef;">
+      <h4 style="margin: 0 0 12px 0; color: #1a1a1a; font-size: 1rem;">Общение с заказчиком</h4>
+      <button onclick="openChatModal(${orderId}, null)" class="btn accent" style="width: 100%; padding: 12px 16px; font-size: 0.9rem;">
+        <i class="ri-message-2-line"></i> Открыть чат
+      </button>
+    </div>
+  `;
+}
+
+// Функция для получения CSRF токена
+function getCookie(name) {
+  let cookieValue = null;
+  if (document.cookie && document.cookie !== '') {
+    const cookies = document.cookie.split(';');
+    for (let i = 0; i < cookies.length; i++) {
+      const cookie = cookies[i].trim();
+      if (cookie.substring(0, name.length + 1) === (name + '=')) {
+        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+        break;
+      }
+    }
+  }
+  return cookieValue;
+}
+
+// CSS для анимации загрузки
+const style = document.createElement('style');
+style.textContent = `
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+`;
+document.head.appendChild(style);
+
+// Функция отмены заказа
+function cancelOrder(orderId) {
+  if (confirm('Вы уверены, что хотите отменить этот заказ?')) {
+    fetch(`/order/${orderId}/performer-cancel/`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': getCookie('csrftoken')
+      }
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        showNotification('Заказ успешно отменен', 'success');
+        // Перезагружаем страницу для обновления данных
+        setTimeout(() => {
+          location.reload();
+        }, 1000);
+      } else {
+        showNotification('Ошибка при отмене заказа: ' + (data.error || 'Неизвестная ошибка'), 'error');
+      }
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      showNotification('Ошибка при отмене заказа', 'error');
+    });
+  }
+}
+</script> 

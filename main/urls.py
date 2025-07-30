@@ -53,4 +53,8 @@ urlpatterns = [
     path('api/orders/<int:order_id>/attach/<int:performer_id>/', views.attach_performer_to_order, name='attach_performer'),
     path('api/performer/<int:performer_id>/busy-dates/', views.get_performer_busy_dates, name='get_performer_busy_dates'),
     path('api/performer/<int:performer_id>/tariffs/', views.get_performer_tariffs, name='get_performer_tariffs'),
+    
+    # Order detail API
+    path('order/<int:order_id>/detail/', views.order_detail_api, name='order_detail_api'),
+    path('order/<int:order_id>/respond/', views.order_respond_api, name='order_respond_api'),
 ] 

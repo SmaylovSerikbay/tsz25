@@ -12,6 +12,7 @@ from datetime import datetime, timedelta
 from django.views.decorators.http import require_http_methods, require_GET, require_POST
 from django.views.decorators.csrf import csrf_exempt
 from django.db import models
+from decimal import Decimal
 
 
 
@@ -457,10 +458,30 @@ def dashboard(request):
         
         active_orders = sorted(active_orders, key=lambda o: o.created_at, reverse=True)
         
-        # Получаем отклики исполнителя
+        # Получаем отклики исполнителя (только те, которые еще не приняты)
         my_responses = OrderResponse.objects.filter(
             performer=request.user
         ).select_related('order').order_by('-created_at')
+        
+        # Фильтруем отклики: убираем те, где заказ уже в работе и исполнитель выбран
+        filtered_responses = []
+        for response in my_responses:
+            order = response.order
+            if order.status == 'new':
+                # Если заказ новый, показываем отклик
+                filtered_responses.append(response)
+            elif order.status == 'in_progress':
+                # Если заказ в работе, проверяем, выбран ли исполнитель
+                selected = order.selected_performers or {}
+                service_type_code = request.user.service_type.code if request.user.service_type else None
+                if service_type_code in selected and str(selected[service_type_code]) == str(request.user.id):
+                    # Исполнитель выбран - не показываем в откликах
+                    continue
+                else:
+                    # Исполнитель не выбран - показываем отклик
+                    filtered_responses.append(response)
+        
+        my_responses = filtered_responses
         
         # Получаем предложения о бронировании (устаревший механизм)
         # booking_proposals = BookingProposal.objects.filter(
@@ -700,6 +721,14 @@ def order_detail(request, order_id):
                         # Удаляем все остальные отклики по этой услуге
                         OrderResponse.objects.filter(order=order, performer__service_type__code=service_type).exclude(id=response_id).delete()
                         messages.success(request, f'Исполнитель по услуге {service_type} успешно выбран')
+                        
+                        # Создаем первое сообщение в чате от заказчика
+                        Message.objects.create(
+                            order=order,
+                            from_user=request.user,
+                            to_user=response.performer,
+                            content=f'Здравствуйте! Я выбрал вас для выполнения услуги "{service_type}". Давайте обсудим детали.'
+                        )
                 except OrderResponse.DoesNotExist:
                     messages.error(request, 'Отклик не найден')
             
@@ -999,24 +1028,54 @@ def delete_order(request, order_id):
 @login_required
 def performer_cancel_order(request, order_id):
     order = get_object_or_404(Order, id=order_id)
-    if request.user.user_type != 'performer' or request.user != order.performer:
-        messages.error(request, 'У вас нет прав для отмены этого заказа')
-        return redirect('main:dashboard')
+    
+    # Проверяем права доступа
+    if request.user.user_type != 'performer':
+        return JsonResponse({'success': False, 'error': 'Только исполнители могут отменять заказы'}, status=403)
+    
+    # Проверяем, является ли исполнитель выбранным для этого заказа
+    is_selected = False
+    if order.order_type == 'booking' and order.performer == request.user:
+        is_selected = True
+    elif order.order_type == 'request' and order.selected_performers:
+        selected = order.selected_performers or {}
+        service_type_code = request.user.service_type.code if request.user.service_type else None
+        if service_type_code in selected and str(selected[service_type_code]) == str(request.user.id):
+            is_selected = True
+    
+    if not is_selected:
+        return JsonResponse({'success': False, 'error': 'У вас нет прав для отмены этого заказа'}, status=403)
+    
     if request.method == 'POST':
-        # Только если заказ в работе и исполнитель совпадает
-        if order.status == 'in_progress' and order.performer == request.user:
+        try:
             # Удаляем дату из занятых
-            BusyDate.objects.filter(user=order.performer, date=order.event_date).delete()
+            BusyDate.objects.filter(user=request.user, date=order.event_date).delete()
+            
             # Удаляем отклик исполнителя на этот заказ
             OrderResponse.objects.filter(order=order, performer=request.user).delete()
-            order.performer = None
-            order.status = 'new'
+            
+            if order.order_type == 'booking':
+                # Для прямых бронирований
+                order.performer = None
+                order.status = 'new'
+            elif order.order_type == 'request':
+                # Для заявок-запросов
+                selected = order.selected_performers or {}
+                service_type_code = request.user.service_type.code if request.user.service_type else None
+                if service_type_code in selected:
+                    del selected[service_type_code]
+                    order.selected_performers = selected
+                    # Если больше нет выбранных исполнителей, возвращаем статус в 'new'
+                    if not selected:
+                        order.status = 'new'
+            
             order.save()
-            messages.success(request, 'Вы успешно отменили участие в заказе')
-        else:
-            messages.error(request, 'Этот заказ нельзя отменить')
-        return redirect('main:dashboard')
-    return render(request, 'performer_cancel_order.html', {'order': order})
+            return JsonResponse({'success': True, 'message': 'Вы успешно отменили участие в заказе'})
+            
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': 'Ошибка при отмене заказа'}, status=500)
+    
+    return JsonResponse({'success': False, 'error': 'Метод не поддерживается'}, status=405)
 
 def user_logout(request):
     logout(request)
@@ -1418,3 +1477,93 @@ def reject_proposal(request, proposal_id):
             messages.error(request, 'Это предложение уже не доступно')
             
     return redirect('main:dashboard')
+
+@login_required
+def order_detail_api(request, order_id):
+    """API для получения данных заявки для модального окна"""
+    order = get_object_or_404(Order, id=order_id)
+    
+    # Проверяем права доступа
+    if request.user.user_type == 'performer':
+        # Исполнители могут видеть все заявки
+        pass
+    elif request.user == order.customer:
+        # Заказчики могут видеть свои заявки
+        pass
+    else:
+        return JsonResponse({'success': False, 'error': 'Доступ запрещен'}, status=403)
+    
+    # Проверяем, является ли пользователь выбранным исполнителем
+    is_selected_performer = False
+    if request.user.user_type == 'performer':
+        if order.order_type == 'booking' and order.performer == request.user:
+            is_selected_performer = True
+        elif order.order_type == 'request' and order.selected_performers:
+            selected = order.selected_performers or {}
+            service_type_code = request.user.service_type.code if request.user.service_type else None
+            if service_type_code in selected and str(selected[service_type_code]) == str(request.user.id):
+                is_selected_performer = True
+    
+    # Подготавливаем данные для JSON
+    order_data = {
+        'id': order.id,
+        'title': order.title,
+        'event_type': order.event_type,
+        'event_date': order.event_date.strftime('%d.%m.%Y') if order.event_date else None,
+        'city': order.city,
+        'venue': order.venue,
+        'guest_count': order.guest_count,
+        'budget_min': str(order.budget_min),
+        'budget_max': str(order.budget_max),
+        'description': order.description,
+        'status': order.status,
+        'order_type': order.order_type,
+        'services': order.services,
+        'is_selected_performer': is_selected_performer,
+        'customer': {
+            'name': order.customer.get_full_name(),
+            'city': order.customer.city.name if order.customer.city else None,
+        } if order.customer else None
+    }
+    
+    return JsonResponse({
+        'success': True,
+        'order': order_data
+    })
+
+@login_required
+@require_POST
+def order_respond_api(request, order_id):
+    """API для отправки отклика на заявку"""
+    order = get_object_or_404(Order, id=order_id)
+    
+    # Проверяем, что пользователь - исполнитель
+    if request.user.user_type != 'performer':
+        return JsonResponse({'success': False, 'error': 'Только исполнители могут откликаться на заявки'}, status=403)
+    
+    # Проверяем, что заявка доступна для отклика
+    if order.status != 'new' or order.order_type != 'request':
+        return JsonResponse({'success': False, 'error': 'Заявка недоступна для отклика'}, status=400)
+    
+    try:
+        data = json.loads(request.body)
+        price = data.get('price')
+        message = data.get('message', '')
+        
+        if not price:
+            return JsonResponse({'success': False, 'error': 'Не указана цена'}, status=400)
+        
+        # Создаем отклик
+        OrderResponse.objects.create(
+            order=order,
+            performer=request.user,
+            price=Decimal(price),
+            message=message
+        )
+        
+        return JsonResponse({'success': True})
+        
+    except (ValueError, TypeError) as e:
+        return JsonResponse({'success': False, 'error': 'Неверные данные'}, status=400)
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': 'Ошибка сервера'}, status=500)
