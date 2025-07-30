@@ -60,16 +60,19 @@
         <div class="services-grid">
           {% for service in order.services %}
           <div class="service-card">
-            {% for service_type in service_types %}
-              {% if service_type.code == service %}
-                <i class="{{ service_type.icon }}"></i>
-                <span>{{ service_type.name }}</span>
-                {% break %}
+            {% with service_found=False %}
+              {% for service_type in service_types %}
+                {% if service_type.code == service %}
+                  <i class="{{ service_type.icon }}"></i>
+                  <span>{{ service_type.name }}</span>
+                  {% with service_found=True %}{% endwith %}
+                {% endif %}
+              {% endfor %}
+              {% if not service_found %}
+                <i class="ri-checkbox-circle-line"></i>
+                <span>{{ service }}</span>
               {% endif %}
-            {% empty %}
-              <i class="ri-checkbox-circle-line"></i>
-              <span>{{ service }}</span>
-            {% endfor %}
+            {% endwith %}
           </div>
           {% endfor %}
         </div>
