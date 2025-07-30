@@ -1080,6 +1080,7 @@
                     <div class="action-buttons">
                       <button onclick="openQuickProfileModal({{ response.performer.id }})" class="btn btn-small btn-outline">Профиль</button>
                       <button onclick="acceptResponse({{ response.id }})" class="btn btn-small btn-primary">Принять</button>
+                      <button onclick="rejectResponse({{ response.id }})" class="btn btn-small btn-danger">Отклонить</button>
                     </div>
                   </td>
                 </tr>
@@ -1266,10 +1267,15 @@
             'X-CSRFToken': getCookie('csrftoken')
           }
         })
-        .then(response => response.json())
+        .then(response => {
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+          return response.json();
+        })
         .then(data => {
           if (data.success) {
-            showNotification('Отклик успешно принят!', 'success');
+            showNotification(data.message || 'Отклик успешно принят!', 'success');
             setTimeout(() => { location.reload(); }, 1000);
           } else {
             showNotification('Ошибка при принятии отклика: ' + (data.error || 'Неизвестная ошибка'), 'error');
@@ -1277,7 +1283,38 @@
         })
         .catch(error => {
           console.error('Error:', error);
-          showNotification('Ошибка при принятии отклика', 'error');
+          showNotification('Ошибка при принятии отклика: ' + error.message, 'error');
+        });
+      }
+    }
+
+    // Функция отклонения отклика
+    function rejectResponse(responseId) {
+      if (confirm('Вы уверены, что хотите отклонить этот отклик?')) {
+        fetch(`/order/response/${responseId}/reject/`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken')
+          }
+        })
+        .then(response => {
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+          return response.json();
+        })
+        .then(data => {
+          if (data.success) {
+            showNotification(data.message || 'Отклик отклонен', 'success');
+            setTimeout(() => { location.reload(); }, 1000);
+          } else {
+            showNotification('Ошибка при отклонении отклика: ' + (data.error || 'Неизвестная ошибка'), 'error');
+          }
+        })
+        .catch(error => {
+          console.error('Error:', error);
+          showNotification('Ошибка при отклонении отклика: ' + error.message, 'error');
         });
       }
     }
@@ -1285,17 +1322,22 @@
     // Функция отмены заказа
     function cancelOrder(orderId) {
       if (confirm('Вы уверены, что хотите отменить этот заказ?')) {
-        fetch(`/order/${orderId}/cancel/`, {
+        fetch(`/order/${orderId}/cancel-api/`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
             'X-CSRFToken': getCookie('csrftoken')
           }
         })
-        .then(response => response.json())
+        .then(response => {
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+          return response.json();
+        })
         .then(data => {
           if (data.success) {
-            showNotification('Заказ успешно отменен', 'success');
+            showNotification(data.message || 'Заказ успешно отменен', 'success');
             setTimeout(() => { location.reload(); }, 1000);
           } else {
             showNotification('Ошибка при отмене заказа: ' + (data.error || 'Неизвестная ошибка'), 'error');
@@ -1303,7 +1345,7 @@
         })
         .catch(error => {
           console.error('Error:', error);
-          showNotification('Ошибка при отмене заказа', 'error');
+          showNotification('Ошибка при отмене заказа: ' + error.message, 'error');
         });
       }
     }

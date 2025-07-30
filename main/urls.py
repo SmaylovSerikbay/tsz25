@@ -57,4 +57,11 @@ urlpatterns = [
     # Order detail API
     path('order/<int:order_id>/detail/', views.order_detail_api, name='order_detail_api'),
     path('order/<int:order_id>/respond/', views.order_respond_api, name='order_respond_api'),
+    
+    # Response management
+    path('order/response/<int:response_id>/accept/', views.accept_response, name='accept_response'),
+    path('order/response/<int:response_id>/reject/', views.reject_response, name='reject_response'),
+    
+    # Order management API
+    path('order/<int:order_id>/cancel-api/', views.cancel_order_api, name='cancel_order_api'),
 ] 

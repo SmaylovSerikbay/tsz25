@@ -1646,3 +1646,122 @@ def order_respond_api(request, order_id):
         return JsonResponse({'success': False, 'error': 'Неверные данные'}, status=400)
     except Exception as e:
         return JsonResponse({'success': False, 'error': 'Ошибка сервера'}, status=500)
+
+@login_required
+@require_POST
+def accept_response(request, response_id):
+    """Принятие отклика заказчиком"""
+    try:
+        response = get_object_or_404(OrderResponse, id=response_id)
+        order = response.order
+        
+        # Проверяем, что пользователь является заказчиком этого заказа
+        if request.user != order.customer:
+            return JsonResponse({'error': 'У вас нет прав для принятия этого отклика'}, status=403)
+        
+        # Проверяем, что заказ еще новый
+        if order.status != 'new':
+            return JsonResponse({'error': 'Заказ уже не доступен для принятия откликов'}, status=400)
+        
+        # Проверяем, что исполнитель не выбран по этой услуге
+        service_type = response.performer.service_type.code if response.performer.service_type else None
+        if not service_type:
+            return JsonResponse({'error': 'У исполнителя не указан тип услуги'}, status=400)
+        
+        selected_performers = order.selected_performers or {}
+        if service_type in selected_performers:
+            return JsonResponse({'error': 'Исполнитель по этой услуге уже выбран'}, status=400)
+        
+        # Принимаем отклик
+        selected_performers[service_type] = response.performer.id
+        order.selected_performers = selected_performers
+        
+        # Проверяем, выбраны ли все необходимые услуги
+        if set(selected_performers.keys()) == set(order.services):
+            order.status = 'in_progress'
+        
+        order.save()
+        
+        # Удаляем все остальные отклики по этой услуге
+        OrderResponse.objects.filter(
+            order=order, 
+            performer__service_type__code=service_type
+        ).exclude(id=response_id).delete()
+        
+        # Создаем первое сообщение в чате
+        Message.objects.create(
+            order=order,
+            from_user=request.user,
+            to_user=response.performer,
+            content=f'Здравствуйте! Я выбрал вас для выполнения услуги "{service_type}". Давайте обсудим детали.',
+            performer=response.performer
+        )
+        
+        return JsonResponse({
+            'success': True,
+            'message': f'Исполнитель по услуге {service_type} успешно выбран'
+        })
+        
+    except Exception as e:
+        return JsonResponse({'error': 'Произошла ошибка при принятии отклика'}, status=500)
+
+@login_required
+@require_POST
+def reject_response(request, response_id):
+    """Отклонение отклика заказчиком"""
+    try:
+        response = get_object_or_404(OrderResponse, id=response_id)
+        order = response.order
+        
+        # Проверяем, что пользователь является заказчиком этого заказа
+        if request.user != order.customer:
+            return JsonResponse({'error': 'У вас нет прав для отклонения этого отклика'}, status=403)
+        
+        # Удаляем отклик
+        response.delete()
+        
+        return JsonResponse({
+            'success': True,
+            'message': 'Отклик отклонен'
+        })
+        
+    except Exception as e:
+        return JsonResponse({'error': 'Произошла ошибка при отклонении отклика'}, status=500)
+
+@login_required
+@require_POST
+def cancel_order_api(request, order_id):
+    """API для отмены заказа заказчиком"""
+    try:
+        order = get_object_or_404(Order, id=order_id)
+        
+        # Проверяем, что пользователь является заказчиком этого заказа
+        if request.user != order.customer:
+            return JsonResponse({'error': 'У вас нет прав для отмены этого заказа'}, status=403)
+        
+        # Проверяем, что заказ можно отменить
+        if order.status not in ['new', 'in_progress']:
+            return JsonResponse({'error': 'Заказ нельзя отменить в текущем статусе'}, status=400)
+        
+        # Отменяем заказ
+        order.status = 'cancelled'
+        order.save()
+        
+        # Удаляем все отклики на этот заказ
+        OrderResponse.objects.filter(order=order).delete()
+        
+        # Удаляем даты из занятых для всех исполнителей
+        if order.selected_performers:
+            for performer_id in order.selected_performers.values():
+                BusyDate.objects.filter(
+                    user_id=performer_id, 
+                    date=order.event_date
+                ).delete()
+        
+        return JsonResponse({
+            'success': True,
+            'message': 'Заказ успешно отменен'
+        })
+        
+    except Exception as e:
+        return JsonResponse({'error': 'Произошла ошибка при отмене заказа'}, status=500)
