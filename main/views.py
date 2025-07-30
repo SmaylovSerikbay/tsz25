@@ -881,10 +881,14 @@ def edit_order(request, order_id):
     else:
         form = OrderForm(instance=order)
     
+    # Получаем типы услуг из базы данных
+    service_types = ServiceType.objects.filter(is_active=True).order_by('sort_order')
+    
     return render(request, 'order.html', {
         'form': form,
         'order': order,
-        'is_edit': True
+        'is_edit': True,
+        'service_types': service_types
     })
 
 @login_required

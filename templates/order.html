@@ -107,7 +107,7 @@
             </div>
             {% endfor %}
           </div>
-          <input type="hidden" name="services" id="selectedServices" value="[]">
+          <input type="hidden" name="services" id="selectedServices" value="{% if is_edit and order.services %}{{ order.services|safe }}{% else %}[]{% endif %}">
         </div>
 
         <!-- Бюджет -->
@@ -731,8 +731,27 @@ textarea {
 </style>
 
 <script>
-// Восстанавливаем интерактив выбора услуг, но форма отправляется всегда
+// Восстанавливаем интерактив выбора услуг
 const selectedServices = new Set();
+
+// Восстанавливаем выбранные услуги при редактировании
+document.addEventListener('DOMContentLoaded', function() {
+  const selectedServicesInput = document.getElementById('selectedServices');
+  if (selectedServicesInput && selectedServicesInput.value) {
+    try {
+      const savedServices = JSON.parse(selectedServicesInput.value);
+      savedServices.forEach(service => {
+        selectedServices.add(service);
+        const card = document.querySelector(`[data-service="${service}"]`);
+        if (card) {
+          card.classList.add('selected');
+        }
+      });
+    } catch (e) {
+      console.error('Error parsing saved services:', e);
+    }
+  }
+});
 
 document.querySelectorAll('.service-card').forEach(card => {
   card.addEventListener('click', function() {
@@ -748,8 +767,8 @@ document.querySelectorAll('.service-card').forEach(card => {
     document.getElementById('selectedServices').value = JSON.stringify(Array.from(selectedServices));
   });
 });
+
 // Установка минимальной даты для выбора даты мероприятия
-// (оставляем только этот функционал, остальной JS удаляем)
 document.addEventListener('DOMContentLoaded', function() {
   const dateInput = document.querySelector('input[type="date"]');
   if (dateInput) {

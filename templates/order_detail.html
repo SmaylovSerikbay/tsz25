@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load static %}
+{% load dict_extras %}
 
 {% block content %}
   <div class="container">
@@ -60,48 +61,11 @@
         <div class="services-grid">
           {% for service in order.services %}
           <div class="service-card">
-            {% for service_type in service_types %}
-              {% if service_type.code == service %}
+            {% if service_types_dict|get_item:service %}
+              {% with service_type=service_types_dict|get_item:service %}
                 <i class="{{ service_type.icon }}"></i>
                 <span>{{ service_type.name }}</span>
-              {% endif %}
-            {% endfor %}
-            {% if service == 'photo' %}
-              <i class="ri-camera-line"></i>
-              <span>Фотограф</span>
-            {% elif service == 'video' %}
-              <i class="ri-video-line"></i>
-              <span>Видеограф</span>
-            {% elif service == 'music' %}
-              <i class="ri-music-2-line"></i>
-              <span>Музыканты</span>
-            {% elif service == 'host' %}
-              <i class="ri-mic-line"></i>
-              <span>Ведущий</span>
-            {% elif service == 'dance' %}
-              <i class="ri-emotion-happy-line"></i>
-              <span>Шоу-программа</span>
-            {% elif service == 'restaurant' %}
-              <i class="ri-restaurant-line"></i>
-              <span>Ресторан</span>
-            {% elif service == 'makeup' %}
-              <i class="ri-palette-line"></i>
-              <span>Визожист</span>
-            {% elif service == 'registry' %}
-              <i class="ri-heart-line"></i>
-              <span>Регистрация брака</span>
-            {% elif service == 'cottage' %}
-              <i class="ri-home-line"></i>
-              <span>Коттеджы</span>
-            {% elif service == 'recreation_areas' %}
-              <i class="ri-tree-line"></i>
-              <span>Зоны отдыха</span>
-            {% elif service == 'star' %}
-              <i class="ri-star-line"></i>
-              <span>Звезда Эстрады</span>
-            {% elif service == 'aphishe' %}
-              <i class="ri-file-text-line"></i>
-              <span>Концертные Афишы</span>
+              {% endwith %}
             {% else %}
               <i class="ri-checkbox-circle-line"></i>
               <span>{{ service }}</span>
