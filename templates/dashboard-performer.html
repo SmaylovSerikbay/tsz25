@@ -1,4 +1,5 @@
 {% load static %}
+{% load dict_extras %}
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -854,8 +855,15 @@
                     {% if response.order.status == 'new' %}
                       <span class="btn btn-small btn-success" style="background: #28a745; color: white; cursor: default;">Отклик отправлен</span>
                       <button onclick="cancelResponse({{ response.id }})" class="btn btn-small btn-danger">Отменить отклик</button>
-                    {% elif response.order.status == 'in_progress' and response.performer.id in response.order.selected_performers.values %}
-                      <span class="btn btn-small btn-accent" style="background: #28a745; color: white; cursor: default;">Принят</span>
+                    {% elif response.order.status == 'in_progress' %}
+                      {% with selected_performers=response.order.selected_performers|default:"{}" %}
+                        {% if response.performer.service_type.code in selected_performers and selected_performers|get_item:response.performer.service_type.code == response.performer.id %}
+                          <span class="btn btn-small btn-accent" style="background: #28a745; color: white; cursor: default;">Принят</span>
+                        {% else %}
+                          <span class="btn btn-small btn-success" style="background: #28a745; color: white; cursor: default;">Отклик отправлен</span>
+                          <button onclick="cancelResponse({{ response.id }})" class="btn btn-small btn-danger">Отменить отклик</button>
+                        {% endif %}
+                      {% endwith %}
                     {% elif response.order.status == 'cancelled' %}
                       <span class="btn btn-small btn-danger" style="background: #dc3545; color: white; cursor: default;">Заказ отменен</span>
                     {% endif %}

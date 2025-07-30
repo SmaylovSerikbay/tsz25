@@ -945,7 +945,7 @@ def create_order_booking(request, performer_id):
                 order.event_date = event_date
                 order.tariff = tariff
                 order.details = details
-                order.status = 'in_progress'
+                order.status = 'new'  # Статус "новый" - исполнитель должен принять/отклонить
                 order.order_type = 'booking'
                 order.save()
                 
@@ -977,7 +977,7 @@ def create_order_booking(request, performer_id):
                 tariff=tariff,
                 details=details,
                 order_type='booking',  # Указываем, что это бронирование
-                status='in_progress'  # Сразу ставим статус "в работе"
+                status='new'  # Статус "новый" - исполнитель должен принять/отклонить
             )
             
             # Добавляем дату в занятые (если еще не занята)
