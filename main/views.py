@@ -686,6 +686,9 @@ def order_detail(request, order_id):
     # Получаем типы услуг из базы данных
     service_types = ServiceType.objects.filter(is_active=True).order_by('sort_order')
     
+    # Создаем словарь для быстрого поиска услуг по коду
+    service_types_dict = {st.code: st for st in service_types}
+    
     context = {
         'order': order,
         'can_take_order': can_take_order,
@@ -695,6 +698,7 @@ def order_detail(request, order_id):
         'performers_by_id': {pid: User.objects.filter(id=pid).first() for pid in (order.selected_performers or {}).values()} if order.selected_performers else {},
         'is_selected_performer': is_selected_performer,
         'service_types': service_types,
+        'service_types_dict': service_types_dict,
     }
             
     return render(request, 'order_detail.html', context)
