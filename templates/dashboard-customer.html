@@ -1090,7 +1090,7 @@
                       <button onclick="openOrderDetailModal({{ order.id }}, 'view')" class="btn btn-small btn-outline">Подробнее</button>
                       {% if order.status == 'in_progress' %}
                         <button onclick="openChatModal({{ order.id }}, null)" class="btn btn-small btn-primary">Чат</button>
-                        <button onclick="cancelOrder({{ order.id }})" class="btn btn-small btn-danger">Отменить</button>
+                        <button onclick="completeOrder({{ order.id }})" class="btn btn-small btn-accent">Завершить</button>
                       {% elif order.status == 'completed' and order.performer and order.id not in customer_reviews %}
                         <button onclick="openReviewModal({{ order.id }})" class="btn btn-small btn-accent">Оставить отзыв</button>
                       {% elif order.status == 'completed' and order.performer and order.id in customer_reviews %}

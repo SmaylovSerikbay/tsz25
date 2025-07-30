@@ -1808,6 +1808,15 @@ def complete_order_api(request, order_id):
         order.status = 'completed'
         order.save()
         
+        # Освобождаем дату из занятых дат исполнителя, если дата еще не прошла
+        from datetime import date
+        if order.event_date >= date.today():
+            from main.models import BusyDate
+            BusyDate.objects.filter(
+                user=order.performer, 
+                date=order.event_date
+            ).delete()
+        
         return JsonResponse({'success': True, 'message': 'Заказ успешно завершен'})
     except Order.DoesNotExist:
         return JsonResponse({'success': False, 'error': 'Заказ не найден'})
@@ -2003,6 +2012,13 @@ def reject_booking_api(request, order_id):
         # Отклоняем бронирование
         order.status = 'cancelled'
         order.save()
+        
+        # Освобождаем дату из занятых дат исполнителя
+        from main.models import BusyDate
+        BusyDate.objects.filter(
+            user=order.performer, 
+            date=order.event_date
+        ).delete()
         
         return JsonResponse({'success': True, 'message': 'Бронирование отклонено'})
     except Order.DoesNotExist:
