@@ -28,13 +28,13 @@ class User(AbstractUser):
     user_type = models.CharField(max_length=20, choices=USER_TYPES)
     phone_number = models.CharField(max_length=20, unique=True, null=True)
     is_phone_verified = models.BooleanField(default=False)
-    city = models.CharField(max_length=100, blank=True)
+    city = models.ForeignKey(City, on_delete=models.SET_NULL, null=True, blank=True, verbose_name='Город')
     rating = models.FloatField(default=0)
     profile_photo = models.ImageField(upload_to='profile_photos/', null=True, blank=True)
     
     # Поля для исполнителей
     company_name = models.CharField(max_length=100, blank=True, null=True)
-    service_type = models.CharField(max_length=20, choices=SERVICE_TYPES, blank=True, null=True)
+    service_type = models.ForeignKey(ServiceType, on_delete=models.SET_NULL, null=True, blank=True, verbose_name='Тип услуги')
     bio = models.TextField(blank=True)
     services = models.JSONField(default=list, blank=True, null=True, help_text="Список предоставляемых услуг")
     
@@ -92,6 +92,36 @@ class BusyDate(models.Model):
     
     class Meta:
         unique_together = ['user', 'date']
+
+class City(models.Model):
+    name = models.CharField(max_length=100, unique=True)
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        verbose_name = 'Город'
+        verbose_name_plural = 'Города'
+        ordering = ['name']
+
+class ServiceType(models.Model):
+    code = models.CharField(max_length=20, unique=True)
+    name = models.CharField(max_length=100)
+    description = models.TextField(blank=True)
+    icon = models.CharField(max_length=50, blank=True, help_text="CSS класс иконки (например: ri-camera-line)")
+    is_active = models.BooleanField(default=True)
+    sort_order = models.IntegerField(default=0)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        verbose_name = 'Тип услуги'
+        verbose_name_plural = 'Типы услуг'
+        ordering = ['sort_order', 'name']
 
 class Category(models.Model):
     name = models.CharField(max_length=100)
