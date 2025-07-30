@@ -1605,11 +1605,15 @@ def order_detail_api(request, order_id):
         'order_type': order.order_type,
         'services': order.services,
         'is_selected_performer': is_selected_performer,
+        'is_customer': request.user == order.customer,  # Добавляем информацию о том, является ли пользователь заказчиком
         'customer': {
             'name': order.customer.get_full_name(),
             'city': order.customer.city.name if order.customer.city else None,
         } if order.customer else None
     }
+    
+    print(f"DEBUG: is_customer = {request.user == order.customer}")  # Отладочная информация
+    print(f"DEBUG: request.user = {request.user.id}, order.customer = {order.customer.id}")  # Отладочная информация
     
     return JsonResponse({
         'success': True,
@@ -1831,6 +1835,59 @@ def create_review_api(request, order_id):
         performer.save()
         
         return JsonResponse({'success': True, 'message': 'Отзыв успешно добавлен'})
+    except Order.DoesNotExist:
+        return JsonResponse({'success': False, 'error': 'Заказ не найден'})
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)})
+
+@login_required
+@require_POST
+def performer_cancel_booking_api(request, order_id):
+    """API для отмены бронирования исполнителем"""
+    try:
+        order = Order.objects.get(id=order_id)
+        
+        # Проверяем, что это исполнитель заказа
+        if request.user != order.performer:
+            return JsonResponse({'success': False, 'error': 'Только исполнитель может отменить бронирование'})
+        
+        # Проверяем, что это бронирование
+        if order.order_type != 'booking':
+            return JsonResponse({'success': False, 'error': 'Это не бронирование'})
+        
+        # Проверяем, что заказ еще не в работе
+        if order.status != 'new':
+            return JsonResponse({'success': False, 'error': 'Нельзя отменить заказ в работе'})
+        
+        # Отменяем заказ
+        order.status = 'cancelled'
+        order.save()
+        
+        return JsonResponse({'success': True, 'message': 'Бронирование успешно отменено'})
+    except Order.DoesNotExist:
+        return JsonResponse({'success': False, 'error': 'Заказ не найден'})
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)})
+
+@login_required
+@require_POST
+def delete_order_api(request, order_id):
+    """API для удаления заказа"""
+    try:
+        order = Order.objects.get(id=order_id)
+        
+        # Проверяем, что это заказчик заказа
+        if request.user != order.customer:
+            return JsonResponse({'success': False, 'error': 'Только заказчик может удалить заказ'})
+        
+        # Проверяем, что заказ еще не в работе
+        if order.status != 'new':
+            return JsonResponse({'success': False, 'error': 'Нельзя удалить заказ в работе'})
+        
+        # Удаляем заказ
+        order.delete()
+        
+        return JsonResponse({'success': True, 'message': 'Заказ успешно удален'})
     except Order.DoesNotExist:
         return JsonResponse({'success': False, 'error': 'Заказ не найден'})
     except Exception as e:

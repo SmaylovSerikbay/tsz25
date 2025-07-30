@@ -36,6 +36,7 @@ function openOrderDetailModal(orderId, action = 'view') {
     .then(response => response.json())
     .then(data => {
       if (data.success) {
+        console.log('Order data:', data.order); // Отладочная информация
         content.innerHTML = generateOrderDetailHTML(data.order, action);
         
         // Если это отклик, показываем форму отклика
@@ -57,6 +58,10 @@ function openOrderDetailModal(orderId, action = 'view') {
 }
 
 function generateOrderDetailHTML(order, action) {
+  console.log('Generating HTML for order:', order); // Отладочная информация
+  console.log('is_customer:', order.is_customer); // Отладочная информация
+  console.log('status:', order.status); // Отладочная информация
+  
   const eventTypeLabels = {
     'wedding': 'Свадьба',
     'birthday': 'День рождения',
@@ -163,6 +168,35 @@ function generateOrderDetailHTML(order, action) {
       <div id="chatButtonContainer" style="display: none;">
         <!-- Кнопка будет добавлена динамически -->
       </div>
+      
+      <!-- Действия для заказчика -->
+      ${order.is_customer === true ? `
+      <div style="margin-top: 20px; padding-top: 16px; border-top: 1px solid #e9ecef;">
+        <h4 style="margin: 0 0 12px 0; color: #1a1a1a; font-size: 1rem;">Действия</h4>
+        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+          ${order.status === 'new' ? `
+            <a href="/order/${order.id}/edit/" class="btn outline" style="padding: 10px 16px; font-size: 0.9rem; text-decoration: none; display: inline-flex; align-items: center; gap: 6px;">
+              <i class="ri-edit-line"></i> Редактировать
+            </a>
+            <button onclick="deleteOrder(${order.id})" class="btn delete" style="padding: 10px 16px; font-size: 0.9rem;">
+              <i class="ri-delete-bin-line"></i> Удалить
+            </button>
+          ` : ''}
+          ${order.status === 'in_progress' ? `
+            <button onclick="cancelOrder(${order.id})" class="btn outline" style="padding: 10px 16px; font-size: 0.9rem;">
+              <i class="ri-close-circle-line"></i> Отменить заказ
+            </button>
+          ` : ''}
+        </div>
+      </div>
+      ` : `
+      <!-- Отладочная информация -->
+      <div style="margin-top: 20px; padding-top: 16px; border-top: 1px solid #e9ecef; background: #f8f9fa; padding: 12px; border-radius: 8px;">
+        <p style="margin: 0; font-size: 0.8rem; color: #6c757d;">
+          DEBUG: is_customer = ${order.is_customer}, status = ${order.status}, order_type = ${order.order_type}
+        </p>
+      </div>
+      `}
     </div>
   `;
 }
@@ -301,6 +335,36 @@ function cancelOrder(orderId) {
     .catch(error => {
       console.error('Error:', error);
       showNotification('Ошибка при отмене заказа', 'error');
+    });
+  }
+}
+
+// Функция удаления заказа
+function deleteOrder(orderId) {
+  if (confirm('Вы уверены, что хотите удалить этот заказ? Это действие нельзя отменить.')) {
+    fetch(`/order/${orderId}/delete-api/`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': getCookie('csrftoken')
+      }
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        showNotification('Заказ успешно удален', 'success');
+        // Закрываем модальное окно и перезагружаем страницу
+        closeModal('orderDetailModal');
+        setTimeout(() => {
+          location.reload();
+        }, 1000);
+      } else {
+        showNotification('Ошибка при удалении заказа: ' + (data.error || 'Неизвестная ошибка'), 'error');
+      }
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      showNotification('Ошибка при удалении заказа', 'error');
     });
   }
 }
