@@ -30,7 +30,7 @@
     }
 
      .tabs-header {
-       display: flex;
+      display: flex;
        background: #f8f9fa;
        border-bottom: 1px solid #e9ecef;
      }
@@ -40,18 +40,18 @@
        padding: 16px 24px;
        background: none;
        border: none;
-       font-size: 1rem;
+      font-size: 1rem;
        font-weight: 500;
        color: #6c757d;
        cursor: pointer;
        transition: all 0.2s;
        position: relative;
-       white-space: nowrap;
-     }
+      white-space: nowrap;
+    }
 
      .tab-button.active {
        background: white;
-       color: var(--primary-color);
+      color: var(--primary-color);
        border-bottom: 2px solid var(--primary-color);
      }
 
@@ -69,8 +69,8 @@
      }
 
      .tab-content.active {
-       display: block;
-     }
+      display: block;
+    }
 
     /* Таблицы */
     .table-container {
@@ -83,14 +83,76 @@
       max-width: 100%;
       border-collapse: collapse;
       font-size: 0.9rem;
-      table-layout: fixed;
+      table-layout: auto; /* Changed from fixed to auto for better responsiveness */
     }
 
     .data-table th,
     .data-table td {
-      padding: 12px;
+      padding: 12px 8px;
       text-align: left;
       border-bottom: 1px solid #e9ecef;
+      word-wrap: break-word;
+      overflow-wrap: break-word;
+      vertical-align: top;
+    }
+
+    /* Адаптивные колонки для таблицы заявок */
+    .data-table th:nth-child(1), /* Название */
+    .data-table td:nth-child(1) {
+      width: 25%;
+      min-width: 180px;
+      max-width: 250px;
+    }
+
+    /* Стили для названий заявок */
+    .order-title {
+      font-weight: 500;
+      color: #1a1a1a;
+      line-height: 1.3;
+      margin-bottom: 4px;
+    }
+
+    .order-event-type {
+      font-size: 0.8rem;
+      color: #6c757d;
+      font-style: italic;
+    }
+
+    /* Стили для бюджета */
+    .budget-amount {
+      font-weight: 600;
+      color: var(--primary-color);
+      white-space: nowrap;
+    }
+
+    .data-table th:nth-child(2), /* Дата */
+    .data-table td:nth-child(2) {
+      width: 12%;
+      min-width: 80px;
+    }
+
+    .data-table th:nth-child(3), /* Город */
+    .data-table td:nth-child(3) {
+      width: 15%;
+      min-width: 100px;
+    }
+
+    .data-table th:nth-child(4), /* Бюджет */
+    .data-table td:nth-child(4) {
+      width: 18%;
+      min-width: 120px;
+    }
+
+    .data-table th:nth-child(5), /* Статус */
+    .data-table td:nth-child(5) {
+      width: 10%;
+      min-width: 80px;
+    }
+
+    .data-table th:nth-child(6), /* Действия */
+    .data-table td:nth-child(6) {
+      width: 20%;
+      min-width: 140px;
     }
 
     .data-table th {
@@ -106,8 +168,12 @@
     .status-badge {
       padding: 4px 8px;
       border-radius: 12px;
-      font-size: 0.8rem;
+      font-size: 0.75rem;
       font-weight: 500;
+      white-space: nowrap;
+      display: inline-block;
+      text-align: center;
+      min-width: 60px;
     }
 
     .status-new { background: #e3f2fd; color: #1976d2; }
@@ -117,18 +183,21 @@
 
     .action-buttons {
       display: flex;
-      gap: 8px;
+      gap: 6px;
+      flex-wrap: wrap;
     }
 
     .btn-small {
-      padding: 6px 12px;
-      font-size: 0.8rem;
+      padding: 6px 10px;
+      font-size: 0.75rem;
       border-radius: 6px;
+      white-space: nowrap;
+      min-width: fit-content;
     }
 
          /* Карточки для портфолио и тарифов */
      .cards-grid {
-       display: grid;
+      display: grid;
        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
        gap: 16px;
        margin-bottom: 24px;
@@ -238,94 +307,94 @@
     }
 
          /* Модальные окна */
-     .modal {
-       display: none;
-       position: fixed;
-       top: 0;
-       left: 0;
-       width: 100%;
-       height: 100%;
-       background: rgba(0, 0, 0, 0.5);
-       z-index: 1000;
-       overflow-y: auto;
-     }
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 1000;
+      overflow-y: auto;
+    }
 
-     .modal-content {
-       background: white;
-       border-radius: 20px;
+    .modal-content {
+      background: white;
+      border-radius: 20px;
        max-width: 600px;
-       margin: 40px auto;
-       padding: 32px;
-       position: relative;
-       box-shadow: 0 4px 24px rgba(0,0,0,0.1);
-     }
+      margin: 40px auto;
+      padding: 32px;
+      position: relative;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.1);
+    }
 
-     .modal-close {
-       position: absolute;
-       top: 24px;
-       right: 24px;
-       background: none;
-       border: none;
-       font-size: 24px;
-       color: #666;
-       cursor: pointer;
-       padding: 4px;
-       border-radius: 50%;
-       transition: all 0.2s;
-     }
+    .modal-close {
+      position: absolute;
+      top: 24px;
+      right: 24px;
+      background: none;
+      border: none;
+      font-size: 24px;
+      color: #666;
+      cursor: pointer;
+      padding: 4px;
+      border-radius: 50%;
+      transition: all 0.2s;
+    }
 
-     .modal-close:hover {
-       background: #f5f5f5;
-       color: #1a1a1a;
-     }
+    .modal-close:hover {
+      background: #f5f5f5;
+      color: #1a1a1a;
+    }
 
-     .modal-header {
-       margin-bottom: 24px;
-     }
+    .modal-header {
+      margin-bottom: 24px;
+    }
 
-     .modal-title {
-       font-size: 1.5rem;
-       font-weight: 700;
-       color: #1a1a1a;
-     }
+    .modal-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #1a1a1a;
+    }
 
-     .form-group {
-       display: flex;
-       flex-direction: column;
-       gap: 8px;
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
        margin-bottom: 20px;
-     }
+    }
 
-     .form-label {
-       font-weight: 500;
-       color: #1a1a1a;
-       font-size: 0.9rem;
-     }
+    .form-label {
+      font-weight: 500;
+      color: #1a1a1a;
+      font-size: 0.9rem;
+    }
 
-     .form-input {
-       padding: 12px;
-       border: 2px solid #e3e8ff;
-       border-radius: 12px;
-       font-size: 1rem;
-       font-family: 'Montserrat', sans-serif;
-       transition: all 0.2s;
-     }
+    .form-input {
+      padding: 12px;
+      border: 2px solid #e3e8ff;
+      border-radius: 12px;
+      font-size: 1rem;
+      font-family: 'Montserrat', sans-serif;
+      transition: all 0.2s;
+    }
 
-     .form-input:focus {
-       border-color: var(--primary-color);
-       outline: none;
-     }
+    .form-input:focus {
+      border-color: var(--primary-color);
+      outline: none;
+    }
 
      .form-footer {
-       display: flex;
-       gap: 12px;
+      display: flex;
+      gap: 12px;
        justify-content: flex-end;
      }
 
      /* Адаптивность */
      @media (max-width: 768px) {
        .dashboard-container {
-         padding: 12px;
+      padding: 12px;
        }
 
        .tabs-header {
@@ -350,12 +419,65 @@
 
        .data-table th,
        .data-table td {
-         padding: 8px;
+         padding: 6px 4px;
+       }
+
+       /* Уменьшаем минимальную ширину колонок на мобильных */
+       .data-table th:nth-child(1),
+       .data-table td:nth-child(1) {
+         min-width: 120px;
+       }
+
+       .data-table th:nth-child(2),
+       .data-table td:nth-child(2) {
+         min-width: 60px;
+       }
+
+       .data-table th:nth-child(3),
+       .data-table td:nth-child(3) {
+         min-width: 80px;
+       }
+
+       .data-table th:nth-child(4),
+       .data-table td:nth-child(4) {
+         min-width: 100px;
+       }
+
+       .data-table th:nth-child(5),
+       .data-table td:nth-child(5) {
+         min-width: 60px;
+       }
+
+       .data-table th:nth-child(6),
+       .data-table td:nth-child(6) {
+         min-width: 120px;
        }
 
        .action-buttons {
          flex-direction: column;
          gap: 4px;
+       }
+
+       .btn-small {
+         padding: 4px 8px;
+         font-size: 0.7rem;
+       }
+
+       /* Дополнительные стили для очень маленьких экранов */
+       .data-table {
+         font-size: 0.75rem;
+       }
+
+       .order-title {
+         font-size: 0.85rem;
+       }
+
+       .order-event-type {
+         font-size: 0.7rem;
+       }
+
+       .budget-amount {
+         font-size: 0.8rem;
        }
 
        /* Адаптивность для профиля */
@@ -365,7 +487,7 @@
        }
 
        .profile-photo-section {
-         text-align: center;
+      text-align: center;
          width: 100% !important;
        }
 
@@ -463,7 +585,7 @@
   </style>
 </head>
 <body>
-  <header class="header">
+<header class="header">
     <div class="container">
       <div class="logo">Той со звездой</div>
       <nav class="nav">
@@ -476,9 +598,9 @@
           <span>Исполнители</span>
         </a>
         <a href="{% url 'main:logout' %}" class="nav-link">
-          <i class="ri-logout-box-line"></i>
-          <span>Выйти</span>
-        </a>
+                <i class="ri-logout-box-line"></i>
+                <span>Выйти</span>
+              </a>
       </nav>
     </div>
   </header>
@@ -502,21 +624,21 @@
         <button class="tab-button" onclick="showTab('profile')">
           <i class="ri-user-settings-line"></i> Профиль
         </button>
-      </div>
+              </div>
 
       <!-- Таб Заказы -->
       <div id="orders" class="tab-content active">
         <div class="quick-actions">
           <button class="btn btn-primary" onclick="openModal('addPortfolioModal')">
             <i class="ri-add-line"></i> Добавить фото
-          </button>
+            </button>
           <button class="btn btn-outline" onclick="addTariff()">
             <i class="ri-add-line"></i> Добавить тариф
           </button>
           <button class="btn btn-outline" onclick="openModal('calendarModal')">
             <i class="ri-calendar-line"></i> Управление календарем
           </button>
-        </div>
+            </div>
 
         <h3>Доступные заявки ({{ new_requests_count }})</h3>
         <div class="table-container">
@@ -535,18 +657,18 @@
               {% for order in available_orders %}
               <tr>
                 <td>
-                  <strong>{{ order.title }}</strong><br>
-                  <small>{{ order.get_event_type_display }}</small>
+                  <div class="order-title">{{ order.title }}</div>
+                  <div class="order-event-type">{{ order.get_event_type_display }}</div>
                 </td>
                 <td>{{ order.event_date|date:"d.m.Y" }}</td>
                 <td>{{ order.city }}</td>
-                <td>{{ order.budget_min }} - {{ order.budget_max }} ₸</td>
+                <td><span class="budget-amount">{{ order.budget_min }} - {{ order.budget_max }} ₸</span></td>
                 <td><span class="status-badge status-{{ order.status }}">{{ order.get_status_display }}</span></td>
                 <td>
                   <div class="action-buttons">
                     <a href="{% url 'main:order_detail' order.id %}" class="btn btn-small btn-primary">Откликнуться</a>
                     <a href="{% url 'main:order_detail' order.id %}" class="btn btn-small btn-outline">Подробнее</a>
-                  </div>
+          </div>
                 </td>
               </tr>
               {% empty %}
@@ -559,7 +681,7 @@
               {% endfor %}
             </tbody>
           </table>
-        </div>
+  </div>
 
         <h3 style="margin-top: 32px;">Мои активные заказы</h3>
         <div class="table-container">
@@ -578,23 +700,23 @@
               {% for order in active_orders %}
               <tr>
                 <td>
-                  <strong>{{ order.title }}</strong><br>
-                  <small>{{ order.get_event_type_display }}</small>
+                  <div class="order-title">{{ order.title }}</div>
+                  <div class="order-event-type">{{ order.get_event_type_display }}</div>
                 </td>
                 <td>{{ order.event_date|date:"d.m.Y" }}</td>
                 <td>
                   {% if order.order_type == 'booking' %}
                     <i class="ri-calendar-check-line"></i> Бронирование
-                  {% else %}
+          {% else %}
                     <i class="ri-file-list-line"></i> Заявка
-                  {% endif %}
+          {% endif %}
                 </td>
                 <td><span class="status-badge status-{{ order.status }}">{{ order.get_status_display }}</span></td>
-                <td>{{ order.budget_min }} - {{ order.budget_max }} ₸</td>
+                <td><span class="budget-amount">{{ order.budget_min }} - {{ order.budget_max }} ₸</span></td>
                 <td>
                   <div class="action-buttons">
                     <a href="{% url 'main:order_detail' order.id %}" class="btn btn-small btn-outline">Подробнее</a>
-                  </div>
+              </div>
                 </td>
               </tr>
               {% empty %}
@@ -607,7 +729,7 @@
               {% endfor %}
             </tbody>
           </table>
-        </div>
+              </div>
 
         <h3 style="margin-top: 32px;">Мои отклики</h3>
         <div class="table-container">
@@ -625,16 +747,16 @@
               {% for response in my_responses %}
               <tr>
                 <td>
-                  <strong>{{ response.order.title }}</strong><br>
-                  <small>{{ response.order.event_date|date:"d.m.Y" }}</small>
+                  <div class="order-title">{{ response.order.title }}</div>
+                  <div class="order-event-type">{{ response.order.event_date|date:"d.m.Y" }}</div>
                 </td>
                 <td>{{ response.order.customer.get_full_name }}</td>
-                <td><strong>{{ response.price }} ₸</strong></td>
+                <td><span class="budget-amount">{{ response.price }} ₸</span></td>
                 <td>{{ response.created_at|date:"d.m.Y" }}</td>
                 <td>
                   <div class="action-buttons">
                     <a href="{% url 'main:order_detail' response.order.id %}" class="btn btn-small btn-outline">Посмотреть</a>
-                  </div>
+                </div>
                 </td>
               </tr>
               {% empty %}
@@ -647,20 +769,20 @@
               {% endfor %}
             </tbody>
           </table>
+          </div>
         </div>
-      </div>
 
       <!-- Таб Портфолио -->
       <div id="portfolio" class="tab-content">
         <div class="quick-actions">
           <button class="btn btn-primary" onclick="openModal('addPortfolioModal')">
             <i class="ri-image-line"></i> Добавить фото
-          </button>
+              </button>
           <button class="btn btn-outline" onclick="alert('Функция добавления видео будет доступна позже')">
             <i class="ri-video-line"></i> Добавить видео
-          </button>
-        </div>
-
+              </button>
+          </div>
+          
         <div class="cards-grid">
           {% for photo in portfolio_photos %}
           <div class="card">
@@ -674,23 +796,23 @@
                 </button>
               </form>
             </div>
-          </div>
+              </div>
           {% empty %}
           <div style="grid-column: 1 / -1; text-align: center; padding: 40px; color: #6c757d;">
             <i class="ri-gallery-line" style="font-size: 48px; margin-bottom: 16px; display: block;"></i>
             <p>Добавьте фото в ваше портфолио</p>
-          </div>
+            </div>
           {% endfor %}
+          </div>
         </div>
-      </div>
 
       <!-- Таб Тарифы -->
       <div id="tariffs" class="tab-content">
         <div class="quick-actions">
           <button class="btn btn-primary" onclick="addTariff()">
             <i class="ri-add-line"></i> Добавить тариф
-          </button>
-        </div>
+            </button>
+          </div>
 
         <div class="table-container">
           <table class="data-table">
@@ -703,7 +825,7 @@
               </tr>
             </thead>
             <tbody>
-              {% for tariff in tariffs %}
+            {% for tariff in tariffs %}
               <tr>
                 <td><strong>{{ tariff.name }}</strong></td>
                 <td><span class="card-price">{{ tariff.price }} ₸</span></td>
@@ -711,53 +833,53 @@
                 <td>
                   <div class="action-buttons">
                     <button class="btn btn-small btn-outline" onclick="editTariff('{{ tariff.id }}')">
-                      <i class="ri-edit-line"></i>
-                    </button>
-                    <form action="{% url 'main:delete_tariff' tariff.id %}" method="POST" style="display: inline;">
-                      {% csrf_token %}
+                  <i class="ri-edit-line"></i>
+                </button>
+                <form action="{% url 'main:delete_tariff' tariff.id %}" method="POST" style="display: inline;">
+                  {% csrf_token %}
                       <button type="submit" class="btn btn-small btn-outline" onclick="return confirm('Удалить этот тариф?')">
-                        <i class="ri-delete-bin-line"></i>
-                      </button>
-                    </form>
-                  </div>
+                    <i class="ri-delete-bin-line"></i>
+                  </button>
+                </form>
+            </div>
                 </td>
               </tr>
-              {% empty %}
+            {% empty %}
               <tr>
                 <td colspan="4" style="text-align: center; padding: 40px; color: #6c757d;">
                   <i class="ri-money-dollar-circle-line" style="font-size: 48px; margin-bottom: 16px; display: block;"></i>
-                  <p>Добавьте ваши тарифы</p>
+            <p>Добавьте ваши тарифы</p>
                 </td>
               </tr>
-              {% endfor %}
+            {% endfor %}
             </tbody>
           </table>
+          </div>
         </div>
-      </div>
 
       <!-- Таб Календарь -->
       <div id="calendar" class="tab-content">
         <div class="quick-actions">
           <button class="btn btn-primary" onclick="openModal('calendarModal')">
             <i class="ri-calendar-line"></i> Управление календарем
-          </button>
-        </div>
+            </button>
+          </div>
 
         <h3>Занятые даты</h3>
-        <div class="calendar-grid">
-          {% for date in busy_dates %}
+          <div class="calendar-grid">
+            {% for date in busy_dates %}
           <div class="calendar-day busy">
             <div>{{ date.date|date:"d" }}</div>
             <div style="font-size: 0.7rem;">{{ date.date|date:"M" }}</div>
-          </div>
-          {% empty %}
+            </div>
+            {% empty %}
           <div style="grid-column: 1 / -1; text-align: center; padding: 40px; color: #6c757d;">
             <i class="ri-calendar-line" style="font-size: 48px; margin-bottom: 16px; display: block;"></i>
             <p>Нет отмеченных занятых дат</p>
           </div>
-          {% endfor %}
+            {% endfor %}
+          </div>
         </div>
-      </div>
 
              <!-- Таб Профиль -->
        <div id="profile" class="tab-content">
@@ -772,7 +894,7 @@
              {% else %}
                <div style="width: 100px; height: 100px; border-radius: 50%; background: linear-gradient(135deg, #e3e8ff 0%, #f0f4ff 100%); display: flex; align-items: center; justify-content: center; border: 4px solid #f8f9fa;">
                  <i class="ri-user-line" style="font-size: 40px; color: var(--primary-color);"></i>
-               </div>
+          </div>
              {% endif %}
              
              <!-- Имя и основная информация -->
@@ -791,12 +913,12 @@
                    <i class="ri-user-star-line" style="color: var(--primary-color);"></i>
                    {{ user.service_type.name|default:"Не указана" }}
                  </span>
-               </div>
+                  </div>
                <button class="btn btn-primary" onclick="openEditProfileModal()" style="padding: 10px 20px; font-size: 0.9rem;">
                  <i class="ri-edit-line"></i> Редактировать профиль
                </button>
-             </div>
-           </div>
+                </div>
+              </div>
            
            <!-- Статистика -->
            <div style="margin-bottom: 32px;">
@@ -806,28 +928,28 @@
                  <i class="ri-calendar-check-line" style="font-size: 28px; color: var(--primary-color); margin-bottom: 12px; display: block;"></i>
                  <div style="font-size: 1.8rem; font-weight: 700; color: #1a1a1a; margin-bottom: 6px;">{{ completed_orders_count }}</div>
                  <div style="color: #6c757d; font-size: 0.9rem; font-weight: 500;">Выполнено заказов</div>
-               </div>
+              </div>
                
                <div style="background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%); border: 1px solid #e9ecef; padding: 20px; border-radius: 12px; text-align: center; transition: all 0.2s;">
                  <i class="ri-notification-3-line" style="font-size: 28px; color: var(--primary-color); margin-bottom: 12px; display: block;"></i>
                  <div style="font-size: 1.8rem; font-weight: 700; color: #1a1a1a; margin-bottom: 6px;">{{ new_requests_count }}</div>
                  <div style="color: #6c757d; font-size: 0.9rem; font-weight: 500;">Новых заявок</div>
-               </div>
+              </div>
                
                <div style="background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%); border: 1px solid #e9ecef; padding: 20px; border-radius: 12px; text-align: center; transition: all 0.2s;">
                  <i class="ri-time-line" style="font-size: 28px; color: var(--primary-color); margin-bottom: 12px; display: block;"></i>
                  <div style="font-size: 1.8rem; font-weight: 700; color: #1a1a1a; margin-bottom: 6px;">{{ active_bookings_count }}</div>
                  <div style="color: #6c757d; font-size: 0.9rem; font-weight: 500;">Активных заказов</div>
-               </div>
+            </div>
                
                <div style="background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%); border: 1px solid #e9ecef; padding: 20px; border-radius: 12px; text-align: center; transition: all 0.2s;">
                  <i class="ri-star-fill" style="font-size: 28px; color: #ffc107; margin-bottom: 12px; display: block;"></i>
                  <div style="font-size: 1.8rem; font-weight: 700; color: #1a1a1a; margin-bottom: 6px;">{{ rating|floatformat:1 }}</div>
                  <div style="color: #6c757d; font-size: 0.9rem; font-weight: 500;">Средний рейтинг</div>
-               </div>
-             </div>
-           </div>
-           
+            </div>
+          </div>
+        </div>
+
            <!-- Контактная информация -->
            <div style="background: #f8f9fa; padding: 24px; border-radius: 12px;">
              <h4 style="margin: 0 0 16px 0; color: #1a1a1a; font-size: 1.1rem; font-weight: 600;">Контактная информация</h4>
@@ -835,20 +957,20 @@
                <div style="background: white; padding: 16px; border-radius: 8px; border: 1px solid #e9ecef;">
                  <div style="font-weight: 600; color: #1a1a1a; margin-bottom: 4px;">Телефон</div>
                  <div style="color: #6c757d;">{{ user.phone_number|default:"Не указан" }}</div>
-               </div>
+          </div>
                <div style="background: white; padding: 16px; border-radius: 8px; border: 1px solid #e9ecef;">
                  <div style="font-weight: 600; color: #1a1a1a; margin-bottom: 4px;">Email</div>
                  <div style="color: #6c757d;">{{ user.email|default:"Не указан" }}</div>
-               </div>
+                  </div>
                <div style="background: white; padding: 16px; border-radius: 8px; border: 1px solid #e9ecef;">
                  <div style="font-weight: 600; color: #1a1a1a; margin-bottom: 4px;">Дата регистрации</div>
                  <div style="color: #6c757d;">{{ user.date_joined|date:"d.m.Y" }}</div>
-               </div>
+                </div>
                <div style="background: white; padding: 16px; border-radius: 8px; border: 1px solid #e9ecef;">
                  <div style="font-weight: 600; color: #1a1a1a; margin-bottom: 4px;">Последний вход</div>
                  <div style="color: #6c757d;">{{ user.last_login|date:"d.m.Y H:i"|default:"Не указан" }}</div>
-               </div>
-             </div>
+              </div>
+              </div>
              
              {% if user.bio or user.company_name %}
              <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #e9ecef;">
@@ -856,19 +978,19 @@
                <div style="margin-bottom: 12px;">
                  <div style="font-weight: 600; color: #1a1a1a; margin-bottom: 4px;">Компания</div>
                  <div style="color: #6c757d;">{{ user.company_name }}</div>
-               </div>
+              </div>
                {% endif %}
                
                {% if user.bio %}
                <div>
                  <div style="font-weight: 600; color: #1a1a1a; margin-bottom: 8px;">О себе</div>
                  <div style="color: #6c757d; line-height: 1.6; background: white; padding: 16px; border-radius: 8px; border: 1px solid #e9ecef;">{{ user.bio }}</div>
-               </div>
+          </div>
                {% endif %}
-             </div>
-             {% endif %}
-           </div>
-         </div>
+                  </div>
+                {% endif %}
+              </div>
+              </div>
 
          <h3>Отзывы о вас</h3>
         <div class="table-container">
@@ -900,14 +1022,14 @@
                 <td>{{ review.comment|truncatechars:100 }}</td>
                 <td>{{ review.created_at|date:"d.m.Y" }}</td>
               </tr>
-              {% empty %}
+            {% empty %}
               <tr>
                 <td colspan="4" style="text-align: center; padding: 40px; color: #6c757d;">
                   <i class="ri-star-line" style="font-size: 48px; margin-bottom: 16px; display: block;"></i>
                   <p>Пока нет отзывов</p>
                 </td>
               </tr>
-              {% endfor %}
+            {% endfor %}
             </tbody>
           </table>
         </div>
@@ -1052,9 +1174,9 @@
           // Если это модальное окно тарифа, сбрасываем форму
           if (modal.id === 'tariffModal') {
             closeTariffModal();
-          }
         }
-      });
+      }
+    });
     }
 
     // Инициализация обработчиков для модального окна тарифа
