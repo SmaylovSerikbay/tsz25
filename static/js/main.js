@@ -1,6 +1,4 @@
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('main.js loaded on page:', window.location.pathname);
-    
     const body = document.body;
     const header = document.querySelector('.header');
     const mobileMenuToggle = document.querySelector('.mobile-menu-toggle');
@@ -21,12 +19,9 @@ document.addEventListener('DOMContentLoaded', function() {
     createOverlay();
 
     // Dropdown Functionality
-    console.log('Initializing dropdowns, found:', dropdowns.length);
     dropdowns.forEach((dropdown, index) => {
         const toggle = dropdown.querySelector('.nav-dropdown-toggle');
         const menu = dropdown.querySelector('.nav-dropdown-menu');
-        
-        console.log(`Dropdown ${index}:`, { toggle: !!toggle, menu: !!menu });
         
         if (toggle && menu) {
             // Remove any existing event listeners to prevent conflicts
@@ -34,7 +29,6 @@ document.addEventListener('DOMContentLoaded', function() {
             toggle.parentNode.replaceChild(newToggle, toggle);
             
             newToggle.addEventListener('click', function(e) {
-                console.log('Dropdown clicked on page:', window.location.pathname);
                 e.preventDefault();
                 e.stopPropagation();
 
@@ -51,7 +45,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 // Toggle current dropdown
                 newToggle.classList.toggle('active');
                 menu.classList.toggle('active');
-                console.log('Dropdown toggled, active:', menu.classList.contains('active'));
             });
         }
     });
