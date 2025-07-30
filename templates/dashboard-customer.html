@@ -1090,6 +1090,7 @@
                       <button onclick="openOrderDetailModal({{ order.id }}, 'view')" class="btn btn-small btn-outline">Подробнее</button>
                       {% if order.status == 'in_progress' %}
                         <button onclick="openChatModal({{ order.id }}, null)" class="btn btn-small btn-primary">Чат</button>
+                        <button onclick="cancelOrder({{ order.id }})" class="btn btn-small btn-danger">Отменить</button>
                       {% elif order.status == 'completed' and order.performer and order.id not in customer_reviews %}
                         <button onclick="openReviewModal({{ order.id }})" class="btn btn-small btn-accent">Оставить отзыв</button>
                       {% elif order.status == 'completed' and order.performer and order.id in customer_reviews %}
@@ -1195,9 +1196,11 @@
                       <button onclick="openOrderDetailModal({{ booking.id }}, 'view')" class="btn btn-small btn-outline">Подробнее</button>
                       {% if booking.status == 'in_progress' %}
                         <button onclick="openChatModal({{ booking.id }}, null)" class="btn btn-small btn-primary">Чат</button>
-                      {% endif %}
-                      {% if booking.status == 'new' %}
+                        <button onclick="completeOrder({{ booking.id }})" class="btn btn-small btn-accent">Завершить</button>
+                      {% elif booking.status == 'new' %}
                         <button onclick="cancelOrder({{ booking.id }})" class="btn btn-small btn-danger">Отменить</button>
+                      {% elif booking.status == 'cancelled' %}
+                        <span class="btn btn-small btn-danger" style="background: #dc3545; color: white; cursor: default;">Отклонено исполнителем</span>
                       {% endif %}
                     </div>
                   </td>
@@ -1587,6 +1590,37 @@
       const reviewModal = document.getElementById('reviewModal');
       if (event.target === reviewModal) {
         closeReviewModal();
+      }
+    }
+
+    // Функция завершения заказа заказчиком
+    function completeOrder(orderId) {
+      if (confirm('Вы уверены, что хотите завершить этот заказ?')) {
+        fetch(`/order/${orderId}/complete-api/`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken')
+          }
+        })
+        .then(response => {
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+          return response.json();
+        })
+        .then(data => {
+          if (data.success) {
+            showNotification(data.message || 'Заказ успешно завершен', 'success');
+            setTimeout(() => { location.reload(); }, 1000);
+          } else {
+            showNotification('Ошибка при завершении заказа: ' + (data.error || 'Неизвестная ошибка'), 'error');
+          }
+        })
+        .catch(error => {
+          console.error('Error:', error);
+          showNotification('Ошибка при завершении заказа: ' + error.message, 'error');
+        });
       }
     }
   </script>

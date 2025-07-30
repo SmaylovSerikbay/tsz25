@@ -197,6 +197,20 @@ function generateOrderDetailHTML(order, action) {
         </p>
       </div>
       `}
+      
+      <!-- Действия для исполнителя -->
+      ${order.is_performer === true ? `
+      <div style="margin-top: 20px; padding-top: 16px; border-top: 1px solid #e9ecef;">
+        <h4 style="margin: 0 0 12px 0; color: #1a1a1a; font-size: 1rem;">Действия исполнителя</h4>
+        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+          ${order.status === 'in_progress' ? `
+            <button onclick="completeOrder(${order.id})" class="btn accent" style="padding: 10px 16px; font-size: 0.9rem;">
+              <i class="ri-check-line"></i> Завершить заказ
+            </button>
+          ` : ''}
+        </div>
+      </div>
+      ` : ''}
     </div>
   `;
 }
@@ -349,7 +363,12 @@ function deleteOrder(orderId) {
         'X-CSRFToken': getCookie('csrftoken')
       }
     })
-    .then(response => response.json())
+    .then(response => {
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      return response.json();
+    })
     .then(data => {
       if (data.success) {
         showNotification('Заказ успешно удален', 'success');
@@ -364,7 +383,42 @@ function deleteOrder(orderId) {
     })
     .catch(error => {
       console.error('Error:', error);
-      showNotification('Ошибка при удалении заказа', 'error');
+      showNotification('Ошибка при удалении заказа: ' + error.message, 'error');
+    });
+  }
+}
+
+// Функция завершения заказа
+function completeOrder(orderId) {
+  if (confirm('Вы уверены, что хотите завершить этот заказ?')) {
+    fetch(`/order/${orderId}/complete-api/`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': getCookie('csrftoken')
+      }
+    })
+    .then(response => {
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      return response.json();
+    })
+    .then(data => {
+      if (data.success) {
+        showNotification('Заказ успешно завершен', 'success');
+        // Закрываем модальное окно и перезагружаем страницу
+        closeModal('orderDetailModal');
+        setTimeout(() => {
+          location.reload();
+        }, 1000);
+      } else {
+        showNotification('Ошибка при завершении заказа: ' + (data.error || 'Неизвестная ошибка'), 'error');
+      }
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      showNotification('Ошибка при завершении заказа: ' + error.message, 'error');
     });
   }
 }

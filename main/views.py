@@ -545,11 +545,11 @@ def dashboard(request):
             order__status='new'
         ).select_related('order', 'performer').order_by('-created_at')
         
-        # Получаем бронирования (прямые заказы исполнителей) - исключаем отмененные
+        # Получаем бронирования (прямые заказы исполнителей) - включаем отмененные
         bookings = Order.objects.filter(
             customer=request.user,
             order_type='booking',
-            status__in=['new', 'in_progress', 'completed']  # Исключаем 'cancelled'
+            status__in=['new', 'in_progress', 'completed', 'cancelled']  # Включаем 'cancelled'
         ).select_related('performer').order_by('-created_at')
         
         # Статистика
@@ -1606,6 +1606,7 @@ def order_detail_api(request, order_id):
         'services': order.services,
         'is_selected_performer': is_selected_performer,
         'is_customer': request.user == order.customer,  # Добавляем информацию о том, является ли пользователь заказчиком
+        'is_performer': request.user == order.performer,  # Добавляем информацию о том, является ли пользователь исполнителем
         'customer': {
             'name': order.customer.get_full_name(),
             'city': order.customer.city.name if order.customer.city else None,
@@ -1730,6 +1731,15 @@ def reject_response(request, response_id):
         # Удаляем отклик
         response.delete()
         
+        # Если заказ был в работе и теперь нет откликов, возвращаем статус 'new'
+        if order.status == 'in_progress':
+            remaining_responses = OrderResponse.objects.filter(order=order).count()
+            if remaining_responses == 0:
+                # Очищаем выбранных исполнителей и возвращаем статус 'new'
+                order.selected_performers = {}
+                order.status = 'new'
+                order.save()
+        
         return JsonResponse({
             'success': True,
             'message': 'Отклик отклонен'
@@ -1749,7 +1759,27 @@ def cancel_order_api(request, order_id):
         if request.user != order.customer and request.user != order.performer:
             return JsonResponse({'success': False, 'error': 'Нет прав для отмены этого заказа'})
         
-        # Отменяем заказ
+        # Проверяем, что заказ не завершен
+        if order.status == 'completed':
+            return JsonResponse({'success': False, 'error': 'Нельзя отменить завершенный заказ'})
+        
+        # Если заказ в работе, удаляем связанные данные и возвращаем статус 'new'
+        if order.status == 'in_progress':
+            # Удаляем отклики исполнителей
+            OrderResponse.objects.filter(order=order).delete()
+            
+            # Удаляем занятые даты исполнителей
+            if order.performer:
+                BusyDate.objects.filter(user=order.performer, date=order.event_date).delete()
+            
+            # Очищаем выбранных исполнителей и возвращаем статус 'new'
+            order.selected_performers = {}
+            order.status = 'new'
+            order.save()
+            
+            return JsonResponse({'success': True, 'message': 'Заказ возвращен в активное состояние'})
+        
+        # Если заказ новый, отменяем его
         order.status = 'cancelled'
         order.save()
         
@@ -1762,13 +1792,13 @@ def cancel_order_api(request, order_id):
 @login_required
 @require_POST
 def complete_order_api(request, order_id):
-    """API для завершения заказа исполнителем"""
+    """API для завершения заказа"""
     try:
         order = Order.objects.get(id=order_id)
         
-        # Проверяем, что это исполнитель заказа
-        if request.user != order.performer:
-            return JsonResponse({'success': False, 'error': 'Только исполнитель может завершить заказ'})
+        # Проверяем, что это исполнитель или заказчик заказа
+        if request.user not in [order.performer, order.customer]:
+            return JsonResponse({'success': False, 'error': 'Только участники заказа могут завершить заказ'})
         
         # Проверяем, что заказ в работе
         if order.status != 'in_progress':
@@ -1921,3 +1951,117 @@ def performer_cancel_booking_api(request, order_id):
         return JsonResponse({'success': False, 'error': 'Заказ не найден'})
     except Exception as e:
         return JsonResponse({'success': False, 'error': str(e)})
+
+@login_required
+@require_POST
+def accept_booking_api(request, order_id):
+    """API для принятия бронирования исполнителем"""
+    try:
+        order = Order.objects.get(id=order_id)
+        
+        # Проверяем, что это исполнитель заказа
+        if request.user != order.performer:
+            return JsonResponse({'success': False, 'error': 'Только исполнитель может принять бронирование'})
+        
+        # Проверяем, что это бронирование
+        if order.order_type != 'booking':
+            return JsonResponse({'success': False, 'error': 'Это не бронирование'})
+        
+        # Проверяем, что заказ еще новый
+        if order.status != 'new':
+            return JsonResponse({'success': False, 'error': 'Нельзя принять заказ в работе'})
+        
+        # Принимаем бронирование
+        order.status = 'in_progress'
+        order.save()
+        
+        return JsonResponse({'success': True, 'message': 'Бронирование успешно принято'})
+    except Order.DoesNotExist:
+        return JsonResponse({'success': False, 'error': 'Заказ не найден'})
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)})
+
+@login_required
+@require_POST
+def reject_booking_api(request, order_id):
+    """API для отклонения бронирования исполнителем"""
+    try:
+        order = Order.objects.get(id=order_id)
+        
+        # Проверяем, что это исполнитель заказа
+        if request.user != order.performer:
+            return JsonResponse({'success': False, 'error': 'Только исполнитель может отклонить бронирование'})
+        
+        # Проверяем, что это бронирование
+        if order.order_type != 'booking':
+            return JsonResponse({'success': False, 'error': 'Это не бронирование'})
+        
+        # Проверяем, что заказ еще новый
+        if order.status != 'new':
+            return JsonResponse({'success': False, 'error': 'Нельзя отклонить заказ в работе'})
+        
+        # Отклоняем бронирование
+        order.status = 'cancelled'
+        order.save()
+        
+        return JsonResponse({'success': True, 'message': 'Бронирование отклонено'})
+    except Order.DoesNotExist:
+        return JsonResponse({'success': False, 'error': 'Заказ не найден'})
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)})
+
+@login_required
+@require_POST
+def delete_order_api(request, order_id):
+    """API для удаления заказа"""
+    try:
+        order = Order.objects.get(id=order_id)
+        
+        # Проверяем, что это заказчик заказа
+        if request.user != order.customer:
+            return JsonResponse({'success': False, 'error': 'Только заказчик может удалить заказ'})
+        
+        # Проверяем, что заказ еще не в работе
+        if order.status != 'new':
+            return JsonResponse({'success': False, 'error': 'Нельзя удалить заказ в работе'})
+        
+        # Удаляем заказ
+        order.delete()
+        
+        return JsonResponse({'success': True, 'message': 'Заказ успешно удален'})
+    except Order.DoesNotExist:
+        return JsonResponse({'success': False, 'error': 'Заказ не найден'})
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)})
+
+@login_required
+@require_POST
+def cancel_response(request, response_id):
+    """Отмена отклика исполнителем"""
+    try:
+        response = get_object_or_404(OrderResponse, id=response_id)
+        order = response.order
+        
+        # Проверяем, что пользователь является исполнителем этого отклика
+        if request.user != response.performer:
+            return JsonResponse({'error': 'У вас нет прав для отмены этого отклика'}, status=403)
+        
+        # Удаляем отклик
+        response.delete()
+        
+        # Если заказ был в работе и теперь нет откликов, возвращаем статус 'new'
+        if order.status == 'in_progress':
+            remaining_responses = OrderResponse.objects.filter(order=order).count()
+            if remaining_responses == 0:
+                # Очищаем выбранных исполнителей и возвращаем статус 'new'
+                order.selected_performers = {}
+                order.status = 'new'
+                order.save()
+        
+        return JsonResponse({
+            'success': True,
+            'message': 'Отклик успешно отменен'
+        })
+        
+    except Exception as e:
+        return JsonResponse({'error': 'Произошла ошибка при отмене отклика'}, status=500)

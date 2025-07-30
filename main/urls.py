@@ -61,6 +61,7 @@ urlpatterns = [
     # Response management
     path('order/response/<int:response_id>/accept/', views.accept_response, name='accept_response'),
     path('order/response/<int:response_id>/reject/', views.reject_response, name='reject_response'),
+    path('order/response/<int:response_id>/cancel/', views.cancel_response, name='cancel_response'),
     
     # Order management API
     path('order/<int:order_id>/cancel-api/', views.cancel_order_api, name='cancel_order_api'),
@@ -68,4 +69,6 @@ urlpatterns = [
     path('order/<int:order_id>/review-api/', views.create_review_api, name='create_review_api'),
     path('order/<int:order_id>/performer-cancel-booking-api/', views.performer_cancel_booking_api, name='performer_cancel_booking_api'),
     path('order/<int:order_id>/delete-api/', views.delete_order_api, name='delete_order_api'),
+    path('order/<int:order_id>/accept-booking-api/', views.accept_booking_api, name='accept_booking_api'),
+    path('order/<int:order_id>/reject-booking-api/', views.reject_booking_api, name='reject_booking_api'),
 ] 

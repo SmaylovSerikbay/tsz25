@@ -803,10 +803,11 @@
                       <button onclick="openChatModal({{ order.id }}, null)" class="btn btn-small btn-primary">Чат</button>
                       <button onclick="completeOrder({{ order.id }})" class="btn btn-small btn-accent">Завершить</button>
                     {% elif order.status == 'new' %}
-                      <button onclick="openChatModal({{ order.id }}, null)" class="btn btn-small btn-primary">Чат</button>
                       {% if order.order_type == 'booking' %}
-                        <button onclick="performerCancelBooking({{ order.id }})" class="btn btn-small btn-danger">Отменить</button>
+                        <button onclick="acceptBooking({{ order.id }})" class="btn btn-small btn-accent">Принять</button>
+                        <button onclick="rejectBooking({{ order.id }})" class="btn btn-small btn-danger">Отклонить</button>
                       {% else %}
+                        <button onclick="openChatModal({{ order.id }}, null)" class="btn btn-small btn-primary">Чат</button>
                         <button onclick="cancelOrder({{ order.id }})" class="btn btn-small btn-danger">Отменить</button>
                       {% endif %}
                     {% endif %}
@@ -850,7 +851,15 @@
                 <td>
                   <div class="action-buttons">
                     <button onclick="openOrderDetailModal({{ response.order.id }}, 'view')" class="btn btn-small btn-outline">Посмотреть</button>
-                </div>
+                    {% if response.order.status == 'new' %}
+                      <span class="btn btn-small btn-success" style="background: #28a745; color: white; cursor: default;">Отклик отправлен</span>
+                      <button onclick="cancelResponse({{ response.id }})" class="btn btn-small btn-danger">Отменить отклик</button>
+                    {% elif response.order.status == 'in_progress' and response.performer.id in response.order.selected_performers.values %}
+                      <span class="btn btn-small btn-accent" style="background: #28a745; color: white; cursor: default;">Принят</span>
+                    {% elif response.order.status == 'cancelled' %}
+                      <span class="btn btn-small btn-danger" style="background: #dc3545; color: white; cursor: default;">Заказ отменен</span>
+                    {% endif %}
+                  </div>
                 </td>
               </tr>
               {% empty %}
@@ -1373,6 +1382,99 @@
         .catch(error => {
           console.error('Error:', error);
           showNotification('Ошибка при отмене бронирования: ' + error.message, 'error');
+        });
+      }
+    }
+
+    // Функция принятия бронирования исполнителем
+    function acceptBooking(orderId) {
+      if (confirm('Вы уверены, что хотите принять это бронирование?')) {
+        fetch(`/order/${orderId}/accept-booking-api/`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken')
+          }
+        })
+        .then(response => {
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+          return response.json();
+        })
+        .then(data => {
+          if (data.success) {
+            showNotification(data.message || 'Бронирование успешно принято', 'success');
+            setTimeout(() => { location.reload(); }, 1000);
+          } else {
+            showNotification('Ошибка при принятии бронирования: ' + (data.error || 'Неизвестная ошибка'), 'error');
+          }
+        })
+        .catch(error => {
+          console.error('Error:', error);
+          showNotification('Ошибка при принятии бронирования: ' + error.message, 'error');
+        });
+      }
+    }
+
+    // Функция отклонения бронирования исполнителем
+    function rejectBooking(orderId) {
+      if (confirm('Вы уверены, что хотите отклонить это бронирование?')) {
+        fetch(`/order/${orderId}/reject-booking-api/`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken')
+          }
+        })
+        .then(response => {
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+          return response.json();
+        })
+        .then(data => {
+          if (data.success) {
+            showNotification(data.message || 'Бронирование отклонено', 'success');
+            setTimeout(() => { location.reload(); }, 1000);
+          } else {
+            showNotification('Ошибка при отклонении бронирования: ' + (data.error || 'Неизвестная ошибка'), 'error');
+          }
+        })
+        .catch(error => {
+          console.error('Error:', error);
+          showNotification('Ошибка при отклонении бронирования: ' + error.message, 'error');
+        });
+      }
+    }
+
+    // Функция отмены отклика исполнителем
+    function cancelResponse(responseId) {
+      if (confirm('Вы уверены, что хотите отменить этот отклик?')) {
+        fetch(`/order/response/${responseId}/cancel/`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken')
+          }
+        })
+        .then(response => {
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+          return response.json();
+        })
+        .then(data => {
+          if (data.success) {
+            showNotification('Отклик успешно отменен', 'success');
+            setTimeout(() => { location.reload(); }, 1000);
+          } else {
+            showNotification('Ошибка при отмене отклика: ' + (data.error || 'Неизвестная ошибка'), 'error');
+          }
+        })
+        .catch(error => {
+          console.error('Error:', error);
+          showNotification('Ошибка при отмене отклика: ' + error.message, 'error');
         });
       }
     }
