@@ -532,12 +532,12 @@ function openModal(modalId) {
   }
 }
 
-function closeModal(modalId) {
-  const modal = document.getElementById(modalId);
-  if (modal) {
-    modal.style.display = 'none';
-    document.body.style.overflow = 'auto';
-  }
+window.closeModal = function(modalId) {
+    const modal = document.getElementById(modalId);
+    if (modal) {
+        modal.style.display = 'none';
+        document.body.style.overflow = 'auto';
+    }
 }
 
 // Закрытие модалки по клику вне содержимого
@@ -630,7 +630,20 @@ function sendMessage(event) {
   });
 }
 
-function openBookingModal(performerId) {
+window.openBookingModal = function(performerId) {
+    console.log('openBookingModal called with performerId:', performerId);
+    
+    // Инициализируем переменные календаря
+    if (!window.calendarCurrentDate) {
+        window.calendarCurrentDate = new Date();
+    }
+    if (!window.calendarMonths) {
+        window.calendarMonths = [
+            'Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь',
+            'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'
+        ];
+    }
+    
     // Создаем модальное окно для бронирования
     const modalId = 'bookingModal';
     const existingModal = document.getElementById(modalId);
@@ -784,6 +797,8 @@ function openBookingModal(performerId) {
     dateInput.addEventListener('change', function() {
         checkDateAvailability(performerId, this.value);
     });
+    
+    console.log('Booking modal created and displayed');
 }
 
 function getCookie(name) {
@@ -908,29 +923,29 @@ const calendarMonths = [
     'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'
 ];
 
-function openDatePicker() {
+window.openDatePicker = function() {
     const calendarPicker = document.getElementById('calendarPicker');
     calendarPicker.style.display = 'block';
     updateCalendarDisplay();
 }
 
-function closeDatePicker() {
+window.closeDatePicker = function() {
     const calendarPicker = document.getElementById('calendarPicker');
     calendarPicker.style.display = 'none';
 }
 
 function updateCalendarDisplay() {
-    const year = calendarCurrentDate.getFullYear();
-    const month = calendarCurrentDate.getMonth();
+    const year = window.calendarCurrentDate.getFullYear();
+    const month = window.calendarCurrentDate.getMonth();
     
     // Проверяем, какой элемент существует
     const currentMonthDisplay = document.getElementById('currentMonthDisplay');
     const currentMonth = document.getElementById('currentMonth');
     
     if (currentMonthDisplay) {
-        currentMonthDisplay.textContent = `${calendarMonths[month]} ${year}`;
+        currentMonthDisplay.textContent = `${window.calendarMonths[month]} ${year}`;
     } else if (currentMonth) {
-        currentMonth.textContent = `${calendarMonths[month]} ${year}`;
+        currentMonth.textContent = `${window.calendarMonths[month]} ${year}`;
     }
     
     const firstDay = new Date(year, month, 1);
@@ -986,7 +1001,7 @@ function formatDateString(date) {
     return `${year}-${month}-${day}`;
 }
 
-function selectDate(dateString) {
+window.selectDate = function(dateString) {
     const dateInput = document.getElementById('event_date');
     const calendarBtn = document.querySelector('.calendar-btn');
     
@@ -1008,13 +1023,13 @@ function selectDate(dateString) {
     checkDateAvailability(window.currentPerformerId, dateString);
 }
 
-function prevMonth() {
-    calendarCurrentDate.setMonth(calendarCurrentDate.getMonth() - 1);
+window.prevMonth = function() {
+    window.calendarCurrentDate.setMonth(window.calendarCurrentDate.getMonth() - 1);
     updateCalendarDisplay();
 }
 
-function nextMonth() {
-    calendarCurrentDate.setMonth(calendarCurrentDate.getMonth() + 1);
+window.nextMonth = function() {
+    window.calendarCurrentDate.setMonth(window.calendarCurrentDate.getMonth() + 1);
     updateCalendarDisplay();
 }
 

@@ -1144,7 +1144,7 @@
             <div class="performer-actions">
               <a href="{% url 'main:view_profile' performer.id %}" class="btn btn-primary">Профиль</a>
               {% if user.is_authenticated and user.user_type == 'customer' %}
-              <button onclick="openBookingModal('{{ performer.id }}')" class="btn btn-outline">Забронировать</button>
+              <button onclick="openBookingModal('{{ performer.id }}')" class="btn btn-outline" style="cursor: pointer;">Забронировать</button>
               {% endif %}
             </div>
           </div>
@@ -1188,8 +1188,7 @@
     </div>
   </main>
 
-  <!-- Include Booking Modal -->
-  {% include "modals/booking_modal.html" %}
+  <!-- Booking Modal will be created dynamically by main.js -->
 
   <script>
     // Mobile menu functionality
@@ -1263,35 +1262,9 @@
       }
     });
 
-    // Booking Modal Function
-    function openBookingModal(performerId) {
-      document.getElementById('performerId').value = performerId;
-      document.getElementById('bookingModal').style.display = 'block';
-      document.body.style.overflow = 'hidden';
-      
-      // Load tariffs
-      loadTariffs(performerId);
-    }
-
-    function loadTariffs(performerId) {
-      fetch(`/api/performer/${performerId}/tariffs/`)
-        .then(response => response.json())
-        .then(data => {
-          const tariffSelect = document.getElementById('tariffSelect');
-          tariffSelect.innerHTML = '<option value="">Выберите тариф...</option>';
-          
-          data.tariffs.forEach(tariff => {
-            const option = document.createElement('option');
-            option.value = tariff.id;
-            option.textContent = `${tariff.name} - ${tariff.price} ₸`;
-            tariffSelect.appendChild(option);
-          });
-        })
-        .catch(error => {
-          console.error('Error loading tariffs:', error);
-          document.getElementById('tariffSelect').innerHTML = '<option value="">Ошибка загрузки тарифов</option>';
-        });
-    }
+    // Booking Modal Function - uses main.js openBookingModal
+    console.log('Catalog page loaded, openBookingModal available:', typeof openBookingModal);
   </script>
+  <script src="{% static 'js/main.js' %}"></script>
 </body>
 </html> 
