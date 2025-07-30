@@ -4,7 +4,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.db.models import Q, Count
 from django.http import JsonResponse
-from .models import User, Order, Category, Review, Portfolio, Tariff, BusyDate, Message, OrderResponse, OTP, BookingProposal
+from .models import User, Order, Category, Review, Portfolio, Tariff, BusyDate, Message, OrderResponse, OTP, BookingProposal, ServiceType
 from .forms import UserRegistrationForm, UserProfileForm, OrderForm, ReviewForm, PortfolioForm, TariffForm
 from .services import WhatsAppOTPService
 import json
@@ -13,7 +13,7 @@ from django.views.decorators.http import require_http_methods, require_GET, requ
 from django.views.decorators.csrf import csrf_exempt
 from django.db import models
 
-SERVICE_TYPE_CODES = {'photo', 'video', 'music', 'host', 'dance', 'restaurant', 'makeup', 'registry', 'star', 'cottage', 'recreation_areas', 'aphishe'}
+
 
 def index(request):
     if request.user.is_authenticated:
@@ -40,7 +40,13 @@ def auth_page(request):
         is_active=True
     ).values_list('city', flat=True).distinct().order_by('city')
     
-    return render(request, 'auth.html', {'cities': cities})
+    # Получаем типы услуг из базы данных
+    service_types = ServiceType.objects.filter(is_active=True).order_by('sort_order')
+    
+    return render(request, 'auth.html', {
+        'cities': cities,
+        'service_types': service_types
+    })
 
 def register(request):
     if request.method == 'POST':
@@ -59,11 +65,15 @@ def register(request):
             messages.error(request, msg)
             return redirect('main:auth')
         
-        if user_type == 'performer' and service_type not in [code for code, name in User.SERVICE_TYPES]:
-            msg = 'Выберите корректную специализацию исполнителя!'
-            print('REGISTER ERROR:', msg)
-            messages.error(request, msg)
-            return redirect('main:auth')
+        if user_type == 'performer' and service_type:
+            # Проверяем, существует ли такой тип услуги в базе данных
+            try:
+                service_type_obj = ServiceType.objects.get(code=service_type)
+            except ServiceType.DoesNotExist:
+                msg = 'Выберите корректную специализацию исполнителя!'
+                print('REGISTER ERROR:', msg)
+                messages.error(request, msg)
+                return redirect('main:auth')
         
         # Проверяем, не занят ли номер телефона
         if User.objects.filter(phone_number=phone_number).exists():
@@ -88,7 +98,7 @@ def register(request):
                 last_name=last_name,
                 city=city,
                 user_type=user_type,
-                service_type=service_type,
+                service_type=service_type_obj if user_type == 'performer' and service_type else None,
                 is_phone_verified=True,
                 email=f"{username}@example.com",  # Временный email
                 password=password,
@@ -241,14 +251,18 @@ def profile(request):
             selected = order.selected_performers or {}
             # Исправленная логика:
             if selected:
-                if str(selected.get(request.user.service_type)) == str(request.user.id):
+                if str(selected.get(request.user.service_type.code if request.user.service_type else None)) == str(request.user.id):
                     active_orders.append(order)
             else:
                 # Только если performer_id совпадает и услуга реально есть в заказе
-                if order.performer_id == request.user.id and request.user.service_type in (order.services or []):
+                if order.performer_id == request.user.id and (request.user.service_type.code if request.user.service_type else None) in (order.services or []):
                     active_orders.append(order)
         active_orders = sorted(active_orders, key=lambda o: o.created_at, reverse=True)
         context['active_orders'] = active_orders
+    # Получаем типы услуг для модального окна
+    service_types = ServiceType.objects.filter(is_active=True).order_by('sort_order')
+    context['service_types'] = service_types
+    
     return render(request, 'profile.html', context)
 
 @login_required
@@ -286,11 +300,16 @@ def profile_settings(request):
         # Update performer-specific fields if applicable
         if request.user.user_type == 'performer':
             request.user.company_name = request.POST.get('company_name', '')
-            service_type = request.POST.get('service_type', '')
-            if service_type not in SERVICE_TYPE_CODES:
-                messages.error(request, 'Выберите корректную специализацию исполнителя!')
-                return render(request, 'profile_settings.html', {'user': request.user})
-            request.user.service_type = service_type
+            service_type_code = request.POST.get('service_type', '')
+            if service_type_code:
+                try:
+                    service_type_obj = ServiceType.objects.get(code=service_type_code)
+                    request.user.service_type = service_type_obj
+                except ServiceType.DoesNotExist:
+                    messages.error(request, 'Выберите корректную специализацию исполнителя!')
+                    return render(request, 'profile_settings.html', {'user': request.user})
+            else:
+                request.user.service_type = None
             request.user.bio = request.POST.get('bio', '')
             request.user.services_description = request.POST.get('services_description', '')
             request.user.experience = request.POST.get('experience', '')
@@ -307,8 +326,12 @@ def profile_settings(request):
         messages.success(request, 'Профиль успешно обновлен')
         return redirect('main:profile_settings')
         
+    # Получаем типы услуг из базы данных
+    service_types = ServiceType.objects.filter(is_active=True).order_by('sort_order')
+    
     return render(request, 'profile_settings.html', {
-        'user': request.user
+        'user': request.user,
+        'service_types': service_types
     })
 
 @login_required
@@ -328,9 +351,10 @@ def dashboard(request):
             services = order.services or []
             selected = order.selected_performers or {}
             # Исполнитель видит заказ, если его услуга есть в заказе и по этой услуге еще не выбран исполнитель
+            service_type_code = request.user.service_type.code if request.user.service_type else None
             if (
-                request.user.service_type in services and
-                (not selected.get(request.user.service_type))
+                service_type_code in services and
+                (not selected.get(service_type_code))
             ):
                 available_orders.append(order)
         
@@ -353,10 +377,10 @@ def dashboard(request):
         for order in request_orders:
             selected = order.selected_performers or {}
             # Показываем, если исполнитель выбран по своей услуге
-            if str(selected.get(request.user.service_type)) == str(request.user.id):
+            if str(selected.get(request.user.service_type.code if request.user.service_type else None)) == str(request.user.id):
                 active_orders.append(order)
             # Для старых заказов (без selected_performers)
-            elif not selected and order.performer_id == request.user.id and request.user.service_type in (order.services or []):
+            elif not selected and order.performer_id == request.user.id and (request.user.service_type.code if request.user.service_type else None) in (order.services or []):
                 active_orders.append(order)
         
         active_orders = sorted(active_orders, key=lambda o: o.created_at, reverse=True)
@@ -438,7 +462,7 @@ def catalog(request):
 
     # Применяем фильтры
     if category and category != 'all':
-        performers = performers.filter(service_type=category)
+        performers = performers.filter(service_type__code=category)
     
     if city and city != '':
         performers = performers.filter(city__iexact=city)
@@ -492,8 +516,8 @@ def catalog(request):
         is_active=True
     ).values_list('city', flat=True).distinct().order_by('city')
 
-    # Получаем категории из модели User
-    categories = User.SERVICE_TYPES
+    # Получаем категории из базы данных
+    categories = ServiceType.objects.filter(is_active=True).order_by('sort_order')
 
     # Подготавливаем контекст фильтров
     current_filters = {
@@ -533,8 +557,8 @@ def order_detail(request, order_id):
         elif order.selected_performers:
             # Новые заказы с selected_performers
             selected_performers = order.selected_performers or {}
-            if request.user.service_type in selected_performers:
-                if str(selected_performers[request.user.service_type]) == str(request.user.id):
+            if (request.user.service_type.code if request.user.service_type else None) in selected_performers:
+                if str(selected_performers[request.user.service_type.code if request.user.service_type else None]) == str(request.user.id):
                     can_access = True
         
         if not can_access:
@@ -578,7 +602,7 @@ def order_detail(request, order_id):
                         return redirect('main:order_detail', order_id=order.id)
                     else:
                         # Получаем специализацию исполнителя
-                        service_type = response.performer.service_type
+                        service_type = response.performer.service_type.code if response.performer.service_type else None
                         selected_performers = order.selected_performers or {}
                         selected_performers[service_type] = response.performer.id
                         order.selected_performers = selected_performers
@@ -588,7 +612,7 @@ def order_detail(request, order_id):
                         else:
                             order.save()
                         # Удаляем все остальные отклики по этой услуге
-                        OrderResponse.objects.filter(order=order, performer__service_type=service_type).exclude(id=response_id).delete()
+                        OrderResponse.objects.filter(order=order, performer__service_type__code=service_type).exclude(id=response_id).delete()
                         messages.success(request, f'Исполнитель по услуге {service_type} успешно выбран')
                 except OrderResponse.DoesNotExist:
                     messages.error(request, 'Отклик не найден')
@@ -615,12 +639,14 @@ def order_detail(request, order_id):
         selected = order.selected_performers or {}
         for r in responses:
             # Если услуга не выбрана или выбран другой исполнитель
-            if r.performer.service_type not in selected or selected[r.performer.service_type] != r.performer.id:
+            service_type_code = r.performer.service_type.code if r.performer.service_type else None
+            if service_type_code not in selected or selected[service_type_code] != r.performer.id:
                 unselected_responses.append(r)
 
     is_selected_performer = False
     if request.user.user_type == 'performer' and order.selected_performers:
-        if request.user.service_type in order.selected_performers and order.selected_performers[request.user.service_type] == request.user.id:
+        service_type_code = request.user.service_type.code if request.user.service_type else None
+        if service_type_code in order.selected_performers and order.selected_performers[service_type_code] == request.user.id:
             is_selected_performer = True
     can_take_order = (
         request.user.user_type == 'performer'

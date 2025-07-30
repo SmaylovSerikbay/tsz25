@@ -56,7 +56,7 @@
                 </div>
                 <div class="performer-info">
                     <h3>{{ performer.get_full_name }}</h3>
-                    <p class="performer-type">{{ performer.get_service_type_display }}</p>
+                    <p class="performer-type">{{ performer.service_type.name|default:"Исполнитель" }}</p>
                     <div class="performer-location">
                         <i class="ri-map-pin-line"></i>
                         <span>{{ performer.city }}</span>

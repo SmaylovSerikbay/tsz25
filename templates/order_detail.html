@@ -272,32 +272,36 @@
             <div class="performer-info">
             <h3>{{ response.performer.get_full_name }}</h3>
               <span class="performer-specialization">
-                {% if response.performer.service_type == 'photo' %}
-                  <i class="ri-camera-line"></i> Фотограф
-                {% elif response.performer.service_type == 'video' %}
-                  <i class="ri-video-line"></i> Видеограф
-                {% elif response.performer.service_type == 'music' %}
-                  <i class="ri-music-2-line"></i> Музыкант
-                {% elif response.performer.service_type == 'host' %}
-                  <i class="ri-mic-line"></i> Ведущий
-                {% elif response.performer.service_type == 'dance' %}
-                  <i class="ri-emotion-happy-line"></i> Шоу-программа
-                {% elif response.performer.service_type == 'restaurant' %}
-                  <i class="ri-restaurant-line"></i> Ресторан
-                {% elif response.performer.service_type == 'makeup' %}
-                  <i class="ri-palette-line"></i> Визожист
-                {% elif response.performer.service_type == 'registry' %}
-                  <i class="ri-heart-line"></i> Регистрация брака
-                {% elif response.performer.service_type == 'cottage' %}
-                  <i class="ri-home-line"></i> Коттеджы
-                {% elif response.performer.service_type == 'recreation_areas' %}
-                  <i class="ri-tree-line"></i> Зоны отдыха
-                {% elif response.performer.service_type == 'star' %}
-                  <i class="ri-star-line"></i> Звезда Эстрады
-                {% elif response.performer.service_type == 'aphishe' %}
-                  <i class="ri-file-text-line"></i> Концертные Афишы
+                {% if response.performer.service_type %}
+                  {% if response.performer.service_type.code == 'photo' %}
+                    <i class="ri-camera-line"></i> {{ response.performer.service_type.name }}
+                  {% elif response.performer.service_type.code == 'video' %}
+                    <i class="ri-video-line"></i> {{ response.performer.service_type.name }}
+                  {% elif response.performer.service_type.code == 'music' %}
+                    <i class="ri-music-2-line"></i> {{ response.performer.service_type.name }}
+                  {% elif response.performer.service_type.code == 'host' %}
+                    <i class="ri-mic-line"></i> {{ response.performer.service_type.name }}
+                  {% elif response.performer.service_type.code == 'dance' %}
+                    <i class="ri-emotion-happy-line"></i> {{ response.performer.service_type.name }}
+                  {% elif response.performer.service_type.code == 'restaurant' %}
+                    <i class="ri-restaurant-line"></i> {{ response.performer.service_type.name }}
+                  {% elif response.performer.service_type.code == 'makeup' %}
+                    <i class="ri-palette-line"></i> {{ response.performer.service_type.name }}
+                  {% elif response.performer.service_type.code == 'registry' %}
+                    <i class="ri-heart-line"></i> {{ response.performer.service_type.name }}
+                  {% elif response.performer.service_type.code == 'cottage' %}
+                    <i class="ri-home-line"></i> {{ response.performer.service_type.name }}
+                  {% elif response.performer.service_type.code == 'recreation_areas' %}
+                    <i class="ri-tree-line"></i> {{ response.performer.service_type.name }}
+                  {% elif response.performer.service_type.code == 'star' %}
+                    <i class="ri-star-line"></i> {{ response.performer.service_type.name }}
+                  {% elif response.performer.service_type.code == 'aphishe' %}
+                    <i class="ri-file-text-line"></i> {{ response.performer.service_type.name }}
+                  {% else %}
+                    <i class="ri-user-line"></i> {{ response.performer.service_type.name }}
+                  {% endif %}
                 {% else %}
-                  <i class="ri-user-line"></i> {{ response.performer.service_type|default:"Исполнитель" }}
+                  <i class="ri-user-line"></i> Исполнитель
                 {% endif %}
               </span>
             </div>

@@ -828,9 +828,9 @@
           <!-- Категории -->
           <select name="category" class="chip-input category-chip" onchange="this.form.submit()">
             <option value="all" {% if not current_filters.category or current_filters.category == 'all' %}selected{% endif %}>Все</option>
-            {% for code, name in categories %}
-              <option value="{{ code }}" {% if current_filters.category == code %}selected{% endif %}>{{ name }}</option>
-            {% endfor %}
+                            {% for service_type in categories %}
+                  <option value="{{ service_type.code }}" {% if current_filters.category == service_type.code %}selected{% endif %}>{{ service_type.name }}</option>
+                {% endfor %}
           </select>
 
           <!-- Город -->
@@ -1092,38 +1092,36 @@
               <h3 class="performer-name">{{ performer.get_full_name }}</h3>
             </div>
             <div class="performer-type">
-              {% for code, name in categories %}
-                {% if performer.service_type == code %}
-                  {% if code == 'photo' %}
-                    <i class="ri-camera-line"></i>
-                  {% elif code == 'video' %}
-                    <i class="ri-video-line"></i>
-                  {% elif code == 'music' %}
-                    <i class="ri-music-2-line"></i>
-                  {% elif code == 'host' %}
-                    <i class="ri-mic-line"></i>
-                  {% elif code == 'dance' %}
-                    <i class="ri-emotion-happy-line"></i>
-                  {% elif code == 'restaurant' %}
-                    <i class="ri-restaurant-line"></i>
-                  {% elif code == 'makeup' %}
-                    <i class="ri-palette-line"></i>
-                  {% elif code == 'registry' %}
-                    <i class="ri-heart-line"></i>
-                  {% elif code == 'cottage' %}
-                    <i class="ri-home-line"></i>
-                  {% elif code == 'recreation_areas' %}
-                    <i class="ri-tree-line"></i>
-                  {% elif code == 'star' %}
-                    <i class="ri-star-line"></i>
-                  {% elif code == 'aphishe' %}
-                    <i class="ri-file-text-line"></i>
-                  {% else %}
-                    <i class="ri-briefcase-line"></i>
-                  {% endif %}
-                  {{ name }}
+              {% if performer.service_type %}
+                {% if performer.service_type.code == 'photo' %}
+                  <i class="ri-camera-line"></i>
+                {% elif performer.service_type.code == 'video' %}
+                  <i class="ri-video-line"></i>
+                {% elif performer.service_type.code == 'music' %}
+                  <i class="ri-music-2-line"></i>
+                {% elif performer.service_type.code == 'host' %}
+                  <i class="ri-mic-line"></i>
+                {% elif performer.service_type.code == 'dance' %}
+                  <i class="ri-emotion-happy-line"></i>
+                {% elif performer.service_type.code == 'restaurant' %}
+                  <i class="ri-restaurant-line"></i>
+                {% elif performer.service_type.code == 'makeup' %}
+                  <i class="ri-palette-line"></i>
+                {% elif performer.service_type.code == 'registry' %}
+                  <i class="ri-heart-line"></i>
+                {% elif performer.service_type.code == 'cottage' %}
+                  <i class="ri-home-line"></i>
+                {% elif performer.service_type.code == 'recreation_areas' %}
+                  <i class="ri-tree-line"></i>
+                {% elif performer.service_type.code == 'star' %}
+                  <i class="ri-star-line"></i>
+                {% elif performer.service_type.code == 'aphishe' %}
+                  <i class="ri-file-text-line"></i>
+                {% else %}
+                  <i class="ri-briefcase-line"></i>
                 {% endif %}
-              {% endfor %}
+                {{ performer.service_type.name }}
+              {% endif %}
             </div>
             <div class="performer-stats">
               <div class="stat-item">
