@@ -27,7 +27,7 @@
           <select class="form-input" name="city" required>
             <option value="">Выберите город</option>
             {% for city in cities %}
-              <option value="{{ city.name }}" {% if user.city.name == city.name %}selected{% endif %}>{{ city.name }}</option>
+              <option value="{{ city.name }}" {% if user.city and user.city.name == city.name %}selected{% endif %}>{{ city.name }}</option>
             {% endfor %}
           </select>
         </div>
@@ -45,7 +45,7 @@
         <label class="form-label">Специализация</label>
         <select class="form-input" name="service_type">
           {% for service_type in service_types %}
-            <option value="{{ service_type.code }}" {% if user.service_type.code == service_type.code %}selected{% endif %}>{{ service_type.name }}</option>
+            <option value="{{ service_type.code }}" {% if user.service_type and user.service_type.code == service_type.code %}selected{% endif %}>{{ service_type.name }}</option>
           {% endfor %}
         </select>
       </div>

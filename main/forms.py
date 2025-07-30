@@ -14,9 +14,11 @@ class UserProfileForm(forms.ModelForm):
         fields = ('first_name', 'last_name', 'email', 'phone_number', 'bio', 'profile_photo', 'city')
 
 class OrderForm(forms.ModelForm):
+    city = forms.ChoiceField(choices=[], required=True, label='Город')
+    
     class Meta:
         model = Order
-        fields = ['title', 'event_type', 'event_date', 'city', 'venue', 'guest_count', 
+        fields = ['title', 'event_type', 'event_date', 'venue', 'guest_count', 
                  'description', 'budget_min', 'budget_max']
         widgets = {
             'event_date': forms.DateInput(attrs={'type': 'date'}),
@@ -25,6 +27,19 @@ class OrderForm(forms.ModelForm):
             'budget_max': forms.NumberInput(attrs={'min': '0', 'step': '10000'}),
             'guest_count': forms.NumberInput(attrs={'min': '1'}),
         }
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Получаем города из базы данных
+        from .models import City
+        cities = City.objects.filter(is_active=True).order_by('name')
+        self.fields['city'].choices = [('', 'Выберите город')] + [(city.name, city.name) for city in cities]
+        
+        # Если это редактирование, устанавливаем текущий город
+        if kwargs.get('instance'):
+            instance = kwargs['instance']
+            if instance.city:
+                self.fields['city'].initial = instance.city
 
     def clean(self):
         cleaned_data = super().clean()

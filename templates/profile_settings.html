@@ -952,7 +952,7 @@
                     <select name="city" class="form-input" required>
                         <option value="">Выберите город</option>
                         {% for city in cities %}
-                            <option value="{{ city.name }}" {% if user.city.name == city.name %}selected{% endif %}>{{ city.name }}</option>
+                            <option value="{{ city.name }}" {% if user.city and user.city.name == city.name %}selected{% endif %}>{{ city.name }}</option>
                         {% endfor %}
                     </select>
                 </div>

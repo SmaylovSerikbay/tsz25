@@ -130,9 +130,13 @@ def register(request):
     # Получаем города из базы данных
     cities = City.objects.filter(is_active=True).order_by('name')
     
+    # Получаем типы услуг из базы данных
+    service_types = ServiceType.objects.filter(is_active=True).order_by('sort_order')
+    
     return render(request, 'auth.html', {
         'is_register': True,
-        'cities': cities
+        'cities': cities,
+        'service_types': service_types
     })
 
 def user_login(request):
@@ -718,6 +722,10 @@ def create_order_request(request):
             order.order_type = 'request'
             order.status = 'new'
             
+            # Получаем город из формы
+            city_name = form.cleaned_data.get('city')
+            order.city = city_name
+            
             services = request.POST.get('services', '[]')
             try:
                 order.services = json.loads(services)
@@ -870,6 +878,11 @@ def edit_order(request, order_id):
         form = OrderForm(request.POST, instance=order)
         if form.is_valid():
             order = form.save(commit=False)
+            
+            # Получаем город из формы
+            city_name = form.cleaned_data.get('city')
+            order.city = city_name
+            
             services = request.POST.get('services', '[]')
             try:
                 order.services = json.loads(services)
