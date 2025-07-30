@@ -799,9 +799,18 @@
                                 <td>
                   <div class="action-buttons">
                     <button onclick="openOrderDetailModal({{ order.id }}, 'view')" class="btn btn-small btn-outline">Подробнее</button>
-                    <button onclick="openChatModal({{ order.id }}, null)" class="btn btn-small btn-primary">Чат</button>
-                    <button onclick="cancelOrder({{ order.id }})" class="btn btn-small btn-danger">Отменить</button>
-              </div>
+                    {% if order.status == 'in_progress' %}
+                      <button onclick="openChatModal({{ order.id }}, null)" class="btn btn-small btn-primary">Чат</button>
+                      <button onclick="completeOrder({{ order.id }})" class="btn btn-small btn-accent">Завершить</button>
+                    {% elif order.status == 'new' %}
+                      <button onclick="openChatModal({{ order.id }}, null)" class="btn btn-small btn-primary">Чат</button>
+                      {% if order.order_type == 'booking' %}
+                        <button onclick="performerCancelBooking({{ order.id }})" class="btn btn-small btn-danger">Отменить</button>
+                      {% else %}
+                        <button onclick="cancelOrder({{ order.id }})" class="btn btn-small btn-danger">Отменить</button>
+                      {% endif %}
+                    {% endif %}
+                  </div>
                 </td>
               </tr>
               {% empty %}
@@ -1274,6 +1283,99 @@
         tariffModalClose.onclick = closeTariffModal;
       }
     });
+
+    // Функция отмены заказа
+    function cancelOrder(orderId) {
+      if (confirm('Вы уверены, что хотите отменить этот заказ?')) {
+        fetch(`/order/${orderId}/cancel-api/`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken')
+          }
+        })
+        .then(response => {
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+          return response.json();
+        })
+        .then(data => {
+          if (data.success) {
+            showNotification(data.message || 'Заказ успешно отменен', 'success');
+            setTimeout(() => { location.reload(); }, 1000);
+          } else {
+            showNotification('Ошибка при отмене заказа: ' + (data.error || 'Неизвестная ошибка'), 'error');
+          }
+        })
+        .catch(error => {
+          console.error('Error:', error);
+          showNotification('Ошибка при отмене заказа: ' + error.message, 'error');
+        });
+      }
+    }
+
+    // Функция завершения заказа исполнителем
+    function completeOrder(orderId) {
+      if (confirm('Вы уверены, что хотите завершить этот заказ?')) {
+        fetch(`/order/${orderId}/complete-api/`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken')
+          }
+        })
+        .then(response => {
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+          return response.json();
+        })
+        .then(data => {
+          if (data.success) {
+            showNotification(data.message || 'Заказ успешно завершен', 'success');
+            setTimeout(() => { location.reload(); }, 1000);
+          } else {
+            showNotification('Ошибка при завершении заказа: ' + (data.error || 'Неизвестная ошибка'), 'error');
+          }
+        })
+        .catch(error => {
+          console.error('Error:', error);
+          showNotification('Ошибка при завершении заказа: ' + error.message, 'error');
+        });
+      }
+    }
+
+    // Функция отмены бронирования исполнителем
+    function performerCancelBooking(orderId) {
+      if (confirm('Вы уверены, что хотите отменить это бронирование?')) {
+        fetch(`/order/${orderId}/performer-cancel-booking-api/`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken')
+          }
+        })
+        .then(response => {
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+          return response.json();
+        })
+        .then(data => {
+          if (data.success) {
+            showNotification(data.message || 'Бронирование успешно отменено', 'success');
+            setTimeout(() => { location.reload(); }, 1000);
+          } else {
+            showNotification('Ошибка при отмене бронирования: ' + (data.error || 'Неизвестная ошибка'), 'error');
+          }
+        })
+        .catch(error => {
+          console.error('Error:', error);
+          showNotification('Ошибка при отмене бронирования: ' + error.message, 'error');
+        });
+      }
+    }
   </script>
   
   <script src="{% static 'js/main.js' %}"></script>

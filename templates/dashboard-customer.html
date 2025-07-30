@@ -825,6 +825,70 @@
         justify-content: center;
       }
     }
+
+    /* Стили для рейтинга */
+    .rating-input {
+      display: flex;
+      flex-direction: row-reverse;
+      gap: 4px;
+    }
+
+    .rating-input input[type="radio"] {
+      display: none;
+    }
+
+    .rating-input label {
+      cursor: pointer;
+      font-size: 24px;
+      color: #ddd;
+      transition: color 0.2s;
+    }
+
+    .rating-input label:hover,
+    .rating-input label:hover ~ label,
+    .rating-input input[type="radio"]:checked ~ label {
+      color: #ffc107;
+    }
+
+    .rating-input input[type="radio"]:checked ~ label {
+      color: #ffc107;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 500;
+      color: #1a1a1a;
+    }
+
+    .form-input {
+      width: 100%;
+      padding: 12px;
+      border: 2px solid #e3e8ff;
+      border-radius: 12px;
+      font-size: 1rem;
+      transition: all 0.2s;
+    }
+
+    .form-input:focus {
+      border-color: #2e6cff;
+      outline: none;
+    }
+
+    textarea.form-input {
+      min-height: 100px;
+      resize: vertical;
+    }
+
+    .form-actions {
+      display: flex;
+      gap: 12px;
+      margin-top: 24px;
+    }
   </style>
 </head>
 <body>
@@ -1026,8 +1090,11 @@
                       <button onclick="openOrderDetailModal({{ order.id }}, 'view')" class="btn btn-small btn-outline">Подробнее</button>
                       {% if order.status == 'in_progress' %}
                         <button onclick="openChatModal({{ order.id }}, null)" class="btn btn-small btn-primary">Чат</button>
-                      {% endif %}
-                      {% if order.status == 'new' %}
+                      {% elif order.status == 'completed' and order.performer and order.id not in customer_reviews %}
+                        <button onclick="openReviewModal({{ order.id }})" class="btn btn-small btn-accent">Оставить отзыв</button>
+                      {% elif order.status == 'completed' and order.performer and order.id in customer_reviews %}
+                        <span class="btn btn-small btn-success" style="background: #28a745; color: white; cursor: default;">Отзыв оставлен</span>
+                      {% elif order.status == 'new' %}
                         <button onclick="cancelOrder({{ order.id }})" class="btn btn-small btn-danger">Отменить</button>
                       {% endif %}
                     </div>
@@ -1194,6 +1261,45 @@
   {% include "modals/order_detail_modal.html" %}
   {% include "modals/quick_profile_modal.html" %}
   {% include "modals/chat_modal.html" %}
+
+  <!-- Модальное окно для отзывов -->
+  <div id="reviewModal" class="modal">
+    <div class="modal-content">
+      <button class="modal-close" onclick="closeReviewModal()">&times;</button>
+      <div class="modal-header">
+        <h3 class="modal-title">Оставить отзыв</h3>
+      </div>
+      <form id="reviewForm" onsubmit="submitReview(event)">
+        <input type="hidden" id="reviewOrderId" name="order_id">
+        
+        <div class="form-group">
+          <label>Оценка</label>
+          <div class="rating-input">
+            <input type="radio" name="rating" value="5" id="star5">
+            <label for="star5"><i class="ri-star-fill"></i></label>
+            <input type="radio" name="rating" value="4" id="star4">
+            <label for="star4"><i class="ri-star-fill"></i></label>
+            <input type="radio" name="rating" value="3" id="star3">
+            <label for="star3"><i class="ri-star-fill"></i></label>
+            <input type="radio" name="rating" value="2" id="star2">
+            <label for="star2"><i class="ri-star-fill"></i></label>
+            <input type="radio" name="rating" value="1" id="star1">
+            <label for="star1"><i class="ri-star-fill"></i></label>
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label>Комментарий</label>
+          <textarea name="comment" id="reviewComment" class="form-input" rows="4" placeholder="Расскажите о своем опыте работы с исполнителем..." required></textarea>
+        </div>
+        
+        <div class="form-actions">
+          <button type="button" class="btn btn-outline" onclick="closeReviewModal()">Отмена</button>
+          <button type="submit" class="btn btn-accent">Отправить отзыв</button>
+        </div>
+      </form>
+    </div>
+  </div>
 
   <footer class="footer">
     <div class="container">
@@ -1415,6 +1521,74 @@
       }
     `;
     document.head.appendChild(notificationStyle);
+
+    // Функции для работы с отзывами
+    function openReviewModal(orderId) {
+      document.getElementById('reviewOrderId').value = orderId;
+      document.getElementById('reviewModal').style.display = 'block';
+    }
+
+    function closeReviewModal() {
+      document.getElementById('reviewModal').style.display = 'none';
+      document.getElementById('reviewForm').reset();
+    }
+
+    function submitReview(event) {
+      event.preventDefault();
+      
+      const orderId = document.getElementById('reviewOrderId').value;
+      const rating = document.querySelector('input[name="rating"]:checked');
+      const comment = document.getElementById('reviewComment').value.trim();
+      
+      if (!rating) {
+        showNotification('Пожалуйста, выберите оценку', 'error');
+        return;
+      }
+      
+      if (!comment) {
+        showNotification('Пожалуйста, напишите комментарий', 'error');
+        return;
+      }
+      
+      const formData = new FormData();
+      formData.append('rating', rating.value);
+      formData.append('comment', comment);
+      
+      fetch(`/order/${orderId}/review-api/`, {
+        method: 'POST',
+        headers: {
+          'X-CSRFToken': getCookie('csrftoken')
+        },
+        body: formData
+      })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+      })
+      .then(data => {
+        if (data.success) {
+          showNotification(data.message || 'Отзыв успешно добавлен', 'success');
+          closeReviewModal();
+          setTimeout(() => { location.reload(); }, 1000);
+        } else {
+          showNotification('Ошибка при добавлении отзыва: ' + (data.error || 'Неизвестная ошибка'), 'error');
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        showNotification('Ошибка при добавлении отзыва: ' + error.message, 'error');
+      });
+    }
+
+    // Закрытие модального окна при клике вне его
+    window.onclick = function(event) {
+      const reviewModal = document.getElementById('reviewModal');
+      if (event.target === reviewModal) {
+        closeReviewModal();
+      }
+    }
   </script>
 </body>
 </html> 

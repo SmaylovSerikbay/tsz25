@@ -64,4 +64,7 @@ urlpatterns = [
     
     # Order management API
     path('order/<int:order_id>/cancel-api/', views.cancel_order_api, name='cancel_order_api'),
+    path('order/<int:order_id>/complete-api/', views.complete_order_api, name='complete_order_api'),
+    path('order/<int:order_id>/review-api/', views.create_review_api, name='create_review_api'),
+    path('order/<int:order_id>/performer-cancel-booking-api/', views.performer_cancel_booking_api, name='performer_cancel_booking_api'),
 ] 

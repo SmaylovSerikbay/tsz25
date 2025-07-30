@@ -545,11 +545,11 @@ def dashboard(request):
             order__status='new'
         ).select_related('order', 'performer').order_by('-created_at')
         
-        # Получаем бронирования (прямые заказы исполнителей)
+        # Получаем бронирования (прямые заказы исполнителей) - исключаем отмененные
         bookings = Order.objects.filter(
             customer=request.user,
             order_type='booking',
-            status__in=['new', 'in_progress', 'completed']
+            status__in=['new', 'in_progress', 'completed']  # Исключаем 'cancelled'
         ).select_related('performer').order_by('-created_at')
         
         # Статистика
@@ -585,6 +585,11 @@ def dashboard(request):
         cities = City.objects.filter(is_active=True).order_by('name')
         service_types = ServiceType.objects.filter(is_active=True).order_by('sort_order')
         
+        # Получаем отзывы заказчика для проверки, какие заказы уже имеют отзывы
+        customer_reviews = Review.objects.filter(
+            from_user=request.user
+        ).values_list('order_id', flat=True)
+        
         return render(request, 'dashboard-customer.html', {
             'orders': orders,
             'responses': responses,
@@ -597,6 +602,7 @@ def dashboard(request):
             'orders_count': orders.count(),
             'cities': cities,
             'service_types': service_types,
+            'customer_reviews': customer_reviews,  # Передаем список ID заказов с отзывами
         })
     
     # Если пользователь не performer и не customer (например, админ), показываем главную страницу
@@ -1731,37 +1737,130 @@ def reject_response(request, response_id):
 @login_required
 @require_POST
 def cancel_order_api(request, order_id):
-    """API для отмены заказа заказчиком"""
+    """API для отмены заказа"""
     try:
-        order = get_object_or_404(Order, id=order_id)
+        order = Order.objects.get(id=order_id)
         
-        # Проверяем, что пользователь является заказчиком этого заказа
-        if request.user != order.customer:
-            return JsonResponse({'error': 'У вас нет прав для отмены этого заказа'}, status=403)
-        
-        # Проверяем, что заказ можно отменить
-        if order.status not in ['new', 'in_progress']:
-            return JsonResponse({'error': 'Заказ нельзя отменить в текущем статусе'}, status=400)
+        # Проверяем права доступа
+        if request.user != order.customer and request.user != order.performer:
+            return JsonResponse({'success': False, 'error': 'Нет прав для отмены этого заказа'})
         
         # Отменяем заказ
         order.status = 'cancelled'
         order.save()
         
-        # Удаляем все отклики на этот заказ
-        OrderResponse.objects.filter(order=order).delete()
-        
-        # Удаляем даты из занятых для всех исполнителей
-        if order.selected_performers:
-            for performer_id in order.selected_performers.values():
-                BusyDate.objects.filter(
-                    user_id=performer_id, 
-                    date=order.event_date
-                ).delete()
-        
-        return JsonResponse({
-            'success': True,
-            'message': 'Заказ успешно отменен'
-        })
-        
+        return JsonResponse({'success': True, 'message': 'Заказ успешно отменен'})
+    except Order.DoesNotExist:
+        return JsonResponse({'success': False, 'error': 'Заказ не найден'})
     except Exception as e:
-        return JsonResponse({'error': 'Произошла ошибка при отмене заказа'}, status=500)
+        return JsonResponse({'success': False, 'error': str(e)})
+
+@login_required
+@require_POST
+def complete_order_api(request, order_id):
+    """API для завершения заказа исполнителем"""
+    try:
+        order = Order.objects.get(id=order_id)
+        
+        # Проверяем, что это исполнитель заказа
+        if request.user != order.performer:
+            return JsonResponse({'success': False, 'error': 'Только исполнитель может завершить заказ'})
+        
+        # Проверяем, что заказ в работе
+        if order.status != 'in_progress':
+            return JsonResponse({'success': False, 'error': 'Можно завершить только заказ в работе'})
+        
+        # Завершаем заказ
+        order.status = 'completed'
+        order.save()
+        
+        return JsonResponse({'success': True, 'message': 'Заказ успешно завершен'})
+    except Order.DoesNotExist:
+        return JsonResponse({'success': False, 'error': 'Заказ не найден'})
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)})
+
+@login_required
+@require_POST
+def create_review_api(request, order_id):
+    """API для создания отзыва заказчиком"""
+    try:
+        order = Order.objects.get(id=order_id)
+        
+        # Проверяем, что это заказчик заказа
+        if request.user != order.customer:
+            return JsonResponse({'success': False, 'error': 'Только заказчик может оставить отзыв'})
+        
+        # Проверяем, что заказ завершен
+        if order.status != 'completed':
+            return JsonResponse({'success': False, 'error': 'Отзыв можно оставить только для завершенного заказа'})
+        
+        # Проверяем, что у заказа есть исполнитель
+        if not order.performer:
+            return JsonResponse({'success': False, 'error': 'Нельзя оставить отзыв для заказа без исполнителя'})
+        
+        # Проверяем, что отзыв еще не оставлен
+        if Review.objects.filter(order=order, from_user=request.user).exists():
+            return JsonResponse({'success': False, 'error': 'Отзыв уже оставлен для этого заказа'})
+        
+        # Получаем данные отзыва
+        rating = request.POST.get('rating')
+        comment = request.POST.get('comment', '').strip()
+        
+        if not rating or not rating.isdigit() or int(rating) < 1 or int(rating) > 5:
+            return JsonResponse({'success': False, 'error': 'Неверная оценка'})
+        
+        if not comment:
+            return JsonResponse({'success': False, 'error': 'Комментарий обязателен'})
+        
+        # Создаем отзыв
+        review = Review.objects.create(
+            order=order,
+            from_user=request.user,
+            to_user=order.performer,
+            rating=int(rating),
+            comment=comment
+        )
+        
+        # Обновляем рейтинг исполнителя
+        performer = order.performer
+        avg_rating = Review.objects.filter(to_user=performer).aggregate(
+            avg_rating=models.Avg('rating')
+        )['avg_rating'] or 0
+        performer.rating = round(avg_rating, 1)
+        performer.save()
+        
+        return JsonResponse({'success': True, 'message': 'Отзыв успешно добавлен'})
+    except Order.DoesNotExist:
+        return JsonResponse({'success': False, 'error': 'Заказ не найден'})
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)})
+
+@login_required
+@require_POST
+def performer_cancel_booking_api(request, order_id):
+    """API для отмены бронирования исполнителем"""
+    try:
+        order = Order.objects.get(id=order_id)
+        
+        # Проверяем, что это исполнитель заказа
+        if request.user != order.performer:
+            return JsonResponse({'success': False, 'error': 'Только исполнитель может отменить бронирование'})
+        
+        # Проверяем, что это бронирование
+        if order.order_type != 'booking':
+            return JsonResponse({'success': False, 'error': 'Это не бронирование'})
+        
+        # Проверяем, что заказ еще не в работе
+        if order.status != 'new':
+            return JsonResponse({'success': False, 'error': 'Нельзя отменить заказ в работе'})
+        
+        # Отменяем заказ
+        order.status = 'cancelled'
+        order.save()
+        
+        return JsonResponse({'success': True, 'message': 'Бронирование успешно отменено'})
+    except Order.DoesNotExist:
+        return JsonResponse({'success': False, 'error': 'Заказ не найден'})
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)})

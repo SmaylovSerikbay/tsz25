@@ -1083,30 +1083,7 @@ function initializeProfile() {
         });
     }
 
-    // Portfolio photo click to enlarge
-    const portfolioItems = document.querySelectorAll('.portfolio-item img');
-    portfolioItems.forEach(img => {
-        img.addEventListener('click', function() {
-            const modal = document.createElement('div');
-            modal.className = 'image-modal';
-            modal.innerHTML = `
-                <div class="image-modal-content">
-                    <button class="image-modal-close">&times;</button>
-                    <img src="${this.src}" alt="Увеличенное фото">
-                </div>
-            `;
-            
-            modal.addEventListener('click', function(e) {
-                if (e.target === modal || e.target.classList.contains('image-modal-close')) {
-                    modal.remove();
-                }
-            });
-            
-            if (document.body) {
-                document.body.appendChild(modal);
-            }
-        });
-    });
+    // Portfolio photo click to enlarge - УДАЛЕНО, используется новый модальный просмотрщик
 
     // Profile photo preview
     if (profilePhotoInput) {
