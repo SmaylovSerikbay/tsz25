@@ -7,7 +7,7 @@
     <div class="modal-header">
       <h2 class="modal-title">Редактировать профиль</h2>
     </div>
-    <form id="editProfileForm" action="{% url 'main:profile' %}" method="POST" enctype="multipart/form-data">
+    <form id="editProfileForm" action="{% url 'main:profile_settings' %}" method="POST" enctype="multipart/form-data">
       {% csrf_token %}
       <div class="form-grid">
         <div class="form-group">

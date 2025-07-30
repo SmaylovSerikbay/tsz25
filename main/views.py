@@ -452,6 +452,11 @@ def dashboard(request):
         ).count()
         
         all_orders_debug = Order.objects.filter(status__in=['in_progress', 'new'], order_type='request')
+        
+        # Получаем города и типы услуг для модальных окон
+        cities = City.objects.filter(is_active=True).order_by('name')
+        service_types = ServiceType.objects.filter(is_active=True).order_by('sort_order')
+        
         return render(request, 'dashboard-performer.html', {
             'available_orders': available_orders,
             'active_orders': active_orders,
@@ -464,6 +469,8 @@ def dashboard(request):
             'rating': request.user.rating,
             'all_orders_debug': all_orders_debug,
             'new_requests_count': len(available_orders),
+            'cities': cities,
+            'service_types': service_types,
         })
     elif request.user.user_type == 'customer':
         # Получаем только неотменённые заказы клиента
@@ -471,7 +478,16 @@ def dashboard(request):
             customer=request.user,
             status__in=['new', 'in_progress', 'completed']
         ).order_by('-created_at')
-        return render(request, 'dashboard-customer.html', {'orders': orders})
+        
+        # Получаем города и типы услуг для модальных окон
+        cities = City.objects.filter(is_active=True).order_by('name')
+        service_types = ServiceType.objects.filter(is_active=True).order_by('sort_order')
+        
+        return render(request, 'dashboard-customer.html', {
+            'orders': orders,
+            'cities': cities,
+            'service_types': service_types,
+        })
     
     # Если пользователь не performer и не customer (например, админ), показываем главную страницу
     return redirect('main:catalog')
