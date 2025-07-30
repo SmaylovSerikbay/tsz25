@@ -215,10 +215,6 @@
               <span>Создать заявку</span>
             </a>
           {% endif %}
-          <a href="{% url 'main:dashboard' %}" class="nav-link">
-            <i class="ri-dashboard-line"></i>
-            <span>Личный кабинет</span>
-          </a>
           <div class="nav-dropdown">
             <button class="nav-dropdown-toggle">
               <div class="user-info">
@@ -232,9 +228,9 @@
               <i class="ri-arrow-down-s-line"></i>
             </button>
             <div class="nav-dropdown-menu">
-              <a href="{% url 'main:profile_settings' %}">
-                <i class="ri-settings-line"></i>
-                <span>Настройки</span>
+              <a href="{% url 'main:dashboard' %}">
+                <i class="ri-dashboard-line"></i>
+                <span>Личный кабинет</span>
               </a>
               <a href="{% url 'main:logout' %}">
                 <i class="ri-logout-box-line"></i>

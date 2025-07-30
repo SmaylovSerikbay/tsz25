@@ -13,62 +13,244 @@
       display: grid;
       grid-template-columns: repeat(12, 1fr);
       gap: 24px;
-      margin-top: 32px;
+      margin-top: 16px;
     }
     
     .stats-section {
       grid-column: span 12;
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-      gap: 20px;
-      margin-bottom: 20px;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 16px;
+      margin-bottom: 24px;
     }
     
     .stat-card {
-      background: white;
-      border-radius: 16px;
-      padding: 24px;
-      box-shadow: 0 2px 12px rgba(0,0,0,0.08);
-      transition: transform 0.2s;
+      background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+      border: 1px solid #e9ecef;
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+      transition: all 0.3s ease;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .stat-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--primary-color), #0056b3);
+      opacity: 0;
+      transition: opacity 0.3s ease;
     }
     
     .stat-card:hover {
-      transform: translateY(-4px);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+      border-color: var(--primary-color);
+    }
+    
+    .stat-card:hover::before {
+      opacity: 1;
+    }
+    
+    .stat-card i {
+      font-size: 1.8rem;
+      color: var(--primary-color);
+      margin-bottom: 12px;
+      display: block;
     }
     
     .stat-value {
-      font-size: 2rem;
+      font-size: 1.8rem;
       font-weight: 700;
-      color: var(--primary-color);
-      margin: 8px 0;
+      color: #1a1a1a;
+      margin: 8px 0 4px 0;
+      line-height: 1;
     }
     
     .stat-label {
-      color: #666;
-      font-size: 0.9rem;
+      color: #6c757d;
+      font-size: 0.85rem;
+      font-weight: 500;
+      line-height: 1.3;
     }
 
     .profile-section {
       grid-column: span 12;
       background: white;
-      border-radius: 20px;
-      padding: 32px;
+      border-radius: 16px;
+      padding: 24px;
       box-shadow: 0 2px 12px rgba(0,0,0,0.08);
       display: flex;
-      gap: 32px;
+      gap: 24px;
       align-items: flex-start;
     }
 
     .profile-photo {
-      width: 160px;
-      height: 160px;
-      border-radius: 20px;
+      width: 120px;
+      height: 120px;
+      border-radius: 16px;
       object-fit: cover;
+      flex-shrink: 0;
     }
 
     .profile-info {
       flex: 1;
     }
+
+    .profile-info h1 {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: #1a1a1a;
+      margin: 0 0 12px 0;
+      line-height: 1.2;
+    }
+
+    .meta {
+      display: flex;
+      gap: 20px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+    }
+
+    .meta-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: #6c757d;
+      font-size: 0.9rem;
+    }
+
+    .meta-item i {
+      color: var(--primary-color);
+      font-size: 1rem;
+    }
+
+    .actions {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+
+    .actions .btn {
+      padding: 10px 16px;
+      font-size: 0.9rem;
+      border-radius: 10px;
+      white-space: nowrap;
+    }
+
+    .compact-stats {
+      display: flex;
+      gap: 16px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .compact-stat {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+      border: 1px solid #e9ecef;
+      border-radius: 6px;
+      padding: 6px 10px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.03);
+      transition: all 0.3s ease;
+      min-width: 60px;
+      cursor: help;
+    }
+
+    .compact-stat:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+      border-color: var(--primary-color);
+    }
+
+    .compact-stat i {
+      font-size: 1rem;
+      color: var(--primary-color);
+      flex-shrink: 0;
+    }
+
+    .compact-stat-value {
+      font-size: 1rem;
+      font-weight: 700;
+      color: #1a1a1a;
+      line-height: 1;
+    }
+
+    /* Старые стили для profile-stats - закомментированы
+    .profile-stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+      gap: 10px;
+      margin-top: 20px;
+      padding-top: 20px;
+      border-top: 1px solid #e9ecef;
+    }
+
+    .profile-stats .stat-card {
+      background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+      border: 1px solid #e9ecef;
+      border-radius: 8px;
+      padding: 12px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.03);
+      transition: all 0.3s ease;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .profile-stats .stat-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, var(--primary-color), #0056b3);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .profile-stats .stat-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(0,0,0,0.06);
+      border-color: var(--primary-color);
+    }
+
+    .profile-stats .stat-card:hover::before {
+      opacity: 1;
+    }
+
+    .profile-stats .stat-card i {
+      font-size: 1.2rem;
+      color: var(--primary-color);
+      margin-bottom: 6px;
+      display: block;
+    }
+
+    .profile-stats .stat-value {
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: #1a1a1a;
+      margin: 4px 0 1px 0;
+      line-height: 1;
+    }
+
+    .profile-stats .stat-label {
+      color: #6c757d;
+      font-size: 0.75rem;
+      font-weight: 500;
+      line-height: 1.2;
+    }
+    */
 
     .profile-name {
       font-size: 2rem;
@@ -134,9 +316,30 @@
 
     .portfolio-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-      gap: 16px;
+      grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+      gap: 10px;
       margin-bottom: 20px;
+      max-height: 400px;
+      overflow-y: auto;
+      padding-right: 8px;
+    }
+
+    .portfolio-grid::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .portfolio-grid::-webkit-scrollbar-track {
+      background: #f1f1f1;
+      border-radius: 3px;
+    }
+
+    .portfolio-grid::-webkit-scrollbar-thumb {
+      background: #c1c1c1;
+      border-radius: 3px;
+    }
+
+    .portfolio-grid::-webkit-scrollbar-thumb:hover {
+      background: #a8a8a8;
     }
 
     .portfolio-item {
@@ -144,41 +347,266 @@
       border-radius: 12px;
       overflow: hidden;
       aspect-ratio: 1;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      transition: all 0.3s ease;
+      background: #fff;
+      cursor: pointer;
     }
 
-    .portfolio-item img {
+    .portfolio-item:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(0,0,0,0.12);
+    }
+
+    .portfolio-item img,
+    .portfolio-item video {
       width: 100%;
       height: 100%;
       object-fit: cover;
-      transition: transform 0.3s;
+      transition: transform 0.3s ease;
     }
 
-    .portfolio-item:hover img {
+    .portfolio-item:hover img,
+    .portfolio-item:hover video {
       transform: scale(1.05);
+    }
+
+    .portfolio-item .media-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .portfolio-item:hover .media-overlay {
+      opacity: 1;
+    }
+
+    .portfolio-item .media-type {
+      position: absolute;
+      top: 6px;
+      left: 6px;
+      background: rgba(0, 0, 0, 0.7);
+      color: white;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 10px;
+      font-weight: 500;
+      text-transform: uppercase;
+    }
+
+    .portfolio-item .btn-icon {
+      position: absolute;
+      top: 6px;
+      right: 6px;
+      background: rgba(255, 255, 255, 0.95);
+      border: none;
+      border-radius: 50%;
+      width: 28px;
+      height: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #e74c3c;
+      font-size: 12px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      backdrop-filter: blur(4px);
+      z-index: 2;
+    }
+
+    .portfolio-item .btn-icon:hover {
+      background: #e74c3c;
+      color: white;
+      transform: scale(1.1);
+    }
+
+    .portfolio-stats {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+      font-size: 0.9rem;
+      color: #6c757d;
+    }
+
+    .portfolio-count {
+      font-weight: 500;
+    }
+
+    .portfolio-view-all {
+      color: var(--primary-color);
+      text-decoration: none;
+      font-weight: 500;
+      transition: color 0.2s ease;
+    }
+
+    .portfolio-view-all:hover {
+      color: #0056b3;
+    }
+
+    .section-actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    .section-actions .btn {
+      padding: 8px 12px;
+      font-size: 0.9rem;
+    }
+
+    .empty-portfolio {
+      grid-column: 1 / -1;
+      text-align: center;
+      padding: 40px 20px;
+      color: #6c757d;
+    }
+
+    .empty-portfolio p {
+      margin-bottom: 20px;
+      font-size: 1rem;
+    }
+
+    .empty-actions {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .empty-actions .btn {
+      padding: 10px 16px;
+      font-size: 0.9rem;
+    }
+
+    /* Portfolio Viewer Modal */
+    .portfolio-viewer-modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.9);
+      z-index: 2000;
+      overflow: hidden;
+    }
+
+    .portfolio-viewer-content {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      max-width: 90vw;
+      max-height: 90vh;
+      text-align: center;
+    }
+
+    .portfolio-viewer-content img,
+    .portfolio-viewer-content video {
+      max-width: 100%;
+      max-height: 80vh;
+      border-radius: 8px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+    }
+
+    .portfolio-viewer-close {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      background: rgba(255, 255, 255, 0.2);
+      border: none;
+      color: white;
+      font-size: 24px;
+      padding: 8px;
+      border-radius: 50%;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .portfolio-viewer-close:hover {
+      background: rgba(255, 255, 255, 0.3);
     }
 
     .tariff-list {
       display: grid;
-      gap: 16px;
+      gap: 12px;
     }
 
     .tariff-card {
-      background: #f8f9fa;
-      border-radius: 12px;
-      padding: 20px;
+      background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+      border: 1px solid #e9ecef;
+      border-radius: 16px;
+      padding: 16px;
       display: flex;
       justify-content: space-between;
       align-items: center;
+      transition: all 0.3s ease;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    }
+
+    .tariff-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+      border-color: var(--primary-color);
+    }
+
+    .tariff-info {
+      flex: 1;
     }
 
     .tariff-info h4 {
       font-weight: 600;
-      margin-bottom: 4px;
+      margin-bottom: 6px;
+      color: #1a1a1a;
+      font-size: 1rem;
     }
 
     .tariff-price {
       color: var(--primary-color);
-      font-weight: 600;
+      font-weight: 700;
+      font-size: 1.1rem;
+      margin-bottom: 4px;
+    }
+
+    .tariff-description {
+      color: #6c757d;
+      font-size: 0.85rem;
+      line-height: 1.4;
+    }
+
+    .tariff-actions {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .tariff-actions .btn {
+      padding: 8px;
+      min-width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .tariff-actions .btn.delete {
+      color: #e74c3c;
+      border-color: #e74c3c;
+    }
+
+    .tariff-actions .btn.delete:hover {
+      background: #e74c3c;
+      color: white;
     }
 
     .calendar-grid {
@@ -271,10 +699,64 @@
         align-items: center;
         text-align: center;
         padding: 16px;
+        gap: 16px;
+      }
+
+      .profile-photo {
+        width: 100px;
+        height: 100px;
+        border-radius: 12px;
       }
 
       .profile-info {
         width: 100%;
+      }
+
+      .profile-info h1 {
+        font-size: 1.5rem;
+        margin-bottom: 8px;
+      }
+
+      .meta {
+        gap: 16px;
+        margin-bottom: 12px;
+        justify-content: center;
+      }
+
+      .meta-item {
+        font-size: 0.85rem;
+      }
+
+      .actions {
+        gap: 8px;
+        margin-bottom: 16px;
+        justify-content: center;
+      }
+
+      .actions .btn {
+        padding: 8px 12px;
+        font-size: 0.85rem;
+      }
+
+      .compact-stats {
+        gap: 10px;
+        justify-content: center;
+        width: 100%;
+      }
+
+      .compact-stat {
+        padding: 4px 8px;
+        min-width: 50px;
+        flex: 1;
+        max-width: 80px;
+      }
+
+      .compact-stat i {
+        font-size: 0.9rem;
+      }
+
+      .compact-stat-value {
+        font-size: 0.9rem;
       }
 
       .quick-actions {
@@ -300,10 +782,30 @@
         align-items: flex-start;
       }
 
-      .stats-section {
-        grid-template-columns: 1fr;
-        padding: 0 16px;
-        gap: 16px;
+      .profile-stats {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+        margin-top: 20px;
+        padding-top: 20px;
+      }
+
+      .profile-stats .stat-card {
+        padding: 12px;
+        border-radius: 8px;
+      }
+
+      .profile-stats .stat-card i {
+        font-size: 1.2rem;
+        margin-bottom: 6px;
+      }
+
+      .profile-stats .stat-value {
+        font-size: 1.3rem;
+        margin: 4px 0 1px 0;
+      }
+
+      .profile-stats .stat-label {
+        font-size: 0.75rem;
       }
 
       .portfolio-grid {
@@ -400,7 +902,28 @@
       }
 
       .portfolio-grid {
-        grid-template-columns: repeat(2, 1fr);
+        grid-template-columns: repeat(3, 1fr);
+        gap: 8px;
+      }
+
+      .portfolio-item {
+        border-radius: 8px;
+      }
+
+      .portfolio-item .btn-icon {
+        width: 24px;
+        height: 24px;
+        font-size: 10px;
+      }
+
+      .section-actions {
+        flex-direction: column;
+        gap: 6px;
+      }
+
+      .section-actions .btn {
+        padding: 6px 10px;
+        font-size: 0.8rem;
       }
 
       .calendar-grid {
@@ -907,10 +1430,6 @@
               <span>Создать заявку</span>
             </a>
           {% endif %}
-          <a href="{% url 'main:dashboard' %}" class="nav-link">
-            <i class="ri-dashboard-line"></i>
-            <span>Личный кабинет</span>
-          </a>
           <div class="nav-dropdown">
             <button class="nav-dropdown-toggle">
               <div class="user-info">
@@ -924,9 +1443,9 @@
               <i class="ri-arrow-down-s-line"></i>
             </button>
             <div class="nav-dropdown-menu">
-              <a href="{% url 'main:profile_settings' %}">
-                <i class="ri-settings-line"></i>
-                <span>Настройки</span>
+              <a href="{% url 'main:dashboard' %}">
+                <i class="ri-dashboard-line"></i>
+                <span>Личный кабинет</span>
               </a>
               <a href="{% url 'main:logout' %}">
                 <i class="ri-logout-box-line"></i>
@@ -962,10 +1481,6 @@
           <span>Исполнители</span>
         </a>
         {% if user.is_authenticated %}
-          <a href="{% url 'main:dashboard' %}" class="mobile-nav-link">
-            <i class="ri-dashboard-line"></i>
-            <span>Личный кабинет</span>
-          </a>
           <div class="mobile-nav-dropdown">
             <button class="mobile-nav-dropdown-toggle">
               <div class="user-info">
@@ -979,9 +1494,9 @@
               <i class="ri-arrow-down-s-line"></i>
             </button>
             <div class="mobile-nav-dropdown-menu">
-              <a href="{% url 'main:profile_settings' %}" class="mobile-nav-link">
-                <i class="ri-settings-line"></i>
-                <span>Настройки</span>
+              <a href="{% url 'main:dashboard' %}" class="mobile-nav-link">
+                <i class="ri-dashboard-line"></i>
+                <span>Личный кабинет</span>
               </a>
               <a href="{% url 'main:logout' %}" class="mobile-nav-link">
                 <i class="ri-logout-box-line"></i>
@@ -1003,35 +1518,6 @@
     <div class="container">
 
       <div class="dashboard-grid">
-        <!-- Statistics Section -->
-        <div class="stats-section">
-          <div class="stat-card">
-            <i class="ri-eye-line" style="font-size: 1.5rem; color: var(--primary-color);"></i>
-            <div class="stat-value">{{ profile_views|default:"0" }}</div>
-            <div class="stat-label">Просмотров профиля</div>
-          </div>
-          <div class="stat-card">
-            <i class="ri-calendar-check-line" style="font-size: 1.5rem; color: var(--primary-color);"></i>
-            <div class="stat-value">{{ completed_orders_count }}</div>
-            <div class="stat-label">Выполненных заказов</div>
-          </div>
-          <div class="stat-card">
-            <i class="ri-star-line" style="font-size: 1.5rem; color: var(--primary-color);"></i>
-            <div class="stat-value">{{ rating|floatformat:1 }}</div>
-            <div class="stat-label">Средняя оценка</div>
-          </div>
-          <div class="stat-card">
-            <i class="ri-message-3-line" style="font-size: 1.5rem; color: var(--primary-color);"></i>
-            <div class="stat-value">{{ new_requests_count }}</div>
-            <div class="stat-label">Новых заявок</div>
-          </div>
-          <div class="stat-card">
-            <i class="ri-calendar-check-line" style="font-size: 1.5rem; color: var(--primary-color);"></i>
-            <div class="stat-value">{{ active_bookings_count }}</div>
-            <div class="stat-label">Активных бронирований</div>
-          </div>
-        </div>
-
         <!-- Profile Section -->
         <div class="profile-section">
           {% if user.profile_photo %}
@@ -1057,9 +1543,26 @@
               <button class="btn outline" onclick="openEditProfileModal()">
                 <i class="ri-edit-line"></i> Редактировать профиль
               </button>
-              <button class="btn accent" onclick="openSubscriptionModal()">
-                <i class="ri-wallet-3-line"></i> Пополнить счет
-              </button>
+              
+              <!-- Compact Statistics Cards -->
+              <div class="compact-stats">
+                <div class="compact-stat" title="Выполненных заказов">
+                  <i class="ri-calendar-check-line"></i>
+                  <div class="compact-stat-value">{{ completed_orders_count }}</div>
+                </div>
+                <div class="compact-stat" title="Средняя оценка">
+                  <i class="ri-star-fill"></i>
+                  <div class="compact-stat-value">{{ rating|floatformat:1 }}</div>
+                </div>
+                <div class="compact-stat" title="Новых заявок">
+                  <i class="ri-notification-3-line"></i>
+                  <div class="compact-stat-value">{{ new_requests_count }}</div>
+                </div>
+                <div class="compact-stat" title="Активных бронирований">
+                  <i class="ri-time-line"></i>
+                  <div class="compact-stat-value">{{ active_bookings_count }}</div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -1068,24 +1571,56 @@
         <div class="section">
           <div class="section-header">
             <h2 class="section-title">Портфолио</h2>
-            <button class="btn outline" onclick="openModal('addPortfolioModal')">
-              <i class="ri-add-line"></i> Добавить
-            </button>
+            <div class="section-actions">
+              <button class="btn outline" onclick="openModal('addPortfolioModal')">
+                <i class="ri-image-line"></i> Фото
+              </button>
+              <button class="btn outline" onclick="alert('Функция добавления видео будет доступна позже')">
+                <i class="ri-video-line"></i> Видео
+              </button>
+            </div>
           </div>
+          
+          <div class="portfolio-stats">
+            <span class="portfolio-count">{{ portfolio_photos.count }} фото</span>
+            {% if portfolio_photos.count > 6 %}
+              <a href="#" class="portfolio-view-all" onclick="openPortfolioModal()">Смотреть все</a>
+            {% endif %}
+          </div>
+          
           <div class="portfolio-grid">
-            {% for photo in portfolio_photos %}
-            <div class="portfolio-item">
+            {% for photo in portfolio_photos|slice:":6" %}
+            <div class="portfolio-item" onclick="openPortfolioViewer('photo', '{{ photo.image.url }}', '{{ photo.id }}')">
               <img src="{{ photo.image.url }}" alt="Портфолио {{ forloop.counter }}">
-              <form action="{% url 'main:delete_portfolio_photo' photo.id %}" method="POST" style="position: absolute; top: 8px; right: 8px;">
+              <div class="media-type">Фото</div>
+              <div class="media-overlay">
+                <i class="ri-zoom-in-line" style="color: white; font-size: 24px;"></i>
+              </div>
+              <form action="{% url 'main:delete_portfolio_photo' photo.id %}" method="POST" style="display: none;">
                 {% csrf_token %}
-                <button type="submit" class="btn-icon delete" onclick="return confirm('Вы уверены, что хотите удалить это фото?')">
+                <button type="submit" class="btn-icon delete" onclick="event.stopPropagation(); return confirm('Удалить это фото?')">
                   <i class="ri-delete-bin-line"></i>
                 </button>
               </form>
             </div>
-            {% empty %}
-            <p>Добавьте фотографии в ваше портфолио</p>
             {% endfor %}
+            
+
+            
+            {% if portfolio_photos.count == 0 %}
+            <div class="empty-portfolio">
+              <i class="ri-gallery-line" style="font-size: 48px; color: #ccc; margin-bottom: 16px;"></i>
+              <p>Добавьте фото и видео в ваше портфолио</p>
+              <div class="empty-actions">
+                <button class="btn outline" onclick="openModal('addPortfolioModal')">
+                  <i class="ri-image-line"></i> Добавить фото
+                </button>
+                <button class="btn outline" onclick="openModal('addVideoModal')">
+                  <i class="ri-video-line"></i> Добавить видео
+                </button>
+              </div>
+            </div>
+            {% endif %}
           </div>
         </div>
 
@@ -1278,6 +1813,47 @@
   {% include "modals/chat_modal.html" %}
   {% include "modals/request_details_modal.html" %}
 
+  <!-- Add Video Modal -->
+  <div id="addVideoModal" class="modal">
+    <div class="modal-content">
+      <button class="modal-close" onclick="closeModal('addVideoModal')">
+        <i class="ri-close-line"></i>
+      </button>
+      <div class="modal-header">
+        <h2 class="modal-title">Добавить видео в портфолио</h2>
+      </div>
+      <form action="#" method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="form-group">
+          <label class="form-label">Выберите видео файл</label>
+          <input type="file" name="video" accept="video/*" class="form-input" required>
+          <small style="color: #666; font-size: 0.85rem;">Поддерживаемые форматы: MP4, AVI, MOV. Максимальный размер: 100MB</small>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Описание (необязательно)</label>
+          <textarea name="description" class="form-input" rows="3" placeholder="Краткое описание видео..."></textarea>
+        </div>
+        <div class="btn-group">
+          <button type="submit" class="btn accent">Добавить видео</button>
+          <button type="button" class="btn outline" onclick="closeModal('addVideoModal')">Отмена</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Portfolio Viewer Modal -->
+  <div id="portfolioViewerModal" class="portfolio-viewer-modal">
+    <button class="portfolio-viewer-close" onclick="closePortfolioViewer()">
+      <i class="ri-close-line"></i>
+    </button>
+    <div class="portfolio-viewer-content">
+      <img id="portfolioViewerImage" style="display: none;">
+      <video id="portfolioViewerVideo" controls style="display: none;">
+        <source src="" type="video/mp4">
+      </video>
+    </div>
+  </div>
+
   <!-- Subscription Modal -->
   <div id="subscriptionModal" class="modal">
     <div class="modal-content">
@@ -1366,6 +1942,55 @@
         {% endfor %}
       {% endif %}
     ];
+
+    // Portfolio functions
+    function openPortfolioViewer(type, url, id) {
+      const modal = document.getElementById('portfolioViewerModal');
+      const image = document.getElementById('portfolioViewerImage');
+      const video = document.getElementById('portfolioViewerVideo');
+      
+      if (type === 'photo') {
+        image.src = url;
+        image.style.display = 'block';
+        video.style.display = 'none';
+        video.pause();
+      } else if (type === 'video') {
+        video.src = url;
+        video.style.display = 'block';
+        image.style.display = 'none';
+      }
+      
+      modal.style.display = 'block';
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closePortfolioViewer() {
+      const modal = document.getElementById('portfolioViewerModal');
+      const video = document.getElementById('portfolioViewerVideo');
+      
+      modal.style.display = 'none';
+      document.body.style.overflow = 'auto';
+      video.pause();
+    }
+
+    function openPortfolioModal() {
+      // Здесь можно добавить полный просмотр портфолио
+      alert('Полный просмотр портфолио будет добавлен позже');
+    }
+
+    // Close portfolio viewer on escape key
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') {
+        closePortfolioViewer();
+      }
+    });
+
+    // Close portfolio viewer on background click
+    document.getElementById('portfolioViewerModal').addEventListener('click', function(e) {
+      if (e.target === this) {
+        closePortfolioViewer();
+      }
+    });
   </script>
   
   <script src="{% static 'js/main.js' %}"></script>
