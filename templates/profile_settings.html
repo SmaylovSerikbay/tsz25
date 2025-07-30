@@ -949,7 +949,12 @@
 
                 <div class="form-group">
                     <label>Город</label>
-                    <input type="text" name="city" value="{{ user.city }}" class="form-input" required>
+                    <select name="city" class="form-input" required>
+                        <option value="">Выберите город</option>
+                        {% for city in cities %}
+                            <option value="{{ city.name }}" {% if user.city.name == city.name %}selected{% endif %}>{{ city.name }}</option>
+                        {% endfor %}
+                    </select>
                 </div>
             </div>
 

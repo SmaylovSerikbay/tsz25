@@ -34,11 +34,8 @@ def auth_page(request):
     if request.user.is_authenticated:
         return redirect('main:dashboard')
     
-    # Получаем уникальные города для формы регистрации
-    cities = User.objects.filter(
-        user_type='performer', 
-        is_active=True
-    ).values_list('city', flat=True).distinct().order_by('city')
+    # Получаем города из базы данных
+    cities = City.objects.filter(is_active=True).order_by('name')
     
     # Получаем типы услуг из базы данных
     service_types = ServiceType.objects.filter(is_active=True).order_by('sort_order')
@@ -65,6 +62,15 @@ def register(request):
             messages.error(request, msg)
             return redirect('main:auth')
         
+        # Проверяем, существует ли такой город в базе данных
+        try:
+            city_obj = City.objects.get(name=city)
+        except City.DoesNotExist:
+            msg = 'Выберите корректный город!'
+            print('REGISTER ERROR:', msg)
+            messages.error(request, msg)
+            return redirect('main:auth')
+            
         if user_type == 'performer' and service_type:
             # Проверяем, существует ли такой тип услуги в базе данных
             try:
@@ -96,7 +102,7 @@ def register(request):
                 phone_number=phone_number,
                 first_name=first_name,
                 last_name=last_name,
-                city=city,
+                city=city_obj,
                 user_type=user_type,
                 service_type=service_type_obj if user_type == 'performer' and service_type else None,
                 is_phone_verified=True,
@@ -121,11 +127,8 @@ def register(request):
             print('REGISTER ERROR:', msg)
             messages.error(request, msg)
             return redirect('main:auth')
-    # Получаем уникальные города для формы регистрации
-    cities = User.objects.filter(
-        user_type='performer', 
-        is_active=True
-    ).values_list('city', flat=True).distinct().order_by('city')
+    # Получаем города из базы данных
+    cities = City.objects.filter(is_active=True).order_by('name')
     
     return render(request, 'auth.html', {
         'is_register': True,
@@ -188,7 +191,16 @@ def profile(request):
                     raise ValueError('Пользователь с таким email уже существует')
             request.user.email = new_email
             
-            request.user.city = request.POST.get('city', '')
+            city_name = request.POST.get('city', '')
+            if city_name:
+                try:
+                    city_obj = City.objects.get(name=city_name)
+                    request.user.city = city_obj
+                except City.DoesNotExist:
+                    messages.error(request, 'Выберите корректный город!')
+                    return redirect('main:profile')
+            else:
+                request.user.city = None
             request.user.phone_number = request.POST.get('phone', '')
         
             # Update performer-specific fields if applicable
@@ -263,6 +275,10 @@ def profile(request):
     service_types = ServiceType.objects.filter(is_active=True).order_by('sort_order')
     context['service_types'] = service_types
     
+    # Получаем города для модального окна
+    cities = City.objects.filter(is_active=True).order_by('name')
+    context['cities'] = cities
+    
     return render(request, 'profile.html', context)
 
 @login_required
@@ -295,7 +311,16 @@ def profile_settings(request):
         request.user.first_name = request.POST.get('first_name', '')
         request.user.last_name = request.POST.get('last_name', '')
         request.user.email = request.POST.get('email', '')
-        request.user.city = request.POST.get('city', '')
+        city_name = request.POST.get('city', '')
+        if city_name:
+            try:
+                city_obj = City.objects.get(name=city_name)
+                request.user.city = city_obj
+            except City.DoesNotExist:
+                messages.error(request, 'Выберите корректный город!')
+                return render(request, 'profile_settings.html', {'user': request.user})
+        else:
+            request.user.city = None
         
         # Update performer-specific fields if applicable
         if request.user.user_type == 'performer':
@@ -329,9 +354,13 @@ def profile_settings(request):
     # Получаем типы услуг из базы данных
     service_types = ServiceType.objects.filter(is_active=True).order_by('sort_order')
     
+    # Получаем города из базы данных
+    cities = City.objects.filter(is_active=True).order_by('name')
+    
     return render(request, 'profile_settings.html', {
         'user': request.user,
-        'service_types': service_types
+        'service_types': service_types,
+        'cities': cities
     })
 
 @login_required
@@ -465,7 +494,7 @@ def catalog(request):
         performers = performers.filter(service_type__code=category)
     
     if city and city != '':
-        performers = performers.filter(city__iexact=city)
+        performers = performers.filter(city__name__iexact=city)
     
     if min_price and min_price.isdigit():
         performers = performers.filter(tariffs__price__gte=int(min_price))
@@ -510,11 +539,8 @@ def catalog(request):
     # Убеждаемся, что performers содержит только элементы текущей страницы
     performers = page_obj.object_list
 
-    # Получаем уникальные города для фильтра
-    cities = User.objects.filter(
-        user_type='performer', 
-        is_active=True
-    ).values_list('city', flat=True).distinct().order_by('city')
+    # Получаем города из базы данных
+    cities = City.objects.filter(is_active=True).order_by('name')
 
     # Получаем категории из базы данных
     categories = ServiceType.objects.filter(is_active=True).order_by('sort_order')

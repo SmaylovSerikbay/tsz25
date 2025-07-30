@@ -65,7 +65,7 @@
           <select class="form-input" name="city" id="city" required>
             <option value="">Выберите город</option>
             {% for city in cities %}
-              <option value="{{ city }}">{{ city }}</option>
+              <option value="{{ city.name }}">{{ city.name }}</option>
             {% endfor %}
           </select>
         </div>

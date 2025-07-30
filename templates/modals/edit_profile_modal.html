@@ -24,7 +24,12 @@
         </div>
         <div class="form-group">
           <label class="form-label">Город</label>
-          <input type="text" class="form-input" name="city" value="{{ user.city }}" required>
+          <select class="form-input" name="city" required>
+            <option value="">Выберите город</option>
+            {% for city in cities %}
+              <option value="{{ city.name }}" {% if user.city.name == city.name %}selected{% endif %}>{{ city.name }}</option>
+            {% endfor %}
+          </select>
         </div>
         <div class="form-group">
           <label class="form-label">Телефон</label>

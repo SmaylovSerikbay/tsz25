@@ -62,7 +62,7 @@
       <div class="profile-meta">
         <div class="meta-item">
           <i class="ri-map-pin-line"></i>
-          <span>{{ profile_user.city }}</span>
+          <span>{{ profile_user.city.name|default:"Не указан" }}</span>
         </div>
         {% if profile_user.user_type == 'performer' %}
         <div class="meta-item">

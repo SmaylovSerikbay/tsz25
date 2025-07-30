@@ -837,7 +837,7 @@
           <select name="city" class="chip-input city-chip" onchange="this.form.submit()">
             <option value="">Город</option>
             {% for city in cities %}
-              <option value="{{ city }}" {% if current_filters.city == city %}selected{% endif %}>{{ city }}</option>
+              <option value="{{ city.name }}" {% if current_filters.city == city.name %}selected{% endif %}>{{ city.name }}</option>
             {% endfor %}
           </select>
 

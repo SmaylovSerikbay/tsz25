@@ -2080,7 +2080,7 @@
             <div class="meta">
               <div class="meta-item">
                 <i class="ri-map-pin-line"></i>
-                <span>{{ user.city }}</span>
+                <span>{{ user.city.name|default:"Не указан" }}</span>
               </div>
               <div class="meta-item">
                 <i class="ri-star-fill"></i>
