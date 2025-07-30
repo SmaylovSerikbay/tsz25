@@ -311,17 +311,40 @@ def view_profile(request, user_id):
 @login_required
 def profile_settings(request):
     if request.method == 'POST':
+        # Получаем данные из формы
+        first_name = request.POST.get('first_name', '').strip()
+        last_name = request.POST.get('last_name', '').strip()
+        email = request.POST.get('email', '').strip()
+        city_name = request.POST.get('city', '').strip()
+        
+        # Проверяем обязательные поля
+        if not first_name or not last_name or not email:
+            error_message = 'Пожалуйста, заполните все обязательные поля.'
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return JsonResponse({
+                    'success': False,
+                    'message': error_message
+                })
+            messages.error(request, error_message)
+            return render(request, 'profile_settings.html', {'user': request.user})
+        
         # Update basic user information
-        request.user.first_name = request.POST.get('first_name', '')
-        request.user.last_name = request.POST.get('last_name', '')
-        request.user.email = request.POST.get('email', '')
-        city_name = request.POST.get('city', '')
+        request.user.first_name = first_name
+        request.user.last_name = last_name
+        request.user.email = email
         if city_name:
             try:
                 city_obj = City.objects.get(name=city_name)
                 request.user.city = city_obj
             except City.DoesNotExist:
-                messages.error(request, 'Выберите корректный город!')
+                error_message = 'Выберите корректный город!'
+                if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                    from django.http import JsonResponse
+                    return JsonResponse({
+                        'success': False,
+                        'message': error_message
+                    })
+                messages.error(request, error_message)
                 return render(request, 'profile_settings.html', {'user': request.user})
         else:
             request.user.city = None
@@ -335,7 +358,14 @@ def profile_settings(request):
                     service_type_obj = ServiceType.objects.get(code=service_type_code)
                     request.user.service_type = service_type_obj
                 except ServiceType.DoesNotExist:
-                    messages.error(request, 'Выберите корректную специализацию исполнителя!')
+                    error_message = 'Выберите корректную специализацию исполнителя!'
+                    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                        from django.http import JsonResponse
+                        return JsonResponse({
+                            'success': False,
+                            'message': error_message
+                        })
+                    messages.error(request, error_message)
                     return render(request, 'profile_settings.html', {'user': request.user})
             else:
                 request.user.service_type = None
@@ -352,6 +382,15 @@ def profile_settings(request):
             request.user.profile_photo = request.FILES['profile_photo']
         
         request.user.save()
+        
+        # Проверяем, является ли это AJAX-запросом
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            from django.http import JsonResponse
+            return JsonResponse({
+                'success': True,
+                'message': 'Профиль успешно обновлен'
+            })
+        
         messages.success(request, 'Профиль успешно обновлен')
         return redirect('main:profile_settings')
         
