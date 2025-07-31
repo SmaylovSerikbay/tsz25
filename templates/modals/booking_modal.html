@@ -276,12 +276,20 @@ document.getElementById('bookingForm').addEventListener('submit', function(e) {
     }
     throw new Error('Network response was not ok');
   })
-  .then(data => {
-    if (data.success) {
+  .then(response => {
+    if (response.ok) {
+      // Успешное бронирование - перенаправляем на dashboard
       closeBookingModal();
-      window.location.href = data.redirect_url;
+      window.location.href = '/dashboard/';
     } else {
-      alert(data.error || 'Произошла ошибка при бронировании');
+      return response.text().then(text => {
+        try {
+          const data = JSON.parse(text);
+          alert(data.error || 'Произошла ошибка при бронировании');
+        } catch (e) {
+          alert('Произошла ошибка при бронировании');
+        }
+      });
     }
   })
   .catch(error => {

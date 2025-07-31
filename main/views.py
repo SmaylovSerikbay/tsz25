@@ -988,7 +988,7 @@ def create_order_booking(request, performer_id):
                     BusyDate.objects.create(user=performer, date=event_date)
                 
                 messages.success(request, 'Исполнитель успешно прикреплен к заявке')
-                return redirect('main:order_detail', order_id=order.id)
+                return redirect('main:dashboard')
                 
             except Order.DoesNotExist:
                 messages.error(request, 'Заявка не найдена или недоступна')
@@ -1019,7 +1019,7 @@ def create_order_booking(request, performer_id):
                 BusyDate.objects.create(user=performer, date=event_date)
             
             messages.success(request, 'Бронирование успешно создано')
-            return redirect('main:order_detail', order_id=order.id)
+            return redirect('main:dashboard')
         
     return redirect('main:view_profile', user_id=performer_id)
 
