@@ -5,13 +5,255 @@
 
 {% block content %}
 
+<style>
+/* Мобильная адаптация для главной страницы */
+@media (max-width: 768px) {
+    .hero {
+        padding: calc(var(--spacing-xl) * 1.5) 0;
+        min-height: 60vh;
+        display: flex;
+        align-items: center;
+    }
+
+    .hero h1 {
+        font-size: 1.8rem;
+        line-height: 1.3;
+        margin-bottom: var(--spacing-md);
+    }
+
+    .hero p {
+        font-size: 1rem;
+        margin-bottom: var(--spacing-lg);
+        line-height: 1.5;
+    }
+
+    .hero-buttons {
+        flex-direction: column;
+        gap: var(--spacing-sm);
+    }
+
+    .hero-buttons .btn {
+        width: 100%;
+        padding: var(--spacing-md) var(--spacing-lg);
+        font-size: 1rem;
+    }
+
+    .features {
+        padding: calc(var(--spacing-xl) * 1.5) 0;
+    }
+
+    .features h2 {
+        font-size: 1.8rem;
+        margin-bottom: var(--spacing-xl);
+    }
+
+    .features-grid {
+        grid-template-columns: 1fr;
+        gap: var(--spacing-lg);
+        padding: 0 var(--spacing-md);
+    }
+
+    .feature {
+        padding: var(--spacing-lg);
+        text-align: center;
+    }
+
+    .feature i {
+        font-size: 2.5rem;
+        margin-bottom: var(--spacing-md);
+    }
+
+    .feature h3 {
+        font-size: 1.2rem;
+        margin-bottom: var(--spacing-sm);
+    }
+
+    .feature p {
+        font-size: 0.95rem;
+        line-height: 1.5;
+    }
+
+    .latest-performers {
+        padding: calc(var(--spacing-xl) * 1.5) 0;
+    }
+
+    .latest-performers h2 {
+        font-size: 1.8rem;
+        margin-bottom: var(--spacing-xl);
+    }
+
+    .performers-grid {
+        grid-template-columns: 1fr;
+        gap: var(--spacing-lg);
+        padding: 0 var(--spacing-md);
+    }
+
+    .performer-card {
+        border-radius: var(--border-radius);
+        overflow: hidden;
+    }
+
+    .performer-photo {
+        height: 200px;
+    }
+
+    .performer-info {
+        padding: var(--spacing-lg);
+    }
+
+    .performer-info h3 {
+        font-size: 1.1rem;
+        margin-bottom: var(--spacing-xs);
+    }
+
+    .performer-type {
+        font-size: 0.9rem;
+        margin-bottom: var(--spacing-sm);
+    }
+
+    .performer-location {
+        font-size: 0.9rem;
+        margin-bottom: var(--spacing-md);
+    }
+
+    .categories {
+        padding: calc(var(--spacing-xl) * 1.5) 0;
+    }
+
+    .categories h2 {
+        font-size: 1.8rem;
+        margin-bottom: var(--spacing-xl);
+    }
+
+    .categories-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: var(--spacing-lg);
+        padding: 0 var(--spacing-md);
+    }
+
+    .category {
+        padding: var(--spacing-lg);
+        text-align: center;
+    }
+
+    .category i {
+        font-size: 2rem;
+        margin-bottom: var(--spacing-md);
+    }
+
+    .category h3 {
+        font-size: 1rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .hero {
+        padding: calc(var(--spacing-xl) * 1.2) 0;
+        min-height: 50vh;
+    }
+
+    .hero h1 {
+        font-size: 1.5rem;
+        margin-bottom: var(--spacing-sm);
+    }
+
+    .hero p {
+        font-size: 0.9rem;
+        margin-bottom: var(--spacing-md);
+    }
+
+    .hero-buttons .btn {
+        padding: var(--spacing-sm) var(--spacing-md);
+        font-size: 0.95rem;
+    }
+
+    .features,
+    .latest-performers,
+    .categories {
+        padding: calc(var(--spacing-xl) * 1.2) 0;
+    }
+
+    .features h2,
+    .latest-performers h2,
+    .categories h2 {
+        font-size: 1.5rem;
+        margin-bottom: var(--spacing-lg);
+    }
+
+    .features-grid,
+    .performers-grid {
+        gap: var(--spacing-md);
+        padding: 0 var(--spacing-sm);
+    }
+
+    .feature {
+        padding: var(--spacing-md);
+    }
+
+    .feature i {
+        font-size: 2rem;
+        margin-bottom: var(--spacing-sm);
+    }
+
+    .feature h3 {
+        font-size: 1.1rem;
+    }
+
+    .feature p {
+        font-size: 0.9rem;
+    }
+
+    .performer-photo {
+        height: 180px;
+    }
+
+    .performer-info {
+        padding: var(--spacing-md);
+    }
+
+    .performer-info h3 {
+        font-size: 1rem;
+    }
+
+    .performer-type {
+        font-size: 0.85rem;
+    }
+
+    .performer-location {
+        font-size: 0.85rem;
+    }
+
+    .categories-grid {
+        grid-template-columns: 1fr;
+        gap: var(--spacing-md);
+        padding: 0 var(--spacing-sm);
+    }
+
+    .category {
+        padding: var(--spacing-md);
+    }
+
+    .category i {
+        font-size: 1.8rem;
+        margin-bottom: var(--spacing-sm);
+    }
+
+    .category h3 {
+        font-size: 0.95rem;
+    }
+}
+</style>
+
 <div class="hero">
     <div class="container">
         <h1>Найдите лучших исполнителей для вашего мероприятия</h1>
         <p>Фотографы, видеографы, музыканты и другие профессионалы для вашего праздника</p>
         {% if not user.is_authenticated %}
             <div class="hero-buttons">
-                <a href="{% url 'main:auth' %}" class="btn accent">Войти</a>
+                <a href="{% url 'main:auth' %}" class="btn accent">
+                    <i class="ri-login-box-line"></i>
+                    Войти
+                </a>
             </div>
         {% endif %}
     </div>
@@ -61,7 +303,10 @@
                         <i class="ri-map-pin-line"></i>
                         <span>{{ performer.city }}</span>
                     </div>
-                    <a href="{% url 'main:view_profile' performer.id %}" class="btn outline">Посмотреть профиль</a>
+                    <a href="{% url 'main:view_profile' performer.id %}" class="btn outline">
+                        <i class="ri-eye-line"></i>
+                        Посмотреть профиль
+                    </a>
                 </div>
             </div>
             {% endfor %}

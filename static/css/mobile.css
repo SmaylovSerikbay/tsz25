@@ -1,0 +1,574 @@
+/* ===== ДОПОЛНИТЕЛЬНЫЕ МОБИЛЬНЫЕ СТИЛИ ===== */
+
+/* Общие мобильные улучшения */
+@media (max-width: 768px) {
+  /* Улучшенная типографика для мобильных */
+  body {
+    font-size: 16px; /* Базовый размер для предотвращения зума на iOS */
+    line-height: 1.5;
+  }
+
+  h1 { font-size: 1.8rem; }
+  h2 { font-size: 1.5rem; }
+  h3 { font-size: 1.3rem; }
+  h4 { font-size: 1.1rem; }
+  h5 { font-size: 1rem; }
+  h6 { font-size: 0.9rem; }
+
+  /* Улучшенные отступы */
+  .container {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+
+  /* Улучшенные кнопки */
+  .btn {
+    min-height: 44px; /* Минимальная высота для touch-устройств */
+    padding: 12px 20px;
+    font-size: 16px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: all 0.2s ease;
+  }
+
+  .btn:active {
+    transform: scale(0.98);
+  }
+
+  /* Улучшенные формы */
+  .form-input,
+  .form-select,
+  .form-textarea {
+    min-height: 44px;
+    padding: 12px 16px;
+    font-size: 16px;
+    border-radius: 8px;
+    border: 2px solid #e5e7eb;
+    transition: all 0.2s ease;
+  }
+
+  .form-input:focus,
+  .form-select:focus,
+  .form-textarea:focus {
+    border-color: var(--primary-color);
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.1);
+  }
+
+  /* Улучшенные карточки */
+  .card,
+  .performer-card,
+  .feature,
+  .category {
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transition: all 0.2s ease;
+  }
+
+  .card:hover,
+  .performer-card:hover,
+  .feature:hover,
+  .category:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  }
+
+  /* Улучшенные модальные окна */
+  .modal {
+    padding: 16px;
+  }
+
+  .modal-content {
+    border-radius: 12px;
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+
+  /* Улучшенная навигация */
+  .mobile-nav-link {
+    min-height: 48px;
+    padding: 12px 16px;
+    border-radius: 8px;
+    margin-bottom: 8px;
+    font-size: 16px;
+    font-weight: 500;
+  }
+
+  /* Улучшенные табы */
+  .tab-buttons {
+    gap: 4px;
+  }
+
+  .tab-button {
+    min-height: 44px;
+    padding: 12px 16px;
+    font-size: 14px;
+    border-radius: 8px;
+  }
+
+  /* Улучшенные сетки */
+  .grid {
+    gap: 16px;
+  }
+
+  /* Улучшенные списки */
+  .list-item {
+    padding: 16px;
+    border-radius: 8px;
+    margin-bottom: 12px;
+  }
+
+  /* Улучшенные уведомления */
+  .message-alert {
+    border-radius: 8px;
+    padding: 12px 16px;
+    margin-bottom: 12px;
+    font-size: 14px;
+  }
+
+  /* Улучшенные иконки */
+  .icon {
+    width: 24px;
+    height: 24px;
+  }
+
+  /* Улучшенные аватары */
+  .avatar {
+    border-radius: 50%;
+    object-fit: cover;
+  }
+
+  /* Улучшенные рейтинги */
+  .rating {
+    display: flex;
+    gap: 2px;
+  }
+
+  .rating i {
+    font-size: 16px;
+  }
+
+  /* Улучшенные цены */
+  .price {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--primary-color);
+  }
+
+  /* Улучшенные статусы */
+  .status {
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 500;
+  }
+
+  /* Улучшенные теги */
+  .tag {
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 12px;
+    background: var(--primary-light);
+    color: var(--primary-color);
+  }
+
+  /* Улучшенные разделители */
+  .divider {
+    height: 1px;
+    background: #e5e7eb;
+    margin: 16px 0;
+  }
+
+  /* Улучшенные пустые состояния */
+  .empty-state {
+    padding: 40px 20px;
+    text-align: center;
+  }
+
+  .empty-state i {
+    font-size: 48px;
+    color: #d1d5db;
+    margin-bottom: 16px;
+  }
+
+  .empty-state h3 {
+    font-size: 18px;
+    margin-bottom: 8px;
+    color: #6b7280;
+  }
+
+  .empty-state p {
+    font-size: 14px;
+    color: #9ca3af;
+  }
+
+  /* Улучшенные загрузчики */
+  .loader {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px;
+  }
+
+  .spinner {
+    width: 32px;
+    height: 32px;
+    border: 3px solid #e5e7eb;
+    border-top: 3px solid var(--primary-color);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+  }
+
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+
+  /* Улучшенные пагинации */
+  .pagination {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 24px;
+  }
+
+  .pagination-item {
+    min-width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+  }
+
+  /* Улучшенные фильтры */
+  .filter-section {
+    margin-bottom: 20px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid #e5e7eb;
+  }
+
+  .filter-option {
+    padding: 8px 0;
+    font-size: 14px;
+  }
+
+  /* Улучшенные сортировки */
+  .sort-select {
+    width: 100%;
+    padding: 12px 16px;
+    font-size: 16px;
+    border-radius: 8px;
+    border: 2px solid #e5e7eb;
+  }
+
+  /* Улучшенные поиски */
+  .search-input {
+    width: 100%;
+    padding: 12px 16px;
+    font-size: 16px;
+    border-radius: 8px;
+    border: 2px solid #e5e7eb;
+  }
+
+  /* Улучшенные календари */
+  .calendar {
+    border-radius: 12px;
+    overflow: hidden;
+  }
+
+  .calendar-header {
+    padding: 16px;
+    background: var(--primary-color);
+    color: white;
+  }
+
+  .calendar-day {
+    aspect-ratio: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    font-size: 14px;
+    cursor: pointer;
+  }
+
+  /* Улучшенные чаты */
+  .chat-message {
+    padding: 12px 16px;
+    border-radius: 12px;
+    margin-bottom: 8px;
+    max-width: 80%;
+  }
+
+  .chat-message.sent {
+    background: var(--primary-color);
+    color: white;
+    margin-left: auto;
+  }
+
+  .chat-message.received {
+    background: #f3f4f6;
+    color: #374151;
+  }
+
+  /* Улучшенные отзывы */
+  .review {
+    padding: 16px;
+    border-radius: 12px;
+    background: white;
+    margin-bottom: 12px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  }
+
+  .review-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 8px;
+  }
+
+  .review-author {
+    font-weight: 600;
+    font-size: 14px;
+  }
+
+  .review-date {
+    font-size: 12px;
+    color: #6b7280;
+  }
+
+  .review-text {
+    font-size: 14px;
+    line-height: 1.5;
+    color: #374151;
+  }
+
+  /* Улучшенные портфолио */
+  .portfolio-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 8px;
+  }
+
+  .portfolio-item {
+    aspect-ratio: 1;
+    border-radius: 8px;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .portfolio-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  /* Улучшенные тарифы */
+  .tariff-card {
+    padding: 16px;
+    border-radius: 12px;
+    background: white;
+    border: 2px solid #e5e7eb;
+    transition: all 0.2s ease;
+  }
+
+  .tariff-card:hover {
+    border-color: var(--primary-color);
+    transform: translateY(-2px);
+  }
+
+  .tariff-name {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 8px;
+  }
+
+  .tariff-price {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--primary-color);
+    margin-bottom: 8px;
+  }
+
+  .tariff-description {
+    font-size: 14px;
+    color: #6b7280;
+    line-height: 1.4;
+  }
+}
+
+/* Стили для очень маленьких экранов */
+@media (max-width: 480px) {
+  .container {
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+
+  h1 { font-size: 1.6rem; }
+  h2 { font-size: 1.4rem; }
+  h3 { font-size: 1.2rem; }
+  h4 { font-size: 1rem; }
+  h5 { font-size: 0.9rem; }
+  h6 { font-size: 0.8rem; }
+
+  .btn {
+    min-height: 40px;
+    padding: 10px 16px;
+    font-size: 14px;
+  }
+
+  .form-input,
+  .form-select,
+  .form-textarea {
+    min-height: 40px;
+    padding: 10px 12px;
+    font-size: 16px;
+  }
+
+  .mobile-nav-link {
+    min-height: 44px;
+    padding: 10px 12px;
+    font-size: 14px;
+  }
+
+  .tab-button {
+    min-height: 40px;
+    padding: 10px 12px;
+    font-size: 12px;
+  }
+
+  .portfolio-grid {
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    gap: 6px;
+  }
+
+  .empty-state {
+    padding: 32px 16px;
+  }
+
+  .empty-state i {
+    font-size: 40px;
+  }
+
+  .empty-state h3 {
+    font-size: 16px;
+  }
+
+  .empty-state p {
+    font-size: 12px;
+  }
+
+  .pagination-item {
+    min-width: 36px;
+    height: 36px;
+    font-size: 12px;
+  }
+
+  .review {
+    padding: 12px;
+  }
+
+  .review-author {
+    font-size: 13px;
+  }
+
+  .review-date {
+    font-size: 11px;
+  }
+
+  .review-text {
+    font-size: 13px;
+  }
+
+  .tariff-card {
+    padding: 12px;
+  }
+
+  .tariff-name {
+    font-size: 14px;
+  }
+
+  .tariff-price {
+    font-size: 18px;
+  }
+
+  .tariff-description {
+    font-size: 12px;
+  }
+}
+
+/* Стили для ландшафтной ориентации на мобильных */
+@media (max-width: 768px) and (orientation: landscape) {
+  .mobile-menu-content {
+    padding-top: 60px;
+  }
+
+  .hero {
+    min-height: 50vh;
+    padding: 40px 0;
+  }
+
+  .hero h1 {
+    font-size: 1.6rem;
+  }
+
+  .hero p {
+    font-size: 0.9rem;
+  }
+}
+
+/* Стили для устройств с высоким DPI */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+  .icon {
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: crisp-edges;
+  }
+}
+
+/* Стили для устройств с поддержкой hover */
+@media (hover: hover) {
+  .btn:hover {
+    transform: translateY(-1px);
+  }
+
+  .card:hover,
+  .performer-card:hover,
+  .feature:hover,
+  .category:hover {
+    transform: translateY(-2px);
+  }
+}
+
+/* Стили для устройств без поддержки hover */
+@media (hover: none) {
+  .btn:active {
+    transform: scale(0.98);
+  }
+
+  .card:active,
+  .performer-card:active,
+  .feature:active,
+  .category:active {
+    transform: scale(0.98);
+  }
+}
+
+/* Стили для устройств с темной темой */
+@media (prefers-color-scheme: dark) {
+  /* Здесь можно добавить стили для темной темы */
+}
+
+/* Стили для устройств с уменьшенным движением */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+} 
