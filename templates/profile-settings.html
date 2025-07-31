@@ -193,6 +193,44 @@
         width: 100%;
       }
     }
+
+    /* Футер */
+    .footer {
+      background: white;
+      padding: 16px 0;
+      margin-top: 48px;
+      border-top: 1px solid #e5e7eb;
+    }
+
+    .footer-content {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+
+    .footer-links {
+      display: flex;
+      gap: 24px;
+      flex-wrap: wrap;
+    }
+
+    .footer-links a {
+      color: #666;
+      text-decoration: none;
+      font-size: 0.9rem;
+      transition: color 0.2s;
+    }
+
+    .footer-links a:hover {
+      color: var(--primary-color);
+    }
+
+    .footer-copyright {
+      color: #666;
+      font-size: 0.9rem;
+    }
   </style>
 </head>
 <body>
@@ -210,7 +248,7 @@
         </a>
         {% if user.is_authenticated %}
           {% if user.user_type == 'customer' %}
-            <a href="{% url 'main:create_order' %}" class="nav-link">
+            <a href="{% url 'main:dashboard' %}#create-order" class="nav-link">
               <i class="ri-add-circle-line"></i>
               <span>Создать заявку</span>
             </a>
@@ -409,7 +447,16 @@
 
   <footer class="footer">
     <div class="container">
-      <p>© 2024 Той со звездой. Все права защищены.</p>
+      <div class="footer-content">
+        <div class="footer-links">
+          <a href="/privacy-policy/">Политика конфиденциальности</a>
+          <a href="/terms-of-service/">Условия использования</a>
+          <a href="/user-agreement/">Пользовательское соглашение</a>
+        </div>
+        <div class="footer-copyright">
+          <p>© 2024 Той со звездой. Все права защищены.</p>
+        </div>
+      </div>
     </div>
   </footer>
 </body>

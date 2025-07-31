@@ -169,46 +169,12 @@ function generateOrderDetailHTML(order, action) {
         <!-- Кнопка будет добавлена динамически -->
       </div>
       
-      <!-- Действия для заказчика -->
-      ${order.is_customer === true ? `
-      <div style="margin-top: 20px; padding-top: 16px; border-top: 1px solid #e9ecef;">
-        <h4 style="margin: 0 0 12px 0; color: #1a1a1a; font-size: 1rem;">Действия</h4>
-        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-          ${order.status === 'new' ? `
-            <a href="/order/${order.id}/edit/" class="btn outline" style="padding: 10px 16px; font-size: 0.9rem; text-decoration: none; display: inline-flex; align-items: center; gap: 6px;">
-              <i class="ri-edit-line"></i> Редактировать
-            </a>
-            <button onclick="deleteOrder(${order.id})" class="btn delete" style="padding: 10px 16px; font-size: 0.9rem;">
-              <i class="ri-delete-bin-line"></i> Удалить
-            </button>
-          ` : ''}
-          ${order.status === 'in_progress' ? `
-            <button onclick="cancelOrder(${order.id})" class="btn outline" style="padding: 10px 16px; font-size: 0.9rem;">
-              <i class="ri-close-circle-line"></i> Отменить заказ
-            </button>
-          ` : ''}
-        </div>
-      </div>
-      ` : `
-      <!-- Отладочная информация -->
+      <!-- Отладочная информация (только для разработки) -->
+      ${order.is_customer === false && order.is_performer === false ? `
       <div style="margin-top: 20px; padding-top: 16px; border-top: 1px solid #e9ecef; background: #f8f9fa; padding: 12px; border-radius: 8px;">
         <p style="margin: 0; font-size: 0.8rem; color: #6c757d;">
           DEBUG: is_customer = ${order.is_customer}, status = ${order.status}, order_type = ${order.order_type}
         </p>
-      </div>
-      `}
-      
-      <!-- Действия для исполнителя -->
-      ${order.is_performer === true ? `
-      <div style="margin-top: 20px; padding-top: 16px; border-top: 1px solid #e9ecef;">
-        <h4 style="margin: 0 0 12px 0; color: #1a1a1a; font-size: 1rem;">Действия исполнителя</h4>
-        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-          ${order.status === 'in_progress' ? `
-            <button onclick="completeOrder(${order.id})" class="btn accent" style="padding: 10px 16px; font-size: 0.9rem;">
-              <i class="ri-check-line"></i> Завершить заказ
-            </button>
-          ` : ''}
-        </div>
       </div>
       ` : ''}
     </div>

@@ -45,7 +45,7 @@
     display: flex;
     align-items: center;
     gap: 8px;
-    color: var(--primary-color);
+    color: #1a1a1a;
     font-weight: 600;
     font-size: 1rem;
     margin-bottom: 8px;
@@ -53,6 +53,7 @@
 
   .profile-specialty i {
     font-size: 1.1rem;
+    color: var(--primary-color);
   }
 
   .profile-bio {
@@ -108,13 +109,13 @@
 
   .tab-button:hover {
     color: var(--primary-color);
-    background: rgba(64, 112, 244, 0.05);
+    background: #f8f9fa;
   }
 
   .tab-button.active {
     color: var(--primary-color);
     border-bottom-color: var(--primary-color);
-    background: rgba(64, 112, 244, 0.05);
+    background: white;
   }
 
   .tab-content {
@@ -152,6 +153,11 @@
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
     gap: 12px;
+  }
+
+  .portfolio-grid .empty-state {
+    grid-column: 1 / -1;
+    width: 100%;
   }
 
   .portfolio-item {
@@ -262,7 +268,7 @@
   }
 
   .review-rating {
-    color: #ffc107;
+    color: var(--primary-color);
   }
 
   .review-text {
@@ -328,6 +334,23 @@
     text-align: center;
     padding: 40px 20px;
     color: #6c757d;
+    background: white;
+    border-radius: 12px;
+    border: 1px solid #e9ecef;
+    min-height: 200px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* Специфичные стили для grid контейнеров */
+  .portfolio-grid .empty-state,
+  .tariff-list .empty-state,
+  .reviews-list .empty-state,
+  .orders-grid .empty-state {
+    grid-column: 1 / -1;
+    width: 100%;
   }
 
   .empty-state i {
@@ -455,6 +478,44 @@
 
   .portfolio-item {
     cursor: pointer;
+  }
+
+  /* Футер */
+  .footer {
+    background: white;
+    padding: 16px 0;
+    margin-top: 48px;
+    border-top: 1px solid #e5e7eb;
+  }
+
+  .footer-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+
+  .footer-links {
+    display: flex;
+    gap: 24px;
+    flex-wrap: wrap;
+  }
+
+  .footer-links a {
+    color: #666;
+    text-decoration: none;
+    font-size: 0.9rem;
+    transition: color 0.2s;
+  }
+
+  .footer-links a:hover {
+    color: var(--primary-color);
+  }
+
+  .footer-copyright {
+    color: #666;
+    font-size: 0.9rem;
   }
 </style>
 

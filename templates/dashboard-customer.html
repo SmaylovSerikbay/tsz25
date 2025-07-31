@@ -1011,6 +1011,44 @@
       gap: 12px;
       margin-top: 24px;
     }
+
+    /* Футер */
+    .footer {
+      background: white;
+      padding: 16px 0;
+      margin-top: 48px;
+      border-top: 1px solid #e5e7eb;
+    }
+
+    .footer-content {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+
+    .footer-links {
+      display: flex;
+      gap: 24px;
+      flex-wrap: wrap;
+    }
+
+    .footer-links a {
+      color: #666;
+      text-decoration: none;
+      font-size: 0.9rem;
+      transition: color 0.2s;
+    }
+
+    .footer-links a:hover {
+      color: var(--primary-color);
+    }
+
+    .footer-copyright {
+      color: #666;
+      font-size: 0.9rem;
+    }
   </style>
 </head>
 <body>
@@ -1029,10 +1067,10 @@
         </a>
         {% if user.is_authenticated %}
           {% if user.user_type == 'customer' %}
-            <button onclick="openCreateOrderModal()" class="nav-link" style="background: none; border: none; cursor: pointer;">
+            <a href="#" onclick="openCreateOrderModal(); return false;" class="nav-link">
               <i class="ri-add-circle-line"></i>
               <span>Создать заявку</span>
-            </button>
+            </a>
           {% endif %}
           <div class="nav-dropdown">
             <button class="nav-dropdown-toggle" type="button">
@@ -1086,10 +1124,10 @@
         </a>
         {% if user.is_authenticated %}
           {% if user.user_type == 'customer' %}
-            <button onclick="openCreateOrderModal()" class="mobile-nav-link" style="background: none; border: none; cursor: pointer; width: 100%; text-align: left;">
+            <a href="#" onclick="openCreateOrderModal(); return false;" class="mobile-nav-link">
               <i class="ri-add-circle-line"></i>
               <span>Создать заявку</span>
-            </button>
+            </a>
           {% endif %}
           <div class="mobile-nav-dropdown">
             <button class="mobile-nav-dropdown-toggle">
@@ -1437,28 +1475,14 @@
   <footer class="footer">
     <div class="container">
       <div class="footer-content">
-        <div class="footer-section">
-          <h3>О нас</h3>
-          <p>Той со звездой - платформа для поиска профессиональных исполнителей для вашего мероприятия.</p>
+        <div class="footer-links">
+          <a href="/privacy-policy/">Политика конфиденциальности</a>
+          <a href="/terms-of-service/">Условия использования</a>
+          <a href="/user-agreement/">Пользовательское соглашение</a>
         </div>
-        <div class="footer-section">
-          <h3>Контакты</h3>
-          <p>Email: <a href="mailto:miras.abildin@bk.ru">miras.abildin@bk.ru</a></p>
-          <p>Телефон: <a href="tel:+77754184629">+7 (775)-418-46-29</a></p>
+        <div class="footer-copyright">
+          <p>© 2024 Той со звездой. Все права защищены.</p>
         </div>
-        <div class="footer-section">
-          <h3>Соцсети</h3>
-          <div class="social-links">
-            <a href="https://www.instagram.com/_miras_event_/" target="_blank"><i class="ri-instagram-line"></i></a>
-            <a href="https://www.tiktok.com/@miras_abildin_?_t=ZM-8yOktSAtIhi&_r=1" target="_blank"><i class="ri-tiktok-line"></i></a>
-            <a href="https://wa.me/77754184629" target="_blank">
-              <i class="ri-whatsapp-line"></i>
-            </a>  
-          </div>
-        </div>
-      </div>
-      <div class="footer-bottom">
-        <p>© 2024 Той со звездой. Все права защищены.</p>
       </div>
     </div>
   </footer>
@@ -1882,6 +1906,18 @@
         closeReviewModal();
       }
     }
+
+    // Автоматическое открытие модального окна при переходе по ссылке с хешем #create-order
+    document.addEventListener('DOMContentLoaded', function() {
+      if (window.location.hash === '#create-order') {
+        // Небольшая задержка для полной загрузки страницы
+        setTimeout(() => {
+          openCreateOrderModal();
+          // Убираем хеш из URL
+          history.replaceState(null, null, window.location.pathname);
+        }, 100);
+      }
+    });
   </script>
 </body>
 </html> 

@@ -810,7 +810,7 @@
         </a>
         {% if user.is_authenticated %}
           {% if user.user_type == 'customer' %}
-            <a href="{% url 'main:create_order' %}" class="nav-link">
+            <a href="{% url 'main:dashboard' %}#create-order" class="nav-link">
               <i class="ri-add-circle-line"></i>
               <span>Создать заявку</span>
             </a>
