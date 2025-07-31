@@ -2173,3 +2173,7 @@ def cleanup_past_busy_dates():
     
     # Удаляем занятые даты, которые уже прошли
     BusyDate.objects.filter(date__lt=today).delete()
+
+def test_mobile(request):
+    """Тестовая страница для проверки мобильного меню"""
+    return render(request, 'test_mobile.html')

@@ -71,4 +71,7 @@ urlpatterns = [
     path('order/<int:order_id>/delete-api/', views.delete_order_api, name='delete_order_api'),
     path('order/<int:order_id>/accept-booking-api/', views.accept_booking_api, name='accept_booking_api'),
     path('order/<int:order_id>/reject-booking-api/', views.reject_booking_api, name='reject_booking_api'),
+    
+    # Test page for mobile menu
+    path('test-mobile/', views.test_mobile, name='test_mobile'),
 ] 
