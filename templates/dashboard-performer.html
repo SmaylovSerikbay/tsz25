@@ -750,8 +750,8 @@
                 <td><span class="status-badge status-{{ order.status }}">{{ order.get_status_display }}</span></td>
                 <td>
                   <div class="action-buttons">
-                    <button onclick="openOrderDetailModal({{ order.id }}, 'respond')" class="btn btn-small btn-primary">Откликнуться</button>
-                    <button onclick="openOrderDetailModal({{ order.id }}, 'view')" class="btn btn-small btn-outline">Подробнее</button>
+                    <button data-order-id="{{ order.id }}" data-action="respond" class="btn btn-small btn-primary order-action-btn">Откликнуться</button>
+                    <button data-order-id="{{ order.id }}" data-action="view" class="btn btn-small btn-outline order-action-btn">Подробнее</button>
           </div>
                 </td>
               </tr>
@@ -799,17 +799,17 @@
                 <td><span class="budget-amount">{{ order.budget_min }} - {{ order.budget_max }} ₸</span></td>
                                 <td>
                   <div class="action-buttons">
-                    <button onclick="openOrderDetailModal({{ order.id }}, 'view')" class="btn btn-small btn-outline">Подробнее</button>
+                    <button data-order-id="{{ order.id }}" data-action="view" class="btn btn-small btn-outline order-action-btn">Подробнее</button>
                     {% if order.status == 'in_progress' %}
-                      <button onclick="openChatModal({{ order.id }}, null)" class="btn btn-small btn-primary">Чат</button>
-                      <button onclick="completeOrder({{ order.id }})" class="btn btn-small btn-accent">Завершить</button>
+                      <button data-order-id="{{ order.id }}" data-action="chat" class="btn btn-small btn-primary chat-btn">Чат</button>
+                      <button data-order-id="{{ order.id }}" data-action="complete" class="btn btn-small btn-accent complete-btn">Завершить</button>
                     {% elif order.status == 'new' %}
                       {% if order.order_type == 'booking' %}
-                        <button onclick="acceptBooking({{ order.id }})" class="btn btn-small btn-accent">Принять</button>
-                        <button onclick="rejectBooking({{ order.id }})" class="btn btn-small btn-danger">Отклонить</button>
+                        <button data-order-id="{{ order.id }}" data-action="accept" class="btn btn-small btn-accent accept-btn">Принять</button>
+                        <button data-order-id="{{ order.id }}" data-action="reject" class="btn btn-small btn-danger reject-btn">Отклонить</button>
                       {% else %}
-                        <button onclick="openChatModal({{ order.id }}, null)" class="btn btn-small btn-primary">Чат</button>
-                        <button onclick="cancelOrder({{ order.id }})" class="btn btn-small btn-danger">Отменить</button>
+                        <button data-order-id="{{ order.id }}" data-action="chat" class="btn btn-small btn-primary chat-btn">Чат</button>
+                        <button data-order-id="{{ order.id }}" data-action="cancel" class="btn btn-small btn-danger cancel-btn">Отменить</button>
                       {% endif %}
                     {% endif %}
                   </div>
@@ -851,17 +851,17 @@
                 <td>{{ response.created_at|date:"d.m.Y" }}</td>
                 <td>
                   <div class="action-buttons">
-                    <button onclick="openOrderDetailModal({{ response.order.id }}, 'view')" class="btn btn-small btn-outline">Посмотреть</button>
+                    <button data-order-id="{{ response.order.id }}" data-action="view" class="btn btn-small btn-outline order-action-btn">Посмотреть</button>
                     {% if response.order.status == 'new' %}
                       <span class="btn btn-small btn-success" style="background: #28a745; color: white; cursor: default;">Отклик отправлен</span>
-                      <button onclick="cancelResponse({{ response.id }})" class="btn btn-small btn-danger">Отменить отклик</button>
+                      <button data-response-id="{{ response.id }}" data-action="cancel-response" class="btn btn-small btn-danger cancel-response-btn">Отменить отклик</button>
                     {% elif response.order.status == 'in_progress' %}
                       {% with selected_performers=response.order.selected_performers|default:"{}" %}
                         {% if response.performer.service_type.code in selected_performers and selected_performers|get_item:response.performer.service_type.code == response.performer.id %}
                           <span class="btn btn-small btn-accent" style="background: #28a745; color: white; cursor: default;">Принят</span>
                         {% else %}
                           <span class="btn btn-small btn-success" style="background: #28a745; color: white; cursor: default;">Отклик отправлен</span>
-                          <button onclick="cancelResponse({{ response.id }})" class="btn btn-small btn-danger">Отменить отклик</button>
+                          <button data-response-id="{{ response.id }}" data-action="cancel-response" class="btn btn-small btn-danger cancel-response-btn">Отменить отклик</button>
                         {% endif %}
                       {% endwith %}
                     {% elif response.order.status == 'cancelled' %}
@@ -1489,5 +1489,67 @@
   </script>
   
   <script src="{% static 'js/main.js' %}"></script>
+  
+  <script>
+    // Обработчики для всех кнопок действий
+    document.addEventListener('DOMContentLoaded', function() {
+      // Кнопки просмотра заказов
+      document.querySelectorAll('.order-action-btn').forEach(button => {
+        button.addEventListener('click', function() {
+          const orderId = this.getAttribute('data-order-id');
+          const action = this.getAttribute('data-action');
+          openOrderDetailModal(orderId, action);
+        });
+      });
+
+      // Кнопки чата
+      document.querySelectorAll('.chat-btn').forEach(button => {
+        button.addEventListener('click', function() {
+          const orderId = this.getAttribute('data-order-id');
+          openChatModal(orderId, null);
+        });
+      });
+
+      // Кнопки завершения заказа
+      document.querySelectorAll('.complete-btn').forEach(button => {
+        button.addEventListener('click', function() {
+          const orderId = this.getAttribute('data-order-id');
+          completeOrder(orderId);
+        });
+      });
+
+      // Кнопки принятия бронирования
+      document.querySelectorAll('.accept-btn').forEach(button => {
+        button.addEventListener('click', function() {
+          const orderId = this.getAttribute('data-order-id');
+          acceptBooking(orderId);
+        });
+      });
+
+      // Кнопки отклонения бронирования
+      document.querySelectorAll('.reject-btn').forEach(button => {
+        button.addEventListener('click', function() {
+          const orderId = this.getAttribute('data-order-id');
+          rejectBooking(orderId);
+        });
+      });
+
+      // Кнопки отмены заказа
+      document.querySelectorAll('.cancel-btn').forEach(button => {
+        button.addEventListener('click', function() {
+          const orderId = this.getAttribute('data-order-id');
+          cancelOrder(orderId);
+        });
+      });
+
+      // Кнопки отмены отклика
+      document.querySelectorAll('.cancel-response-btn').forEach(button => {
+        button.addEventListener('click', function() {
+          const responseId = this.getAttribute('data-response-id');
+          cancelResponse(responseId);
+        });
+      });
+    });
+  </script>
 </body>
 </html> 
