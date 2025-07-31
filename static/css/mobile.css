@@ -100,6 +100,10 @@
   /* Улучшенные табы */
   .tab-buttons {
     gap: 4px;
+    flex-wrap: wrap;
+    overflow-x: auto;
+    padding-bottom: 8px;
+    margin-bottom: 20px;
   }
 
   .tab-button {
@@ -107,6 +111,234 @@
     padding: 12px 16px;
     font-size: 14px;
     border-radius: 8px;
+    flex-shrink: 0;
+    white-space: nowrap;
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s ease;
+  }
+
+  .tab-button:hover {
+    background-color: rgba(64, 112, 244, 0.1);
+  }
+
+  .tab-button.active {
+    background-color: var(--primary-color);
+    color: white;
+    border-bottom-color: var(--primary-color);
+  }
+
+  .tab-content {
+    display: none;
+    animation: fadeIn 0.3s ease-in-out;
+  }
+
+  .tab-content.active {
+    display: block;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Улучшенные таблицы для мобильных табов */
+  .tab-content .table-container {
+    overflow-x: auto;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+  }
+
+  .tab-content .data-table {
+    font-size: 13px;
+    min-width: 600px;
+    border-radius: 8px;
+    overflow: hidden;
+  }
+
+  .tab-content .data-table th,
+  .tab-content .data-table td {
+    padding: 10px 8px;
+    font-size: 13px;
+    vertical-align: middle;
+  }
+
+  /* Специальные стили для таблицы бронирований */
+  #bookings .data-table th,
+  #bookings .data-table td {
+    padding: 12px 8px;
+    font-size: 14px;
+  }
+
+  #bookings .data-table th {
+    background-color: #f8f9fa;
+    font-weight: 600;
+    color: #495057;
+    border-bottom: 2px solid #dee2e6;
+  }
+
+  #bookings .data-table td {
+    border-bottom: 1px solid #e9ecef;
+  }
+
+  /* Адаптивные стили для таблиц на очень маленьких экранах */
+  @media (max-width: 480px) {
+    .tab-buttons {
+      gap: 2px;
+      padding: 0 4px 8px 4px;
+    }
+
+    .tab-button {
+      padding: 10px 12px;
+      font-size: 13px;
+      min-height: 40px;
+    }
+
+    .tab-button i {
+      font-size: 16px;
+      margin-right: 4px;
+    }
+
+    .tab-content .data-table {
+      font-size: 12px;
+      min-width: 500px;
+    }
+
+    .tab-content .data-table th,
+    .tab-content .data-table td {
+      padding: 8px 6px;
+      font-size: 12px;
+    }
+
+    #bookings .data-table th,
+    #bookings .data-table td {
+      padding: 10px 6px;
+      font-size: 13px;
+    }
+
+    /* Уменьшаем размер кнопок в таблице */
+    .action-buttons .btn {
+      padding: 6px 10px;
+      font-size: 11px;
+      min-height: 32px;
+    }
+
+    /* Улучшаем отображение информации о исполнителе */
+    .performer-info .order-title {
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 2px;
+    }
+
+    .performer-info .order-event-type {
+      font-size: 11px;
+      color: #6c757d;
+    }
+
+    /* Улучшаем отображение статусов */
+    .status-badge {
+      font-size: 11px;
+      padding: 4px 8px;
+      border-radius: 12px;
+    }
+
+    /* Улучшаем отображение бюджета */
+    .budget-amount {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--primary-color);
+    }
+  }
+
+  /* Горизонтальная прокрутка для табов на средних экранах */
+  @media (max-width: 768px) {
+    .tab-buttons {
+      justify-content: flex-start;
+      padding-bottom: 12px;
+      margin-bottom: 16px;
+      border-bottom: 1px solid #e9ecef;
+    }
+
+    .tab-button {
+      min-width: auto;
+      flex: 0 0 auto;
+    }
+  }
+
+  /* Дополнительные улучшения для табов */
+  .tab-buttons {
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* IE and Edge */
+  }
+
+  .tab-buttons::-webkit-scrollbar {
+    display: none; /* Chrome, Safari, Opera */
+  }
+
+  /* Индикатор активного таба */
+  .tab-button.active::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 20px;
+    height: 3px;
+    background-color: var(--primary-color);
+    border-radius: 2px;
+  }
+
+  /* Улучшенные hover эффекты */
+  @media (hover: hover) {
+    .tab-button:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 2px 8px rgba(64, 112, 244, 0.2);
+    }
+  }
+
+  /* Touch эффекты для мобильных устройств */
+  @media (hover: none) {
+    .tab-button:active {
+      transform: scale(0.95);
+      transition: transform 0.1s ease;
+    }
+  }
+
+  /* Анимация перехода между табами */
+  .tab-content {
+    transition: opacity 0.3s ease, transform 0.3s ease;
+  }
+
+  /* Улучшенные стили для иконок в табах */
+  .tab-button i {
+    margin-right: 6px;
+    font-size: 16px;
+    vertical-align: middle;
+  }
+
+  /* Адаптивные стили для текста в табах */
+  @media (max-width: 480px) {
+    .tab-button span {
+      display: none;
+    }
+    
+    .tab-button i {
+      margin-right: 0;
+      font-size: 18px;
+    }
+  }
+
+  /* Промежуточные стили для планшетов */
+  @media (min-width: 481px) and (max-width: 768px) {
+    .tab-button {
+      font-size: 13px;
+      padding: 10px 14px;
+    }
+    
+    .tab-button i {
+      font-size: 15px;
+      margin-right: 4px;
+    }
   }
 
   /* Улучшенные сетки */
@@ -401,6 +633,469 @@
     color: #6b7280;
     line-height: 1.4;
   }
+
+  /* Дополнительные улучшения для мобильных устройств */
+  
+  /* Улучшенная навигация */
+  .mobile-menu-content {
+    padding-top: 80px;
+  }
+  
+  .mobile-nav-link {
+    border: 1px solid #e9ecef;
+    background: #f8f9fa;
+    margin-bottom: 8px;
+  }
+  
+  .mobile-nav-link:hover,
+  .mobile-nav-link:active {
+    background: var(--primary-color);
+    color: white;
+    border-color: var(--primary-color);
+  }
+  
+  /* Улучшенные карточки исполнителей */
+  .performer-card {
+    margin-bottom: 16px;
+    border: 1px solid #e9ecef;
+  }
+  
+  .performer-info {
+    padding: 16px;
+  }
+  
+  .performer-name {
+    font-size: 1.1rem;
+    margin-bottom: 8px;
+  }
+  
+  .performer-type {
+    font-size: 0.9rem;
+    margin-bottom: 12px;
+  }
+  
+  .performer-meta {
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+  
+  .performer-actions {
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  /* Улучшенные формы */
+  .form-section {
+    margin-bottom: 20px;
+    padding: 16px;
+    border: 1px solid #e9ecef;
+    border-radius: 12px;
+    background: #f8f9fa;
+  }
+  
+  .form-section h2 {
+    font-size: 1.2rem;
+    margin-bottom: 16px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid var(--primary-light);
+  }
+  
+  .form-group {
+    margin-bottom: 16px;
+  }
+  
+  .form-label {
+    font-size: 0.95rem;
+    margin-bottom: 6px;
+  }
+  
+  /* Улучшенные модальные окна */
+  .modal-header {
+    padding: 20px;
+    border-bottom: 1px solid #e9ecef;
+  }
+  
+  .modal-title {
+    font-size: 1.3rem;
+  }
+  
+  .modal form {
+    padding: 20px;
+  }
+  
+  .form-footer {
+    padding: 20px;
+    border-top: 1px solid #e9ecef;
+    background: #f8f9fa;
+  }
+  
+  /* Улучшенные таблицы */
+  .dashboard-table {
+    font-size: 0.9rem;
+  }
+  
+  .dashboard-table th {
+    background: #f8f9fa;
+    font-weight: 600;
+    padding: 12px 8px;
+  }
+  
+  .dashboard-table td {
+    padding: 12px 8px;
+    border-bottom: 1px solid #e9ecef;
+  }
+  
+  /* Улучшенные статистики */
+  .stat-card {
+    text-align: center;
+    padding: 20px;
+  }
+  
+  .stat-icon {
+    margin: 0 auto 12px;
+  }
+  
+  .stat-value {
+    font-size: 1.8rem;
+    margin: 8px 0;
+  }
+  
+  .stat-label {
+    font-size: 0.9rem;
+    color: #6b7280;
+  }
+  
+  /* Улучшенные кнопки действий */
+  .action-buttons {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  
+  .btn-sm {
+    padding: 8px 12px;
+    font-size: 0.85rem;
+    min-height: 36px;
+  }
+  
+  .btn-lg {
+    padding: 16px 24px;
+    font-size: 1.1rem;
+    min-height: 52px;
+  }
+  
+  /* Улучшенные уведомления */
+  .notification-item {
+    padding: 16px;
+    margin-bottom: 12px;
+    border-radius: 12px;
+    border-left: 4px solid var(--primary-color);
+  }
+  
+  .notification-content h3 {
+    font-size: 1rem;
+    margin-bottom: 6px;
+  }
+  
+  .notification-meta {
+    font-size: 0.85rem;
+    color: #6b7280;
+  }
+  
+  /* Улучшенные чаты */
+  .chat-item {
+    padding: 16px;
+    margin-bottom: 12px;
+    border-radius: 12px;
+    border: 1px solid #e9ecef;
+  }
+  
+  .chat-info h3 {
+    font-size: 1rem;
+    margin-bottom: 4px;
+  }
+  
+  .chat-preview {
+    font-size: 0.9rem;
+    color: #6b7280;
+  }
+  
+  /* Улучшенные отзывы */
+  .review-card {
+    padding: 16px;
+    margin-bottom: 12px;
+    border-radius: 12px;
+    border: 1px solid #e9ecef;
+  }
+  
+  .review-header {
+    margin-bottom: 12px;
+  }
+  
+  .reviewer-name {
+    font-size: 1rem;
+    font-weight: 600;
+  }
+  
+  .review-date {
+    font-size: 0.85rem;
+  }
+  
+  .review-text {
+    font-size: 0.95rem;
+    line-height: 1.5;
+  }
+  
+  /* Улучшенные портфолио */
+  .portfolio-item {
+    position: relative;
+    cursor: pointer;
+  }
+  
+  .portfolio-item:hover img {
+    transform: scale(1.05);
+  }
+  
+  .delete-photo {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background: rgba(255, 255, 255, 0.9);
+    border: none;
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #dc3545;
+    font-size: 1rem;
+  }
+  
+  /* Улучшенные тарифы */
+  .tariff-card {
+    text-align: center;
+    padding: 20px;
+  }
+  
+  .tariff-info h4 {
+    font-size: 1.1rem;
+    margin-bottom: 8px;
+  }
+  
+  .tariff-price {
+    font-size: 1.5rem;
+    margin-bottom: 8px;
+  }
+  
+  .tariff-description {
+    font-size: 0.9rem;
+    line-height: 1.4;
+  }
+  
+  /* Улучшенные планы подписки */
+  .plan-card {
+    text-align: center;
+    padding: 24px;
+  }
+  
+  .plan-name {
+    font-size: 1.2rem;
+    margin-bottom: 12px;
+  }
+  
+  .plan-price {
+    font-size: 1.8rem;
+    margin-bottom: 8px;
+  }
+  
+  .plan-duration {
+    font-size: 0.9rem;
+    margin-bottom: 16px;
+  }
+  
+  /* Улучшенные фильтры */
+  .filters-sidebar {
+    background: white;
+    border-radius: 0;
+    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+  }
+  
+  .filters-header {
+    padding-bottom: 12px;
+    margin-bottom: 16px;
+  }
+  
+  .filters-title {
+    font-size: 1.1rem;
+  }
+  
+  .filter-section {
+    margin-bottom: 16px;
+    padding-bottom: 12px;
+  }
+  
+  .filter-section h3 {
+    font-size: 0.95rem;
+    margin-bottom: 12px;
+  }
+  
+  .filter-option {
+    padding: 8px 0;
+    font-size: 0.9rem;
+  }
+  
+  /* Улучшенные сортировки */
+  .sort-select {
+    margin-bottom: 16px;
+  }
+  
+  /* Улучшенные поиски */
+  .search-input {
+    margin-bottom: 16px;
+  }
+  
+  /* Улучшенные календари */
+  .calendar-picker {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+  }
+  
+  .calendar-header {
+    padding: 16px;
+    background: var(--primary-color);
+    color: white;
+    border-radius: 12px 12px 0 0;
+  }
+  
+  .calendar-header h4 {
+    font-size: 1.1rem;
+    margin: 0;
+  }
+  
+  .calendar-weekdays {
+    padding: 0 16px;
+    margin-bottom: 8px;
+  }
+  
+  .calendar-days {
+    padding: 0 16px 16px;
+  }
+  
+  .calendar-day-cell {
+    font-size: 0.9rem;
+    font-weight: 500;
+  }
+  
+  /* Улучшенные кнопки календаря */
+  .calendar-nav-btn {
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    color: white;
+    padding: 8px;
+    border-radius: 6px;
+    font-size: 1.1rem;
+  }
+  
+  .calendar-nav-btn:hover {
+    background: rgba(255, 255, 255, 0.3);
+  }
+  
+  /* Улучшенные предупреждения */
+  .date-warning {
+    margin-top: 12px;
+    padding: 12px;
+    border-radius: 8px;
+    font-size: 0.9rem;
+  }
+  
+  /* Улучшенные кнопки выбора даты */
+  .calendar-btn {
+    width: 100%;
+    justify-content: flex-start;
+    background: white;
+    border: 2px solid #e5e7eb;
+    color: #6b7280;
+    text-align: left;
+    padding: 12px 16px;
+  }
+  
+  .calendar-btn:hover {
+    border-color: var(--primary-color);
+    color: var(--text-primary);
+  }
+  
+  .calendar-btn.has-date {
+    color: var(--text-primary);
+    border-color: var(--primary-color);
+  }
+  
+  /* Улучшенные кнопки действий */
+  .btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+  
+  .btn:disabled:hover {
+    transform: none;
+    background: var(--primary-color);
+  }
+  
+  /* Улучшенные формы бронирования */
+  .booking-type-selector {
+    margin-top: 12px;
+  }
+  
+  .booking-type-content {
+    padding: 16px;
+    border-radius: 12px;
+    margin-bottom: 8px;
+  }
+  
+  .booking-type-content i {
+    font-size: 1.3rem;
+  }
+  
+  .booking-type-content strong {
+    font-size: 1rem;
+  }
+  
+  .booking-type-content small {
+    font-size: 0.85rem;
+  }
+  
+  /* Улучшенные формы */
+  .booking-modal .form-group {
+    margin-bottom: 20px;
+  }
+  
+  .booking-modal .form-label {
+    font-size: 0.95rem;
+    margin-bottom: 8px;
+  }
+  
+  .booking-modal .form-input {
+    padding: 12px 16px;
+    font-size: 16px;
+  }
+  
+  .booking-modal .form-actions {
+    padding: 20px;
+    background: #f8f9fa;
+    border-top: 1px solid #e9ecef;
+  }
+  
+  .booking-modal .btn {
+    width: 100%;
+    justify-content: center;
+    margin-bottom: 8px;
+  }
+  
+  .booking-modal .btn:last-child {
+    margin-bottom: 0;
+  }
 }
 
 /* Стили для очень маленьких экранов */
@@ -501,6 +1196,283 @@
   .tariff-description {
     font-size: 12px;
   }
+  
+  /* Дополнительные улучшения для очень маленьких экранов */
+  
+  .performer-card {
+    margin-bottom: 12px;
+  }
+  
+  .performer-info {
+    padding: 12px;
+  }
+  
+  .performer-name {
+    font-size: 1rem;
+  }
+  
+  .performer-type {
+    font-size: 0.85rem;
+  }
+  
+  .form-section {
+    padding: 12px;
+    margin-bottom: 16px;
+  }
+  
+  .form-section h2 {
+    font-size: 1.1rem;
+    margin-bottom: 12px;
+  }
+  
+  .modal-content {
+    margin: 8px;
+    width: calc(100% - 16px);
+  }
+  
+  .modal-header {
+    padding: 16px;
+  }
+  
+  .modal-title {
+    font-size: 1.2rem;
+  }
+  
+  .modal form {
+    padding: 16px;
+  }
+  
+  .form-footer {
+    padding: 16px;
+  }
+  
+  .stat-card {
+    padding: 16px;
+  }
+  
+  .stat-icon {
+    width: 32px;
+    height: 32px;
+    font-size: 1rem;
+  }
+  
+  .stat-value {
+    font-size: 1.5rem;
+  }
+  
+  .stat-label {
+    font-size: 0.85rem;
+  }
+  
+  .dashboard-table th,
+  .dashboard-table td {
+    padding: 8px 6px;
+    font-size: 0.8rem;
+    min-width: 80px;
+  }
+  
+  .notification-item {
+    padding: 12px;
+  }
+  
+  .notification-content h3 {
+    font-size: 0.95rem;
+  }
+  
+  .notification-meta {
+    font-size: 0.8rem;
+  }
+  
+  .chat-item {
+    padding: 12px;
+  }
+  
+  .chat-info h3 {
+    font-size: 0.95rem;
+  }
+  
+  .chat-preview {
+    font-size: 0.85rem;
+  }
+  
+  .review-card {
+    padding: 12px;
+  }
+  
+  .reviewer-name {
+    font-size: 0.95rem;
+  }
+  
+  .review-date {
+    font-size: 0.8rem;
+  }
+  
+  .review-text {
+    font-size: 0.9rem;
+  }
+  
+  .portfolio-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 6px;
+  }
+  
+  .delete-photo {
+    width: 28px;
+    height: 28px;
+    font-size: 0.9rem;
+  }
+  
+  .tariff-card {
+    padding: 16px;
+  }
+  
+  .tariff-info h4 {
+    font-size: 1rem;
+  }
+  
+  .tariff-price {
+    font-size: 1.3rem;
+  }
+  
+  .tariff-description {
+    font-size: 0.85rem;
+  }
+  
+  .plan-card {
+    padding: 20px;
+  }
+  
+  .plan-name {
+    font-size: 1.1rem;
+  }
+  
+  .plan-price {
+    font-size: 1.5rem;
+  }
+  
+  .plan-duration {
+    font-size: 0.85rem;
+  }
+  
+  .filters-sidebar {
+    padding: 16px;
+  }
+  
+  .filters-header {
+    padding-bottom: 8px;
+    margin-bottom: 12px;
+  }
+  
+  .filters-title {
+    font-size: 1rem;
+  }
+  
+  .filter-section {
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+  }
+  
+  .filter-section h3 {
+    font-size: 0.9rem;
+    margin-bottom: 8px;
+  }
+  
+  .filter-option {
+    padding: 6px 0;
+    font-size: 0.85rem;
+  }
+  
+  .sort-select {
+    margin-bottom: 12px;
+    font-size: 14px;
+  }
+  
+  .search-input {
+    margin-bottom: 12px;
+    font-size: 14px;
+  }
+  
+  .calendar-picker {
+    width: 95%;
+    max-width: 320px;
+  }
+  
+  .calendar-header {
+    padding: 12px;
+  }
+  
+  .calendar-header h4 {
+    font-size: 1rem;
+  }
+  
+  .calendar-weekdays {
+    padding: 0 12px;
+    font-size: 0.8rem;
+  }
+  
+  .calendar-days {
+    padding: 0 12px 12px;
+  }
+  
+  .calendar-day-cell {
+    font-size: 0.85rem;
+  }
+  
+  .calendar-nav-btn {
+    padding: 6px;
+    font-size: 1rem;
+  }
+  
+  .date-warning {
+    margin-top: 8px;
+    padding: 10px;
+    font-size: 0.85rem;
+  }
+  
+  .calendar-btn {
+    padding: 10px 12px;
+    font-size: 14px;
+  }
+  
+  .booking-type-content {
+    padding: 12px;
+    margin-bottom: 6px;
+  }
+  
+  .booking-type-content i {
+    font-size: 1.2rem;
+  }
+  
+  .booking-type-content strong {
+    font-size: 0.95rem;
+  }
+  
+  .booking-type-content small {
+    font-size: 0.8rem;
+  }
+  
+  .booking-modal .form-group {
+    margin-bottom: 16px;
+  }
+  
+  .booking-modal .form-label {
+    font-size: 0.9rem;
+    margin-bottom: 6px;
+  }
+  
+  .booking-modal .form-input {
+    padding: 10px 12px;
+    font-size: 16px;
+  }
+  
+  .booking-modal .form-actions {
+    padding: 16px;
+  }
+  
+  .booking-modal .btn {
+    margin-bottom: 6px;
+    font-size: 14px;
+  }
 }
 
 /* Стили для ландшафтной ориентации на мобильных */
@@ -571,4 +1543,663 @@
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
+} 
+
+/* ===== ДОПОЛНИТЕЛЬНЫЕ УЛУЧШЕНИЯ ДЛЯ МОБИЛЬНЫХ УСТРОЙСТВ ===== */
+
+@media (max-width: 768px) {
+  /* Дополнительные улучшения для мобильных устройств */
+  .mobile-menu-content {
+    padding-top: 80px;
+  }
+  
+  .performer-card {
+    margin-bottom: 16px;
+    border: 1px solid #e9ecef;
+  }
+  
+  .form-section {
+    margin-bottom: 24px;
+    padding: 16px;
+    background: #f8f9fa;
+    border-radius: 8px;
+  }
+  
+  .modal-header {
+    padding: 16px 20px;
+    border-bottom: 1px solid #e9ecef;
+  }
+  
+  .modal-footer {
+    padding: 16px 20px;
+    border-top: 1px solid #e9ecef;
+    background: #f8f9fa;
+  }
+  
+  .dashboard-table {
+    font-size: 14px;
+    padding: 8px;
+  }
+  
+  .stat-card {
+    text-align: center;
+    padding: 16px;
+  }
+  
+  .stat-value {
+    font-size: 24px;
+    font-weight: 700;
+  }
+  
+  .btn {
+    min-height: 44px;
+    padding: 12px 20px;
+    font-size: 16px;
+  }
+  
+  .notification-item {
+    padding: 12px;
+    margin-bottom: 12px;
+  }
+  
+  .chat-item {
+    padding: 12px;
+    margin-bottom: 12px;
+  }
+  
+  .review-card {
+    padding: 16px;
+    margin-bottom: 16px;
+  }
+  
+  .portfolio-item {
+    position: relative;
+    margin-bottom: 16px;
+  }
+  
+  .portfolio-item .delete-photo {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background: rgba(255, 0, 0, 0.8);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 14px;
+  }
+  
+  .tariff-card {
+    padding: 16px;
+    margin-bottom: 16px;
+  }
+  
+  .subscription-plans {
+    gap: 16px;
+  }
+  
+  .plan-card {
+    padding: 20px;
+  }
+  
+  .filters-sidebar {
+    position: fixed;
+    top: 0;
+    left: -100%;
+    width: 85%;
+    max-width: 350px;
+    height: 100vh;
+    background: white;
+    z-index: 1000;
+    transition: left 0.3s ease;
+    overflow-y: auto;
+    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+  }
+  
+  .filters-sidebar.active {
+    left: 0;
+  }
+  
+  .calendar-picker {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 90%;
+    max-width: 350px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    z-index: 1001;
+  }
+  
+  .booking-modal .modal-content {
+    width: 95%;
+    max-width: 400px;
+    margin: 20px auto;
+  }
+  
+  .booking-type-content {
+    padding: 12px;
+    text-align: center;
+  }
+  
+  .booking-type-content i {
+    font-size: 24px;
+    margin-bottom: 8px;
+  }
+  
+  .booking-modal .form-actions {
+    flex-direction: column;
+    gap: 12px;
+  }
+  
+  .booking-modal .btn {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+/* ===== УЛУЧШЕННОЕ МОБИЛЬНОЕ МЕНЮ ===== */
+
+@media (max-width: 768px) {
+  .mobile-menu-toggle {
+    display: flex !important;
+  }
+  
+  .mobile-menu {
+    z-index: 1000;
+  }
+  
+  .mobile-menu-content {
+    z-index: 1001;
+    background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+  }
+  
+  .mobile-nav-link {
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .mobile-nav-link::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+    transition: left 0.5s ease;
+  }
+  
+  .mobile-nav-link:hover::before {
+    left: 100%;
+  }
+  
+  .mobile-nav-dropdown-toggle {
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .mobile-nav-dropdown-toggle::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+    transition: left 0.5s ease;
+  }
+  
+  .mobile-nav-dropdown-toggle:hover::before {
+    left: 100%;
+  }
+  
+  .mobile-nav-dropdown-menu {
+    animation: slideDown 0.3s ease;
+  }
+  
+  @keyframes slideDown {
+    from {
+      opacity: 0;
+      transform: translateY(-10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  /* Улучшенные стили для аватара в мобильном меню */
+  .mobile-nav-dropdown-toggle .nav-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid var(--primary-color);
+  }
+  
+  /* Анимация для иконок */
+  .mobile-nav-link i,
+  .mobile-nav-dropdown-toggle i {
+    transition: all 0.3s ease;
+  }
+  
+  .mobile-nav-link:hover i {
+    transform: scale(1.1);
+  }
+  
+  .mobile-nav-dropdown-toggle:hover i {
+    transform: scale(1.1);
+  }
+  
+  /* Улучшенные стили для кнопки авторизации */
+  .mobile-nav-link.auth-link {
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+    box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3);
+  }
+  
+  .mobile-nav-link.auth-link:hover {
+    background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary-color) 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(212, 175, 55, 0.4);
+  }
+} 
+
+/* Улучшенные таблицы для мобильных табов */
+.tab-content .table-container {
+  overflow-x: auto;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  margin-bottom: 20px;
+}
+
+.tab-content .data-table {
+  font-size: 13px;
+  min-width: 600px;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.tab-content .data-table th,
+.tab-content .data-table td {
+  padding: 10px 8px;
+  font-size: 13px;
+  vertical-align: middle;
+}
+
+/* Специальные стили для таблицы бронирований */
+#bookings .data-table th,
+#bookings .data-table td {
+  padding: 12px 8px;
+  font-size: 14px;
+}
+
+#bookings .data-table th {
+  background-color: #f8f9fa;
+  font-weight: 600;
+  color: #495057;
+  border-bottom: 2px solid #dee2e6;
+}
+
+#bookings .data-table td {
+  border-bottom: 1px solid #e9ecef;
+}
+
+/* Адаптивные стили для таблиц на очень маленьких экранах */
+@media (max-width: 480px) {
+  .tab-content .data-table {
+    font-size: 12px;
+    min-width: 500px;
+  }
+
+  .tab-content .data-table th,
+  .tab-content .data-table td {
+    padding: 8px 6px;
+    font-size: 12px;
+  }
+
+  #bookings .data-table th,
+  #bookings .data-table td {
+    padding: 10px 6px;
+    font-size: 13px;
+  }
+
+  /* Уменьшаем размер кнопок в таблице */
+  .action-buttons .btn {
+    padding: 6px 10px;
+    font-size: 11px;
+    min-height: 32px;
+  }
+
+  /* Улучшаем отображение информации о исполнителе */
+  .performer-info .order-title {
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 2px;
+  }
+
+  .performer-info .order-event-type {
+    font-size: 11px;
+    color: #6c757d;
+  }
+
+  /* Улучшаем отображение статусов */
+  .status-badge {
+    font-size: 11px;
+    padding: 4px 8px;
+    border-radius: 12px;
+  }
+
+  /* Улучшаем отображение бюджета */
+  .budget-amount {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--primary-color);
+  }
+}
+
+/* Стили для средних экранов */
+@media (max-width: 768px) {
+  .tab-content .data-table {
+    font-size: 13px;
+    min-width: 550px;
+  }
+
+  .tab-content .data-table th,
+  .tab-content .data-table td {
+    padding: 10px 8px;
+    font-size: 13px;
+  }
+
+  #bookings .data-table th,
+  #bookings .data-table td {
+    padding: 12px 8px;
+    font-size: 14px;
+  }
+
+  /* Улучшаем кнопки действий */
+  .action-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .action-buttons .btn {
+    padding: 8px 12px;
+    font-size: 12px;
+    min-height: 36px;
+    width: 100%;
+    justify-content: center;
+  }
+
+  /* Улучшаем отображение информации */
+  .performer-info {
+    min-width: 120px;
+  }
+
+  .performer-info .order-title {
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 4px;
+    line-height: 1.2;
+  }
+
+  .performer-info .order-event-type {
+    font-size: 12px;
+    color: #6c757d;
+    line-height: 1.2;
+  }
+
+  /* Улучшаем статусы */
+  .status-badge {
+    font-size: 12px;
+    padding: 6px 10px;
+    border-radius: 16px;
+    font-weight: 500;
+  }
+
+  /* Улучшаем бюджет */
+  .budget-amount {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--primary-color);
+  }
+}
+
+/* Специальные стили для горизонтальной прокрутки */
+.tab-content .table-container {
+  scrollbar-width: thin;
+  scrollbar-color: #c1c1c1 #f1f1f1;
+}
+
+.tab-content .table-container::-webkit-scrollbar {
+  height: 6px;
+}
+
+.tab-content .table-container::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 3px;
+}
+
+.tab-content .table-container::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 3px;
+}
+
+.tab-content .table-container::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}
+
+/* Улучшенные стили для пустых состояний */
+.tab-content .data-table tr td[colspan] {
+  text-align: center;
+  padding: 40px 20px;
+  color: #6c757d;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+}
+
+.tab-content .data-table tr td[colspan] i {
+  font-size: 48px;
+  margin-bottom: 16px;
+  display: block;
+  color: #adb5bd;
+}
+
+.tab-content .data-table tr td[colspan] p {
+  font-size: 16px;
+  margin-bottom: 16px;
+  color: #6c757d;
+}
+
+.tab-content .data-table tr td[colspan] .btn {
+  margin-top: 16px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Анимации для таблиц */
+.tab-content.active .data-table {
+  animation: fadeInUp 0.3s ease-out;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+} 
+
+/* Улучшенные стили для кнопок действий в таблицах */
+.action-buttons {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.action-buttons .btn {
+  padding: 6px 12px;
+  font-size: 12px;
+  min-height: 32px;
+  border-radius: 6px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.action-buttons .btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.action-buttons .btn:active {
+  transform: translateY(0);
+}
+
+/* Специальные стили для разных типов кнопок */
+.action-buttons .btn-outline {
+  border: 1px solid #dee2e6;
+  background-color: #fff;
+  color: #495057;
+}
+
+.action-buttons .btn-outline:hover {
+  border-color: var(--primary-color);
+  color: var(--primary-color);
+  background-color: rgba(212, 175, 55, 0.05);
+}
+
+.action-buttons .btn-primary {
+  background-color: var(--primary-color);
+  color: white;
+  border: 1px solid var(--primary-color);
+}
+
+.action-buttons .btn-primary:hover {
+  background-color: #c19b3f;
+  border-color: #c19b3f;
+}
+
+.action-buttons .btn-accent {
+  background-color: #28a745;
+  color: white;
+  border: 1px solid #28a745;
+}
+
+.action-buttons .btn-accent:hover {
+  background-color: #218838;
+  border-color: #218838;
+}
+
+.action-buttons .btn-danger {
+  background-color: #dc3545;
+  color: white;
+  border: 1px solid #dc3545;
+}
+
+.action-buttons .btn-danger:hover {
+  background-color: #c82333;
+  border-color: #c82333;
+}
+
+.action-buttons .btn-success {
+  background-color: #28a745;
+  color: white;
+  border: 1px solid #28a745;
+  cursor: default;
+}
+
+/* Адаптивные стили для кнопок на мобильных устройствах */
+@media (max-width: 768px) {
+  .action-buttons {
+    flex-direction: column;
+    gap: 4px;
+    min-width: 100px;
+  }
+
+  .action-buttons .btn {
+    width: 100%;
+    padding: 8px 12px;
+    font-size: 12px;
+    min-height: 36px;
+    justify-content: center;
+    text-align: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .action-buttons {
+    min-width: 80px;
+  }
+
+  .action-buttons .btn {
+    padding: 6px 8px;
+    font-size: 11px;
+    min-height: 32px;
+  }
+}
+
+/* Улучшенные стили для статусов */
+.status-badge {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 500;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.status-new {
+  background-color: #e3f2fd;
+  color: #1976d2;
+}
+
+.status-in_progress {
+  background-color: #fff3e0;
+  color: #f57c00;
+}
+
+.status-completed {
+  background-color: #e8f5e8;
+  color: #388e3c;
+}
+
+.status-cancelled {
+  background-color: #ffebee;
+  color: #d32f2f;
+}
+
+/* Улучшенные стили для информации о заказах */
+.order-title {
+  font-weight: 600;
+  color: #212529;
+  margin-bottom: 4px;
+  line-height: 1.2;
+}
+
+.order-event-type {
+  color: #6c757d;
+  font-size: 0.9em;
+  line-height: 1.2;
+}
+
+/* Улучшенные стили для бюджета */
+.budget-amount {
+  font-weight: 600;
+  color: var(--primary-color);
+  font-size: 0.95em;
 } 

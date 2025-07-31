@@ -1,0 +1,1410 @@
+/* ===== ДОПОЛНИТЕЛЬНЫЕ АДАПТИВНЫЕ СТИЛИ ДЛЯ ВСЕХ СТРАНИЦ ===== */
+
+/* Общие адаптивные улучшения */
+@media (max-width: 1200px) {
+    .container {
+        max-width: 100%;
+        padding: 0 20px;
+    }
+    
+    .dashboard-sidebar {
+        width: 240px;
+    }
+    
+    .dashboard-main {
+        margin-left: 240px;
+    }
+    
+    .catalog-container {
+        grid-template-columns: 250px 1fr;
+        gap: 20px;
+    }
+    
+    .features-grid,
+    .performers-grid,
+    .categories-grid {
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    }
+}
+
+@media (max-width: 1024px) {
+    .hero h1 {
+        font-size: 2.5rem;
+    }
+    
+    .hero p {
+        font-size: 1.1rem;
+    }
+    
+    .features h2,
+    .latest-performers h2,
+    .categories h2 {
+        font-size: 2.2rem;
+    }
+    
+    .dashboard-sidebar {
+        width: 220px;
+    }
+    
+    .dashboard-main {
+        margin-left: 220px;
+    }
+    
+    .catalog-container {
+        grid-template-columns: 220px 1fr;
+    }
+    
+    .performer-card {
+        margin-bottom: 15px;
+    }
+    
+    .portfolio-grid {
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    }
+}
+
+@media (max-width: 768px) {
+    /* Общие мобильные стили */
+    :root {
+        --container-padding: 15px;
+        --spacing-xs: 4px;
+        --spacing-sm: 8px;
+        --spacing-md: 12px;
+        --spacing-lg: 16px;
+        --spacing-xl: 20px;
+        --border-radius: 8px;
+    }
+    
+    /* Хедер для мобильных */
+    .header {
+        height: 60px;
+    }
+    
+    .header .container {
+        padding: 0 15px;
+        height: 60px;
+    }
+    
+    .logo {
+        font-size: 1.2rem;
+    }
+    
+    /* Мобильное меню стили перенесены в mobile-menu.css */
+    
+    .mobile-menu-toggle {
+        display: flex;
+    }
+    
+    /* Основной контент */
+    .main {
+        padding-top: calc(60px + 15px);
+        padding-bottom: 20px;
+    }
+    
+    /* Контейнеры */
+    .container {
+        padding: 0 15px;
+    }
+    
+    /* Дашборд для мобильных */
+    .dashboard-container {
+        flex-direction: column;
+    }
+    
+    .dashboard-sidebar {
+        width: 100%;
+        height: auto;
+        position: static;
+        border-right: none;
+        border-bottom: 1px solid #e5e7eb;
+        padding: 15px;
+    }
+    
+    .dashboard-main {
+        margin-left: 0;
+        padding: 20px 15px;
+    }
+    
+    .dashboard-grid {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+    
+    .stat-card {
+        padding: 20px;
+    }
+    
+    .stat-icon {
+        width: 40px;
+        height: 40px;
+        font-size: 1.2rem;
+    }
+    
+    .stat-value {
+        font-size: 1.5rem;
+    }
+    
+    /* Каталог для мобильных */
+    .catalog-container {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+    
+    .filters-sidebar {
+        position: fixed;
+        top: 0;
+        left: -100%;
+        width: 85%;
+        max-width: 300px;
+        height: 100vh;
+        z-index: 999;
+        transition: left 0.3s ease;
+        border-radius: 0;
+        padding: 20px;
+    }
+    
+    .filters-sidebar.active {
+        left: 0;
+    }
+    
+    .mobile-filters-toggle {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        background: white;
+        border: none;
+        padding: 12px 16px;
+        border-radius: 8px;
+        color: var(--text-primary);
+        font-weight: 500;
+        cursor: pointer;
+        margin-bottom: 15px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        width: 100%;
+        justify-content: center;
+    }
+    
+    .catalog-grid {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+    
+    .performer-image {
+        height: 200px;
+    }
+    
+    /* Профиль для мобильных */
+    .profile-container {
+        padding: 15px;
+    }
+    
+    .profile-header {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        padding: 20px;
+    }
+    
+    .profile-photo {
+        width: 120px;
+        height: 120px;
+        margin-bottom: 15px;
+    }
+    
+    .profile-name {
+        font-size: 1.8rem;
+    }
+    
+    .profile-bio {
+        font-size: 0.95rem;
+    }
+    
+    .profile-meta {
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+    
+    .meta-item {
+        width: 100%;
+        justify-content: center;
+        margin-bottom: 8px;
+    }
+    
+    /* Секции для мобильных */
+    .section {
+        padding: 20px;
+        margin-bottom: 15px;
+    }
+    
+    .section-header {
+        flex-direction: column;
+        gap: 10px;
+        text-align: center;
+        margin-bottom: 15px;
+    }
+    
+    .section-title {
+        font-size: 1.3rem;
+    }
+    
+    /* Портфолио для мобильных */
+    .portfolio-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+    }
+    
+    /* Тарифы для мобильных */
+    .tariff-list,
+    .subscription-plans {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+    
+    /* Отзывы для мобильных */
+    .reviews-list {
+        gap: 15px;
+    }
+    
+    .review-card {
+        padding: 15px;
+    }
+    
+    /* Формы для мобильных */
+    .form-grid {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+    
+    .form-input {
+        padding: 12px;
+        font-size: 16px;
+    }
+    
+    /* Кнопки для мобильных */
+    .btn {
+        padding: 12px 20px;
+        font-size: 0.95rem;
+        min-width: auto;
+        width: 100%;
+        justify-content: center;
+        min-height: 44px;
+    }
+    
+    .btn-group {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    /* Модальные окна для мобильных */
+    .modal {
+        padding: 15px;
+    }
+    
+    .modal-content {
+        margin: 15px;
+        max-width: none;
+        width: calc(100% - 30px);
+        max-height: 90vh;
+        overflow-y: auto;
+    }
+    
+    /* Сообщения для мобильных */
+    .messages {
+        position: fixed;
+        top: calc(60px + 15px);
+        left: 15px;
+        right: 15px;
+        max-width: none;
+        width: auto;
+    }
+    
+    .message-alert {
+        margin-bottom: 10px;
+        padding: 12px;
+        font-size: 0.9rem;
+    }
+    
+    /* Футер для мобильных */
+    .footer {
+        padding: 20px 0;
+    }
+    
+    .footer-content {
+        flex-direction: column;
+        gap: 20px;
+        text-align: center;
+    }
+    
+    .footer-links {
+        justify-content: center;
+        gap: 20px;
+        flex-wrap: wrap;
+    }
+    
+    /* Заказы для мобильных */
+    .order-form {
+        margin: 15px;
+        padding: 20px;
+    }
+    
+    .order-header h1 {
+        font-size: 1.5rem;
+    }
+    
+    .form-section {
+        padding: 15px;
+    }
+    
+    .services-grid {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+    
+    /* Календарь для мобильных */
+    .calendar-picker {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 90%;
+        max-width: 350px;
+        max-height: 80vh;
+        overflow-y: auto;
+    }
+    
+    /* Таблицы для мобильных */
+    .dashboard-table {
+        display: block;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+    
+    .dashboard-table th,
+    .dashboard-table td {
+        padding: 12px;
+        font-size: 0.9rem;
+        min-width: 120px;
+    }
+    
+    /* Навигация для мобильных */
+    .mobile-nav {
+        gap: 10px;
+    }
+    
+    .mobile-nav-link {
+        min-height: 48px;
+        padding: 12px 16px;
+        font-size: 16px;
+        border-radius: 8px;
+        background: #f8f9fa;
+        border: 1px solid #e9ecef;
+    }
+    
+    .mobile-nav-link:hover {
+        background: var(--primary-color);
+        color: white;
+        transform: translateX(5px);
+    }
+    
+    .mobile-nav-link i {
+        font-size: 18px;
+        min-width: 20px;
+    }
+    
+    /* Дропдаун для мобильных */
+    .mobile-nav-dropdown {
+        margin-top: 15px;
+        border-top: 1px solid #e9ecef;
+        padding-top: 15px;
+    }
+    
+    .mobile-nav-dropdown-toggle {
+        width: 100%;
+        padding: 12px 16px;
+        background: #f8f9fa;
+        border: 1px solid #e9ecef;
+        border-radius: 8px;
+        font-size: 16px;
+    }
+    
+    .mobile-nav-dropdown-menu {
+        padding: 10px;
+        margin-top: 10px;
+        background: #f8f9fa;
+        border-radius: 8px;
+        border: 1px solid #e9ecef;
+    }
+    
+    .mobile-nav-dropdown-menu .mobile-nav-link {
+        background: white;
+        margin-bottom: 8px;
+        border: 1px solid #e9ecef;
+    }
+    
+    /* Специфичные стили для каталога */
+    .catalog-header {
+        padding: 20px;
+        margin-bottom: 20px;
+    }
+    
+    .catalog-title {
+        font-size: 1.5rem;
+        margin-bottom: 8px;
+    }
+    
+    .catalog-subtitle {
+        font-size: 1rem;
+    }
+    
+    .filters-bar {
+        padding: 20px;
+        margin-bottom: 20px;
+    }
+    
+    .filters-header {
+        margin-bottom: 16px;
+        padding-bottom: 12px;
+    }
+    
+    .filters-title {
+        font-size: 1rem;
+    }
+    
+    .filters-grid {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+    
+    .filter-group {
+        gap: 6px;
+    }
+    
+    .filter-label {
+        font-size: 0.85rem;
+    }
+    
+    .filter-input {
+        padding: 10px 12px;
+        font-size: 16px;
+    }
+    
+    /* Специфичные стили для дашборда */
+    .dashboard-header {
+        flex-direction: column;
+        gap: 15px;
+        align-items: flex-start;
+        margin-bottom: 20px;
+    }
+    
+    .dashboard-title {
+        font-size: 1.5rem;
+    }
+    
+    .dashboard-actions {
+        width: 100%;
+        justify-content: center;
+    }
+    
+    /* Специфичные стили для профиля */
+    .profile-header {
+        padding: 20px;
+    }
+    
+    .profile-photo {
+        width: 120px;
+        height: 120px;
+        margin-bottom: 15px;
+    }
+    
+    .profile-name {
+        font-size: 1.8rem;
+        margin-bottom: 8px;
+    }
+    
+    .profile-bio {
+        font-size: 0.95rem;
+        margin-bottom: 15px;
+    }
+    
+    .profile-meta {
+        gap: 10px;
+        margin-bottom: 15px;
+    }
+    
+    .meta-item {
+        padding: 8px 12px;
+        font-size: 0.9rem;
+    }
+    
+    /* Специфичные стили для заказов */
+    .order-form {
+        margin: 15px;
+        padding: 20px;
+    }
+    
+    .order-header {
+        margin-bottom: 20px;
+        text-align: center;
+    }
+    
+    .order-header h1 {
+        font-size: 1.5rem;
+        margin-bottom: 8px;
+    }
+    
+    .order-header p {
+        font-size: 1rem;
+    }
+    
+    .form-section {
+        padding: 15px;
+        margin-bottom: 20px;
+    }
+    
+    .form-section h2 {
+        font-size: 1.2rem;
+        margin-bottom: 15px;
+    }
+    
+    .services-grid {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+    
+    .service-card {
+        padding: 15px;
+    }
+    
+    .service-icon {
+        width: 40px;
+        height: 40px;
+        margin-bottom: 12px;
+    }
+    
+    .service-card h3 {
+        font-size: 1rem;
+        margin-bottom: 6px;
+    }
+    
+    .service-card p {
+        font-size: 0.85rem;
+    }
+    
+    /* Специфичные стили для аутентификации */
+    .auth-container {
+        padding: 20px;
+        margin: 15px;
+    }
+    
+    .auth-header {
+        margin-bottom: 20px;
+        text-align: center;
+    }
+    
+    .auth-header h1 {
+        font-size: 1.5rem;
+        margin-bottom: 8px;
+    }
+    
+    .auth-header p {
+        font-size: 1rem;
+    }
+    
+    .auth-form {
+        padding: 20px;
+    }
+    
+    .form-group {
+        margin-bottom: 16px;
+    }
+    
+    .form-label {
+        font-size: 0.95rem;
+        margin-bottom: 6px;
+    }
+    
+    .form-input {
+        padding: 12px;
+        font-size: 16px;
+    }
+    
+    .auth-actions {
+        margin-top: 20px;
+        padding-top: 20px;
+        border-top: 1px solid #e9ecef;
+    }
+    
+    /* Специфичные стили для модальных окон */
+    .booking-modal {
+        width: 95%;
+        max-width: 500px;
+    }
+    
+    .booking-modal .modal-header {
+        padding: 20px;
+    }
+    
+    .booking-modal .modal-header h3 {
+        font-size: 1.3rem;
+    }
+    
+    .booking-modal form {
+        padding: 20px;
+    }
+    
+    .booking-type-selector {
+        margin-top: 15px;
+    }
+    
+    .booking-type-content {
+        padding: 15px;
+        margin-bottom: 10px;
+    }
+    
+    .booking-type-content i {
+        font-size: 1.2rem;
+    }
+    
+    .booking-type-content strong {
+        font-size: 0.95rem;
+    }
+    
+    .booking-type-content small {
+        font-size: 0.8rem;
+    }
+    
+    .booking-modal .form-group {
+        margin-bottom: 16px;
+    }
+    
+    .booking-modal .form-label {
+        font-size: 0.95rem;
+        margin-bottom: 6px;
+    }
+    
+    .booking-modal .form-input {
+        padding: 12px;
+        font-size: 16px;
+    }
+    
+    .booking-modal .form-actions {
+        padding: 20px;
+        background: #f8f9fa;
+        border-top: 1px solid #e9ecef;
+    }
+    
+    .booking-modal .btn {
+        width: 100%;
+        justify-content: center;
+        margin-bottom: 8px;
+    }
+    
+    .booking-modal .btn:last-child {
+        margin-bottom: 0;
+    }
+}
+
+@media (max-width: 480px) {
+    /* Стили для очень маленьких экранов */
+    :root {
+        --container-padding: 10px;
+        --spacing-xs: 3px;
+        --spacing-sm: 6px;
+        --spacing-md: 10px;
+        --spacing-lg: 14px;
+        --spacing-xl: 18px;
+        --border-radius: 6px;
+    }
+    
+    .header .container {
+        padding: 0 10px;
+    }
+    
+    .logo {
+        font-size: 1.1rem;
+    }
+    
+    .main {
+        padding-top: calc(60px + 10px);
+        padding-bottom: 15px;
+    }
+    
+    .container {
+        padding: 0 10px;
+    }
+    
+    /* Дашборд для очень маленьких экранов */
+    .dashboard-main {
+        padding: 15px 10px;
+    }
+    
+    .dashboard-grid {
+        gap: 10px;
+    }
+    
+    .stat-card {
+        padding: 15px;
+    }
+    
+    .stat-icon {
+        width: 36px;
+        height: 36px;
+        font-size: 1.1rem;
+    }
+    
+    .stat-value {
+        font-size: 1.3rem;
+    }
+    
+    /* Каталог для очень маленьких экранов */
+    .catalog-container {
+        padding: 10px;
+    }
+    
+    .filters-sidebar {
+        width: 100%;
+        max-width: none;
+    }
+    
+    .catalog-grid {
+        gap: 10px;
+    }
+    
+    .performer-image {
+        height: 180px;
+    }
+    
+    /* Профиль для очень маленьких экранов */
+    .profile-container {
+        padding: 10px;
+    }
+    
+    .profile-header {
+        padding: 15px;
+    }
+    
+    .profile-photo {
+        width: 100px;
+        height: 100px;
+    }
+    
+    .profile-name {
+        font-size: 1.5rem;
+    }
+    
+    .profile-bio {
+        font-size: 0.9rem;
+    }
+    
+    /* Секции для очень маленьких экранов */
+    .section {
+        padding: 15px;
+        margin-bottom: 10px;
+    }
+    
+    .section-title {
+        font-size: 1.1rem;
+    }
+    
+    /* Портфолио для очень маленьких экранов */
+    .portfolio-grid {
+        grid-template-columns: 1fr;
+        gap: 8px;
+    }
+    
+    /* Формы для очень маленьких экранов */
+    .form-input {
+        padding: 10px;
+        font-size: 16px;
+    }
+    
+    /* Кнопки для очень маленьких экранов */
+    .btn {
+        padding: 10px 16px;
+        font-size: 0.9rem;
+        min-height: 40px;
+    }
+    
+    /* Модальные окна для очень маленьких экранов */
+    .modal {
+        padding: 10px;
+    }
+    
+    .modal-content {
+        margin: 10px;
+        width: calc(100% - 20px);
+    }
+    
+    /* Сообщения для очень маленьких экранов */
+    .messages {
+        top: calc(60px + 10px);
+        left: 10px;
+        right: 10px;
+    }
+    
+    .message-alert {
+        margin-bottom: 8px;
+        padding: 10px;
+        font-size: 0.85rem;
+    }
+    
+    /* Заказы для очень маленьких экранов */
+    .order-form {
+        margin: 10px;
+        padding: 15px;
+    }
+    
+    .order-header h1 {
+        font-size: 1.3rem;
+    }
+    
+    .form-section {
+        padding: 10px;
+    }
+    
+    /* Таблицы для очень маленьких экранов */
+    .dashboard-table th,
+    .dashboard-table td {
+        padding: 8px;
+        font-size: 0.85rem;
+        min-width: 100px;
+    }
+    
+    /* Навигация для очень маленьких экранов */
+    .mobile-nav-link,
+    .mobile-nav-dropdown-toggle {
+        padding: 10px 12px;
+        font-size: 14px;
+        min-height: 44px;
+    }
+    
+    .mobile-nav-link i {
+        font-size: 16px;
+        min-width: 18px;
+    }
+    
+    /* Специфичные стили для каталога на очень маленьких экранах */
+    .catalog-header {
+        padding: 15px;
+        margin-bottom: 15px;
+    }
+    
+    .catalog-title {
+        font-size: 1.3rem;
+    }
+    
+    .catalog-subtitle {
+        font-size: 0.9rem;
+    }
+    
+    .filters-bar {
+        padding: 15px;
+        margin-bottom: 15px;
+    }
+    
+    .filters-header {
+        margin-bottom: 12px;
+        padding-bottom: 8px;
+    }
+    
+    .filters-title {
+        font-size: 0.95rem;
+    }
+    
+    .filters-grid {
+        gap: 12px;
+    }
+    
+    .filter-group {
+        gap: 4px;
+    }
+    
+    .filter-label {
+        font-size: 0.8rem;
+    }
+    
+    .filter-input {
+        padding: 8px 10px;
+        font-size: 16px;
+    }
+    
+    /* Специфичные стили для дашборда на очень маленьких экранах */
+    .dashboard-header {
+        gap: 10px;
+        margin-bottom: 15px;
+    }
+    
+    .dashboard-title {
+        font-size: 1.3rem;
+    }
+    
+    /* Специфичные стили для профиля на очень маленьких экранах */
+    .profile-header {
+        padding: 15px;
+    }
+    
+    .profile-photo {
+        width: 80px;
+        height: 80px;
+        margin-bottom: 12px;
+    }
+    
+    .profile-name {
+        font-size: 1.3rem;
+        margin-bottom: 6px;
+    }
+    
+    .profile-bio {
+        font-size: 0.85rem;
+        margin-bottom: 12px;
+    }
+    
+    .profile-meta {
+        gap: 8px;
+        margin-bottom: 12px;
+    }
+    
+    .meta-item {
+        padding: 6px 10px;
+        font-size: 0.85rem;
+    }
+    
+    /* Специфичные стили для заказов на очень маленьких экранах */
+    .order-form {
+        margin: 10px;
+        padding: 15px;
+    }
+    
+    .order-header {
+        margin-bottom: 15px;
+    }
+    
+    .order-header h1 {
+        font-size: 1.2rem;
+        margin-bottom: 6px;
+    }
+    
+    .order-header p {
+        font-size: 0.9rem;
+    }
+    
+    .form-section {
+        padding: 12px;
+        margin-bottom: 15px;
+    }
+    
+    .form-section h2 {
+        font-size: 1.1rem;
+        margin-bottom: 12px;
+    }
+    
+    .services-grid {
+        gap: 8px;
+    }
+    
+    .service-card {
+        padding: 12px;
+    }
+    
+    .service-icon {
+        width: 36px;
+        height: 36px;
+        margin-bottom: 10px;
+    }
+    
+    .service-card h3 {
+        font-size: 0.95rem;
+        margin-bottom: 4px;
+    }
+    
+    .service-card p {
+        font-size: 0.8rem;
+    }
+    
+    /* Специфичные стили для аутентификации на очень маленьких экранах */
+    .auth-container {
+        padding: 15px;
+        margin: 10px;
+    }
+    
+    .auth-header {
+        margin-bottom: 15px;
+    }
+    
+    .auth-header h1 {
+        font-size: 1.3rem;
+        margin-bottom: 6px;
+    }
+    
+    .auth-header p {
+        font-size: 0.9rem;
+    }
+    
+    .auth-form {
+        padding: 15px;
+    }
+    
+    .form-group {
+        margin-bottom: 12px;
+    }
+    
+    .form-label {
+        font-size: 0.9rem;
+        margin-bottom: 4px;
+    }
+    
+    .form-input {
+        padding: 10px;
+        font-size: 16px;
+    }
+    
+    .auth-actions {
+        margin-top: 15px;
+        padding-top: 15px;
+    }
+    
+    /* Специфичные стили для модальных окон на очень маленьких экранах */
+    .booking-modal {
+        width: 98%;
+        max-width: none;
+    }
+    
+    .booking-modal .modal-header {
+        padding: 15px;
+    }
+    
+    .booking-modal .modal-header h3 {
+        font-size: 1.2rem;
+    }
+    
+    .booking-modal form {
+        padding: 15px;
+    }
+    
+    .booking-type-selector {
+        margin-top: 12px;
+    }
+    
+    .booking-type-content {
+        padding: 12px;
+        margin-bottom: 8px;
+    }
+    
+    .booking-type-content i {
+        font-size: 1.1rem;
+    }
+    
+    .booking-type-content strong {
+        font-size: 0.9rem;
+    }
+    
+    .booking-type-content small {
+        font-size: 0.75rem;
+    }
+    
+    .booking-modal .form-group {
+        margin-bottom: 12px;
+    }
+    
+    .booking-modal .form-label {
+        font-size: 0.9rem;
+        margin-bottom: 4px;
+    }
+    
+    .booking-modal .form-input {
+        padding: 10px;
+        font-size: 16px;
+    }
+    
+    .booking-modal .form-actions {
+        padding: 15px;
+    }
+    
+    .booking-modal .btn {
+        margin-bottom: 6px;
+        font-size: 14px;
+    }
+}
+
+/* Стили для ландшафтной ориентации на мобильных */
+@media (max-width: 768px) and (orientation: landscape) {
+    .mobile-menu-content {
+        padding-top: 60px;
+    }
+    
+    .hero {
+        min-height: 50vh;
+        padding: 30px 0;
+    }
+    
+    .hero h1 {
+        font-size: 1.5rem;
+    }
+    
+    .hero p {
+        font-size: 0.9rem;
+    }
+    
+    .features,
+    .latest-performers,
+    .categories {
+        padding: 30px 0;
+    }
+    
+    .features h2,
+    .latest-performers h2,
+    .categories h2 {
+        font-size: 1.5rem;
+        margin-bottom: 20px;
+    }
+}
+
+/* Стили для устройств с высоким DPI */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+    .icon {
+        image-rendering: -webkit-optimize-contrast;
+        image-rendering: crisp-edges;
+    }
+}
+
+/* Стили для устройств с поддержкой hover */
+@media (hover: hover) {
+    .btn:hover {
+        transform: translateY(-1px);
+    }
+    
+    .card:hover,
+    .performer-card:hover,
+    .feature:hover,
+    .category:hover {
+        transform: translateY(-2px);
+    }
+}
+
+/* Стили для устройств без поддержки hover */
+@media (hover: none) {
+    .btn:active {
+        transform: scale(0.98);
+    }
+    
+    .card:active,
+    .performer-card:active,
+    .feature:active,
+    .category:active {
+        transform: scale(0.98);
+    }
+}
+
+/* Стили для устройств с темной темой */
+@media (prefers-color-scheme: dark) {
+    /* Здесь можно добавить стили для темной темы */
+}
+
+/* Стили для устройств с уменьшенным движением */
+@media (prefers-reduced-motion: reduce) {
+    * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
+/* Дополнительные улучшения для планшетов */
+@media (min-width: 769px) and (max-width: 1024px) {
+    .container {
+        padding: 0 30px;
+    }
+    
+    .hero h1 {
+        font-size: 2.2rem;
+    }
+    
+    .hero p {
+        font-size: 1.05rem;
+    }
+    
+    .features h2,
+    .latest-performers h2,
+    .categories h2 {
+        font-size: 2rem;
+    }
+    
+    .features-grid,
+    .performers-grid,
+    .categories-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 25px;
+    }
+    
+    .dashboard-sidebar {
+        width: 250px;
+    }
+    
+    .dashboard-main {
+        margin-left: 250px;
+    }
+    
+    .catalog-container {
+        grid-template-columns: 280px 1fr;
+    }
+    
+    .portfolio-grid {
+        grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    }
+}
+
+/* Улучшения для больших экранов */
+@media (min-width: 1201px) {
+    .container {
+        max-width: 1400px;
+    }
+    
+    .hero h1 {
+        font-size: 3.5rem;
+    }
+    
+    .hero p {
+        font-size: 1.3rem;
+    }
+    
+    .features h2,
+    .latest-performers h2,
+    .categories h2 {
+        font-size: 3rem;
+    }
+    
+    .features-grid,
+    .performers-grid,
+    .categories-grid {
+        grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+        gap: 40px;
+    }
+    
+    .dashboard-sidebar {
+        width: 300px;
+    }
+    
+    .dashboard-main {
+        margin-left: 300px;
+    }
+    
+    .catalog-container {
+        grid-template-columns: 320px 1fr;
+    }
+    
+    .portfolio-grid {
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    }
+}
+
+/* Специальные стили для очень больших экранов */
+@media (min-width: 1600px) {
+    .container {
+        max-width: 1600px;
+    }
+    
+    .hero h1 {
+        font-size: 4rem;
+    }
+    
+    .hero p {
+        font-size: 1.4rem;
+    }
+    
+    .features h2,
+    .latest-performers h2,
+    .categories h2 {
+        font-size: 3.5rem;
+    }
+    
+    .features-grid,
+    .performers-grid,
+    .categories-grid {
+        grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+        gap: 50px;
+    }
+    
+    .dashboard-sidebar {
+        width: 350px;
+    }
+    
+    .dashboard-main {
+        margin-left: 350px;
+    }
+    
+    .catalog-container {
+        grid-template-columns: 350px 1fr;
+    }
+    
+    .portfolio-grid {
+        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    }
+}
+
+/* Улучшения для устройств с touch-экранами */
+@media (pointer: coarse) {
+    .btn,
+    .nav-link,
+    .mobile-nav-link,
+    .form-input,
+    .form-select {
+        min-height: 44px;
+    }
+    
+    .mobile-menu-toggle {
+        min-width: 44px;
+        min-height: 44px;
+    }
+    
+    .calendar-day-cell {
+        min-height: 44px;
+    }
+    
+    .pagination-item {
+        min-width: 44px;
+        min-height: 44px;
+    }
+}
+
+/* Улучшения для устройств с клавиатурой */
+@media (pointer: fine) {
+    .btn:focus,
+    .nav-link:focus,
+    .mobile-nav-link:focus,
+    .form-input:focus,
+    .form-select:focus {
+        outline: 2px solid var(--primary-color);
+        outline-offset: 2px;
+    }
+}
+
+/* Стили для печати */
+@media print {
+    .header,
+    .footer,
+    .mobile-menu,
+    .modal,
+    .messages {
+        display: none !important;
+    }
+    
+    .main {
+        padding-top: 0 !important;
+    }
+    
+    .container {
+        max-width: none !important;
+        padding: 0 !important;
+    }
+    
+    body {
+        background: white !important;
+        color: black !important;
+    }
+    
+    .btn {
+        border: 1px solid black !important;
+        background: white !important;
+        color: black !important;
+    }
+} 

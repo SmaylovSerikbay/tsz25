@@ -7,8 +7,19 @@
   <title>Каталог исполнителей — Той со звездой</title>
   <link rel="icon" type="image/jpeg" href="{% static 'images/favicon.jpg' %}">
   <link rel="stylesheet" href="{% static 'css/style.css' %}">
+  <link rel="stylesheet" href="{% static 'css/mobile-menu.css' %}">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+  
+  <!-- Touch device styles -->
+  <style>
+    @media (pointer: coarse) {
+      .mobile-menu-toggle {
+        min-width: 24px;
+        min-height: 24px;
+      }
+    }
+  </style>
   <style>
     :root {
       --primary: #D4AF37;
@@ -61,7 +72,7 @@
       top: 0;
       left: 0;
       right: 0;
-      z-index: 1000;
+      z-index: 1001;
     }
 
     .header .container {
@@ -77,13 +88,13 @@
       color: var(--primary);
     }
 
-    .nav {
+    .desktop-nav {
       display: flex;
       gap: 24px;
       align-items: center;
     }
 
-    .nav-link {
+    .desktop-nav .nav-link {
       color: var(--gray-700);
       text-decoration: none;
       font-weight: 500;
@@ -93,7 +104,7 @@
       gap: 6px;
     }
 
-    .nav-link:hover {
+    .desktop-nav .nav-link:hover {
       color: var(--primary);
     }
 
@@ -264,14 +275,14 @@
     /* Performers Grid */
     .performers-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-      gap: 20px;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
       margin-bottom: 40px;
     }
 
     .performer-card {
       background: white;
-      border-radius: 16px;
+      border-radius: 12px;
       overflow: hidden;
       box-shadow: 0 1px 3px rgba(0,0,0,0.1);
       transition: all 0.3s ease;
@@ -279,8 +290,8 @@
     }
 
     .performer-card:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 15px rgba(0,0,0,0.15);
     }
 
     .performer-image {
@@ -291,22 +302,22 @@
     }
 
     .performer-card:hover .performer-image {
-      transform: scale(1.05);
+      transform: scale(1.02);
     }
 
     .performer-content {
-      padding: 20px;
+      padding: 16px;
     }
 
     .performer-header {
       display: flex;
       justify-content: space-between;
       align-items: flex-start;
-      margin-bottom: 12px;
+      margin-bottom: 8px;
     }
 
     .performer-name {
-      font-size: 1.125rem;
+      font-size: 1rem;
       font-weight: 600;
       color: var(--gray-900);
       line-height: 1.3;
@@ -314,30 +325,30 @@
 
     .performer-type {
       color: var(--primary);
-      font-size: 0.875rem;
+      font-size: 0.8rem;
       font-weight: 500;
       display: flex;
       align-items: center;
-      gap: 6px;
-      margin-bottom: 12px;
+      gap: 4px;
+      margin-bottom: 8px;
     }
 
     .performer-stats {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 16px;
-      padding: 12px;
+      margin-bottom: 12px;
+      padding: 8px;
       background: var(--gray-50);
-      border-radius: 8px;
+      border-radius: 6px;
     }
 
     .stat-item {
       display: flex;
       align-items: center;
-      gap: 4px;
+      gap: 3px;
       color: var(--gray-600);
-      font-size: 0.875rem;
+      font-size: 0.8rem;
     }
 
     .stat-item i {
@@ -345,25 +356,25 @@
     }
 
     .performer-price {
-      font-size: 1.25rem;
+      font-size: 1.1rem;
       font-weight: 700;
       color: var(--gray-900);
-      margin-bottom: 16px;
+      margin-bottom: 12px;
     }
 
     .performer-actions {
       display: flex;
-      gap: 8px;
+      gap: 6px;
     }
 
     .btn {
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      gap: 6px;
-      padding: 10px 16px;
-      border-radius: 8px;
-      font-size: 0.875rem;
+      gap: 4px;
+      padding: 8px 12px;
+      border-radius: 6px;
+      font-size: 0.8rem;
       font-weight: 500;
       text-decoration: none;
       transition: all 0.2s;
@@ -447,240 +458,149 @@
       margin-bottom: 8px;
     }
 
-    /* Mobile Menu Styles */
-    .mobile-menu {
-      display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100vh;
-      background: rgba(0, 0, 0, 0.5);
-      z-index: 1001;
-      backdrop-filter: blur(4px);
+    /* Мобильное меню стили перенесены в mobile-menu.css */
+
+    /* Responsive styles */
+    @media (max-width: 1024px) and (min-width: 778px) {
+      .performers-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 20px !important;
+        background-color: rgba(255, 0, 0, 0.1) !important; /* ТЕСТОВЫЙ СТИЛЬ */
+      }
+      
+      .performer-content {
+        padding: 18px !important;
+      }
+      
+      .performer-image {
+        height: 180px !important;
+      }
+      
+      .performer-name {
+        font-size: 1.1rem !important;
+      }
+      
+      .performer-type {
+        font-size: 0.85rem !important;
+      }
+      
+      .performer-stats {
+        padding: 10px !important;
+        margin-bottom: 15px !important;
+      }
+      
+      .stat-item {
+        font-size: 0.85rem !important;
+      }
+      
+      .performer-price {
+        font-size: 1.2rem !important;
+        margin-bottom: 15px !important;
+      }
+      
+      .btn {
+        padding: 10px 16px !important;
+        font-size: 0.9rem !important;
+      }
     }
 
-    .mobile-menu.active {
-      display: block;
+    @media (max-width: 777px) {
+      .performers-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+      }
+      
+      .performer-content {
+        padding: 12px;
+      }
+      
+      .performer-image {
+        height: 130px;
+      }
+      
+      .performer-name {
+        font-size: 0.95rem;
+      }
+      
+      .performer-type {
+        font-size: 0.75rem;
+      }
+      
+      .performer-stats {
+        padding: 6px;
+        margin-bottom: 10px;
+      }
+      
+      .stat-item {
+        font-size: 0.75rem;
+      }
+      
+      .performer-price {
+        font-size: 1rem;
+        margin-bottom: 10px;
+      }
+      
+      .btn {
+        padding: 6px 10px;
+        font-size: 0.75rem;
+      }
     }
 
-    .mobile-menu-content {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: white;
-      transform: translateX(-100%);
-      transition: transform 0.3s ease;
-      overflow-y: auto;
-      padding: 80px 20px 20px 20px;
-    }
-
-    .mobile-menu.active .mobile-menu-content {
-      transform: translateX(0);
-    }
-
-    .mobile-nav {
-      display: flex;
-      flex-direction: column;
-      gap: 0;
-    }
-
-    .mobile-nav-link {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      padding: 16px 0;
-      color: var(--gray-700);
-      text-decoration: none;
-      font-weight: 500;
-      border-bottom: 1px solid var(--gray-200);
-      transition: color 0.2s;
-    }
-
-    .mobile-nav-link:hover {
-      color: var(--primary);
-    }
-
-    .mobile-nav-link:hover i {
-      color: var(--primary);
-    }
-
-    .mobile-nav-link i {
-      font-size: 1.25rem;
-      color: var(--gray-500);
-      transition: color 0.2s;
-    }
-
-    .mobile-nav-link.auth-link {
-      margin-top: 20px;
-      color: var(--primary);
-      font-weight: 600;
-    }
-
-    .mobile-nav-link.auth-link i {
-      color: var(--primary);
-    }
-
-    .mobile-nav-dropdown {
-      border-bottom: 1px solid var(--gray-200);
-    }
-
-    .mobile-nav-dropdown-toggle {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      width: 100%;
-      padding: 16px 0;
-      background: none;
-      border: none;
-      color: var(--gray-700);
-      font-weight: 500;
-      cursor: pointer;
-      transition: color 0.2s;
-    }
-
-    .mobile-nav-dropdown-toggle:hover {
-      color: var(--primary);
-    }
-
-    .mobile-nav-dropdown-toggle:hover i {
-      color: var(--primary);
-    }
-
-    .mobile-nav-dropdown-toggle .user-info {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-
-    .mobile-nav-dropdown-toggle i:last-child {
-      font-size: 1.25rem;
-      color: var(--gray-500);
-      transition: color 0.2s, transform 0.2s;
-    }
-
-    .mobile-nav-dropdown-toggle.active i:last-child {
-      transform: rotate(180deg);
-    }
-
-    .mobile-nav-dropdown-menu {
-      display: none;
-      padding-left: 20px;
-    }
-
-    .mobile-nav-dropdown-menu.active {
-      display: block;
-    }
-
-    .mobile-nav-dropdown-menu .mobile-nav-link {
-      padding: 12px 0;
-      border-bottom: none;
-      font-size: 0.9rem;
-    }
-
-    .mobile-nav-dropdown-menu .mobile-nav-link:last-child {
-      border-bottom: none;
-    }
-
-    /* Mobile Responsive */
     @media (max-width: 768px) {
       .desktop-nav {
-        display: none;
+        display: none !important;
       }
-
-          .mobile-menu-toggle {
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      width: 24px;
-      height: 20px;
-      background: none;
-      border: none;
-      cursor: pointer;
-      padding: 0;
-    }
-
-    .mobile-menu-toggle span {
-      display: block;
-      width: 100%;
-      height: 2px;
-      background: var(--gray-700);
-      transition: all 0.3s ease;
-      border-radius: 1px;
-    }
-
-    .mobile-menu-toggle.active span:nth-child(1) {
-      transform: rotate(45deg) translate(6px, 6px);
-    }
-
-    .mobile-menu-toggle.active span:nth-child(2) {
-      opacity: 0;
-    }
-
-        .mobile-menu-toggle.active span:nth-child(3) {
-      transform: rotate(-45deg) translate(6px, -6px);
-    }
-
-    /* Hide mobile menu toggle on desktop */
-    .mobile-menu-toggle {
-      display: none;
-    }
-
-    .filters-bar {
+      
+      .filters-bar {
         padding: 20px;
-      }
-
-      .filters-header {
-        flex-direction: column;
-        gap: 12px;
-        align-items: flex-start;
-      }
-
-      .filters-grid {
-        grid-template-columns: 1fr;
-        gap: 16px;
-      }
-
-      .filter-radio {
-        flex-direction: row;
-        flex-wrap: wrap;
-        gap: 8px;
-      }
-
-      .radio-option {
-        flex: 1;
-        min-width: 120px;
-        justify-content: center;
-      }
-
-      .price-range {
-        flex-direction: column;
-        gap: 8px;
       }
 
       .performers-grid {
         grid-template-columns: 1fr;
-        gap: 16px;
-      }
-
-      .performer-stats {
-        flex-direction: column;
-        align-items: flex-start;
         gap: 8px;
       }
-
-      .performer-actions {
-        flex-direction: column;
+      
+      .performer-content {
+        padding: 10px;
       }
-
-      .catalog-header {
-        padding: 24px;
+      
+      .performer-image {
+        height: 120px;
       }
+      
+      .performer-name {
+        font-size: 0.9rem;
+      }
+      
+      .performer-type {
+        font-size: 0.7rem;
+      }
+      
+      .performer-stats {
+        padding: 5px;
+        margin-bottom: 8px;
+      }
+      
+      .stat-item {
+        font-size: 0.7rem;
+      }
+      
+      .performer-price {
+        font-size: 0.9rem;
+        margin-bottom: 8px;
+      }
+      
+      .btn {
+        padding: 5px 8px;
+        font-size: 0.7rem;
+      }
+    }
 
-      .catalog-title {
-        font-size: 1.5rem;
+    /* Улучшение доступности для сенсорных устройств */
+    @media (pointer: coarse) {
+      .mobile-menu-toggle {
+        min-height: 24px;
+        min-width: 24px;
       }
     }
 
@@ -742,33 +662,33 @@
       }
 
       .performer-image {
-        height: 180px;
+        height: 100px;
       }
 
-      .performer-info {
-        padding: 12px;
+      .performer-content {
+        padding: 8px;
       }
 
       .performer-name {
-        font-size: 1rem;
+        font-size: 0.85rem;
       }
 
       .performer-type {
-        font-size: 0.85rem;
+        font-size: 0.7rem;
       }
 
       .performer-meta {
-        font-size: 0.85rem;
-        gap: 8px;
+        font-size: 0.7rem;
+        gap: 4px;
       }
 
       .performer-price {
-        font-size: 0.95rem;
+        font-size: 0.8rem;
       }
 
       .performer-actions .btn {
-        padding: 10px 12px;
-        font-size: 0.9rem;
+        padding: 4px 6px;
+        font-size: 0.7rem;
       }
 
       .page-title {
@@ -887,6 +807,11 @@
           </a>
         {% endif %}
       </nav>
+      <button class="mobile-menu-toggle" aria-label="Открыть меню">
+        <span></span>
+        <span style="height: 3.35px;"></span>
+        <span></span>
+      </button>
     </div>
   </header>
 
@@ -903,6 +828,12 @@
           <span>Исполнители</span>
         </a>
         {% if user.is_authenticated %}
+          {% if user.user_type == 'customer' %}
+            <a href="{% url 'main:dashboard' %}#create-order" class="mobile-nav-link">
+              <i class="ri-add-circle-line"></i>
+              <span>Создать заявку</span>
+            </a>
+          {% endif %}
           <div class="mobile-nav-dropdown">
             <button class="mobile-nav-dropdown-toggle">
               <div class="user-info">
@@ -944,8 +875,8 @@
         <p class="catalog-subtitle">Найдите идеального исполнителя для вашего мероприятия</p>
       </div>
 
-      <!-- Filters (NEW HORIZONTAL STYLE) -->
-      <div class="filters-horizontal-bar">
+      <!-- Desktop Filters -->
+      <div class="filters-horizontal-bar desktop-filters">
         <form method="get" id="filters-form" class="filters-horizontal-form">
           <!-- Категории -->
           <select name="category" class="chip-input category-chip" onchange="this.form.submit()">
@@ -993,7 +924,96 @@
         </form>
       </div>
 
+      <!-- Mobile Filters Button -->
+      <div class="mobile-filters-container">
+        <button class="mobile-filters-btn" onclick="toggleMobileFilters()">
+          <i class="ri-filter-3-line"></i>
+          <span>Фильтры</span>
+          <i class="ri-arrow-down-s-line"></i>
+        </button>
+      </div>
+
+      <!-- Mobile Filters Modal -->
+      <div class="mobile-filters-modal" id="mobileFiltersModal">
+        <div class="mobile-filters-overlay" onclick="toggleMobileFilters()"></div>
+        <div class="mobile-filters-content">
+          <div class="mobile-filters-header">
+            <h3>Фильтры</h3>
+            <button class="mobile-filters-close" onclick="toggleMobileFilters()">
+              <i class="ri-close-line"></i>
+            </button>
+          </div>
+          <form method="get" id="mobile-filters-form" class="mobile-filters-form">
+            <!-- Категории -->
+            <div class="mobile-filter-group">
+              <label>Категория</label>
+              <select name="category" class="mobile-filter-input">
+                <option value="all" {% if not current_filters.category or current_filters.category == 'all' %}selected{% endif %}>Все</option>
+                {% for service_type in categories %}
+                  <option value="{{ service_type.code }}" {% if current_filters.category == service_type.code %}selected{% endif %}>{{ service_type.name }}</option>
+                {% endfor %}
+              </select>
+            </div>
+
+            <!-- Город -->
+            <div class="mobile-filter-group">
+              <label>Город</label>
+              <select name="city" class="mobile-filter-input">
+                <option value="">Выберите город</option>
+                {% for city in cities %}
+                  <option value="{{ city.name }}" {% if current_filters.city == city.name %}selected{% endif %}>{{ city.name }}</option>
+                {% endfor %}
+              </select>
+            </div>
+
+            <!-- Цена -->
+            <div class="mobile-filter-group">
+              <label>Цена</label>
+              <div class="mobile-price-inputs">
+                <input type="number" name="min_price" class="mobile-filter-input" placeholder="От" value="{{ current_filters.min_price }}">
+                <span class="mobile-price-sep">–</span>
+                <input type="number" name="max_price" class="mobile-filter-input" placeholder="До" value="{{ current_filters.max_price }}">
+              </div>
+            </div>
+
+            <!-- Рейтинг -->
+            <div class="mobile-filter-group">
+              <label>Рейтинг</label>
+              <select name="rating" class="mobile-filter-input">
+                <option value="">Любой</option>
+                <option value="4" {% if current_filters.rating == '4' %}selected{% endif %}>4★ и выше</option>
+                <option value="3" {% if current_filters.rating == '3' %}selected{% endif %}>3★ и выше</option>
+              </select>
+            </div>
+
+            <!-- Дата -->
+            <div class="mobile-filter-group">
+              <label>Дата</label>
+              <input type="date" name="date" class="mobile-filter-input" value="{% if current_filters.date and current_filters.date != 'None' %}{{ current_filters.date }}{% endif %}">
+            </div>
+
+            <!-- Сортировка -->
+            <div class="mobile-filter-group">
+              <label>Сортировка</label>
+              <select name="sort" class="mobile-filter-input">
+                <option value="rating" {% if current_filters.sort == 'rating' %}selected{% endif %}>По рейтингу</option>
+                <option value="price_low" {% if current_filters.sort == 'price_low' %}selected{% endif %}>Дешевле</option>
+                <option value="price_high" {% if current_filters.sort == 'price_high' %}selected{% endif %}>Дороже</option>
+                <option value="newest" {% if current_filters.sort == 'newest' %}selected{% endif %}>Новые</option>
+              </select>
+            </div>
+
+            <!-- Кнопки -->
+            <div class="mobile-filters-actions">
+              <button type="button" class="mobile-filter-btn mobile-filter-apply" onclick="applyMobileFilters()">Применить</button>
+              <a href="{% url 'main:catalog' %}" class="mobile-filter-btn mobile-filter-reset">Сбросить</a>
+            </div>
+          </form>
+        </div>
+      </div>
+
       <style>
+             /* Desktop Filters */
              .filters-horizontal-bar {
          background: white;
          border-radius: 12px;
@@ -1001,6 +1021,194 @@
          padding: 16px 20px;
          margin-bottom: 24px;
          overflow-x: auto;
+       }
+
+       /* Mobile Filters */
+       .mobile-filters-container {
+         display: none;
+         margin-bottom: 16px;
+       }
+
+       .mobile-filters-btn {
+         display: flex;
+         align-items: center;
+         justify-content: space-between;
+         width: 100%;
+         padding: 12px 16px;
+         background: white;
+         border: 1px solid var(--gray-200);
+         border-radius: 8px;
+         font-size: 0.9rem;
+         font-weight: 500;
+         color: var(--gray-700);
+         cursor: pointer;
+         transition: all 0.2s;
+       }
+
+       .mobile-filters-btn:hover {
+         border-color: var(--primary);
+         color: var(--primary);
+       }
+
+       .mobile-filters-btn i {
+         font-size: 1.1rem;
+       }
+
+       .mobile-filters-modal {
+         display: none;
+         position: fixed;
+         top: 0;
+         left: 0;
+         width: 100%;
+         height: 100%;
+         z-index: 1000;
+       }
+
+       .mobile-filters-overlay {
+         position: absolute;
+         top: 0;
+         left: 0;
+         width: 100%;
+         height: 100%;
+         background: rgba(0, 0, 0, 0.5);
+         backdrop-filter: blur(4px);
+       }
+
+       .mobile-filters-content {
+         position: absolute;
+         bottom: 0;
+         left: 0;
+         width: 100%;
+         background: white;
+         border-radius: 16px 16px 0 0;
+         padding: 20px;
+         max-height: 80vh;
+         overflow-y: auto;
+         transform: translateY(100%);
+         transition: transform 0.3s ease;
+       }
+
+       .mobile-filters-modal.active {
+         display: block;
+       }
+
+       .mobile-filters-modal.active .mobile-filters-content {
+         transform: translateY(0);
+       }
+
+       .mobile-filters-header {
+         display: flex;
+         justify-content: space-between;
+         align-items: center;
+         margin-bottom: 20px;
+         padding-bottom: 12px;
+         border-bottom: 1px solid var(--gray-200);
+       }
+
+       .mobile-filters-header h3 {
+         font-size: 1.1rem;
+         font-weight: 600;
+         color: var(--gray-900);
+         margin: 0;
+       }
+
+       .mobile-filters-close {
+         background: none;
+         border: none;
+         font-size: 1.5rem;
+         color: var(--gray-500);
+         cursor: pointer;
+         padding: 4px;
+         border-radius: 4px;
+         transition: color 0.2s;
+       }
+
+       .mobile-filters-close:hover {
+         color: var(--gray-700);
+       }
+
+       .mobile-filters-form {
+         display: flex;
+         flex-direction: column;
+         gap: 16px;
+       }
+
+       .mobile-filter-group {
+         display: flex;
+         flex-direction: column;
+         gap: 6px;
+       }
+
+       .mobile-filter-group label {
+         font-size: 0.9rem;
+         font-weight: 500;
+         color: var(--gray-700);
+       }
+
+       .mobile-filter-input {
+         padding: 10px 12px;
+         border: 1px solid var(--gray-200);
+         border-radius: 6px;
+         font-size: 0.9rem;
+         background: white;
+         color: var(--gray-900);
+         transition: border-color 0.2s;
+       }
+
+       .mobile-filter-input:focus {
+         border-color: var(--primary);
+         outline: none;
+       }
+
+       .mobile-price-inputs {
+         display: flex;
+         align-items: center;
+         gap: 8px;
+       }
+
+       .mobile-price-sep {
+         color: var(--gray-400);
+         font-size: 0.9rem;
+       }
+
+       .mobile-filters-actions {
+         display: flex;
+         gap: 12px;
+         margin-top: 20px;
+         padding-top: 16px;
+         border-top: 1px solid var(--gray-200);
+       }
+
+       .mobile-filter-btn {
+         flex: 1;
+         padding: 12px;
+         border-radius: 6px;
+         font-size: 0.9rem;
+         font-weight: 500;
+         text-decoration: none;
+         text-align: center;
+         transition: all 0.2s;
+         border: none;
+         cursor: pointer;
+       }
+
+       .mobile-filter-apply {
+         background: var(--primary);
+         color: white;
+       }
+
+       .mobile-filter-apply:hover {
+         background: var(--primary-dark);
+       }
+
+       .mobile-filter-reset {
+         background: var(--gray-100);
+         color: var(--gray-700);
+         border: 1px solid var(--gray-200);
+       }
+
+       .mobile-filter-reset:hover {
+         background: var(--gray-200);
        }
        .filters-horizontal-form {
          display: flex;
@@ -1105,6 +1313,16 @@
          .chip, .chip-input {
            font-size: 0.875rem;
            padding: 6px 10px;
+         }
+       }
+
+       @media (max-width: 768px) {
+         .desktop-filters {
+           display: none;
+         }
+         
+         .mobile-filters-container {
+           display: block;
          }
        }
        @media (max-width: 768px) {
@@ -1311,65 +1529,8 @@
   <!-- Booking Modal will be created dynamically by main.js -->
 
   <script>
-    // Mobile menu functionality
+    // Set minimum date for date input
     document.addEventListener('DOMContentLoaded', function() {
-      const mobileMenuToggle = document.querySelector('.mobile-menu-toggle');
-      const mobileMenu = document.querySelector('.mobile-menu');
-      const navDropdowns = document.querySelectorAll('.nav-dropdown-toggle');
-      const mobileNavDropdowns = document.querySelectorAll('.mobile-nav-dropdown-toggle');
-
-      // Mobile menu toggle
-      if (mobileMenuToggle && mobileMenu) {
-        mobileMenuToggle.addEventListener('click', function() {
-          mobileMenuToggle.classList.toggle('active');
-          mobileMenu.classList.toggle('active');
-          document.body.style.overflow = mobileMenu.classList.contains('active') ? 'hidden' : 'auto';
-        });
-      }
-
-      // Desktop dropdowns
-      navDropdowns.forEach(dropdown => {
-        dropdown.addEventListener('click', function(e) {
-          e.stopPropagation();
-          const menu = this.nextElementSibling;
-          const isActive = menu.classList.contains('active');
-          
-          document.querySelectorAll('.nav-dropdown-menu').forEach(m => m.classList.remove('active'));
-          document.querySelectorAll('.nav-dropdown-toggle').forEach(t => t.classList.remove('active'));
-          
-          if (!isActive) {
-            menu.classList.add('active');
-            this.classList.add('active');
-          }
-        });
-      });
-
-      // Mobile dropdowns
-      mobileNavDropdowns.forEach(dropdown => {
-        dropdown.addEventListener('click', function(e) {
-          e.stopPropagation();
-          const menu = this.nextElementSibling;
-          const isActive = menu.classList.contains('active');
-          
-          document.querySelectorAll('.mobile-nav-dropdown-menu').forEach(m => m.classList.remove('active'));
-          document.querySelectorAll('.mobile-nav-dropdown-toggle').forEach(t => t.classList.remove('active'));
-          
-          if (!isActive) {
-            menu.classList.add('active');
-            this.classList.add('active');
-          }
-        });
-      });
-
-      // Close dropdowns when clicking outside
-      document.addEventListener('click', function() {
-        document.querySelectorAll('.nav-dropdown-menu').forEach(m => m.classList.remove('active'));
-        document.querySelectorAll('.nav-dropdown-toggle').forEach(t => t.classList.remove('active'));
-        document.querySelectorAll('.mobile-nav-dropdown-menu').forEach(m => m.classList.remove('active'));
-        document.querySelectorAll('.mobile-nav-dropdown-toggle').forEach(t => t.classList.remove('active'));
-      });
-
-      // Set minimum date for date input
       const dateInput = document.querySelector('input[type="date"]');
       if (dateInput) {
         const today = new Date();
@@ -1382,9 +1543,40 @@
       }
     });
 
+    // Mobile Filters Toggle
+    function toggleMobileFilters() {
+      const modal = document.getElementById('mobileFiltersModal');
+      const btn = document.querySelector('.mobile-filters-btn i:last-child');
+      
+      if (modal.classList.contains('active')) {
+        modal.classList.remove('active');
+        btn.style.transform = 'rotate(0deg)';
+      } else {
+        modal.classList.add('active');
+        btn.style.transform = 'rotate(180deg)';
+      }
+    }
+
+    // Apply mobile filters
+    function applyMobileFilters() {
+      const form = document.getElementById('mobile-filters-form');
+      form.submit();
+    }
+
+    // Close mobile filters on escape key
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') {
+        const modal = document.getElementById('mobileFiltersModal');
+        if (modal.classList.contains('active')) {
+          toggleMobileFilters();
+        }
+      }
+    });
+
     // Booking Modal Function - uses main.js openBookingModal
     console.log('Catalog page loaded, openBookingModal available:', typeof openBookingModal);
   </script>
   <script src="{% static 'js/main.js' %}"></script>
+  <script src="{% static 'js/mobile-menu.js' %}"></script>
 </body>
 </html> 

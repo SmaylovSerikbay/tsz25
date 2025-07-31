@@ -8,8 +8,20 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Личный кабинет — Той со звездой</title>
   <link rel="stylesheet" href="{% static 'css/style.css' %}">
+  <link rel="stylesheet" href="{% static 'css/mobile.css' %}">
+  <link rel="stylesheet" href="{% static 'css/mobile-menu.css' %}">
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+  
+  <!-- Touch device styles -->
+  <style>
+    @media (pointer: coarse) {
+      .mobile-menu-toggle {
+        min-width: 24px;
+        min-height: 24px;
+      }
+    }
+  </style>
   <style>
     /* Навбар - используем стандартные стили из style.css */
     .header {
@@ -17,7 +29,7 @@
       box-shadow: 0 2px 8px rgba(0,0,0,0.1);
       position: sticky;
       top: 0;
-      z-index: 1000;
+      z-index: 1001;
     }
 
     .logo {
@@ -30,6 +42,13 @@
       display: flex;
       align-items: center;
       gap: 32px;
+    }
+
+    /* Мобильное меню - скрываем десктопное меню на мобильных устройствах */
+    @media (max-width: 768px) {
+      .desktop-nav {
+        display: none !important;
+      }
     }
 
     .nav-link {
@@ -109,81 +128,7 @@
       background-color: #f8f9fa;
     }
 
-    .mobile-menu-toggle {
-      display: none;
-      flex-direction: column;
-      gap: 4px;
-      background: none;
-      border: none;
-      cursor: pointer;
-      padding: 8px;
-    }
-
-    .mobile-menu-toggle span {
-      width: 24px;
-      height: 2px;
-      background-color: #333;
-      transition: all 0.3s;
-    }
-
-    .mobile-menu {
-      display: none;
-      position: fixed;
-      top: 70px;
-      left: 0;
-      right: 0;
-      background: white;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-      z-index: 999;
-    }
-
-    .mobile-menu.active {
-      display: block;
-    }
-
-    .mobile-nav {
-      padding: 24px;
-    }
-
-    .mobile-nav-link {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      padding: 12px 0;
-      color: #333;
-      text-decoration: none;
-      border-bottom: 1px solid #e9ecef;
-    }
-
-    .mobile-nav-dropdown {
-      margin-top: 16px;
-    }
-
-    .mobile-nav-dropdown-toggle {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      width: 100%;
-      background: none;
-      border: none;
-      padding: 12px 0;
-      cursor: pointer;
-      border-bottom: 1px solid #e9ecef;
-    }
-
-    .mobile-nav-dropdown-menu {
-      padding-left: 24px;
-    }
-
-    @media (max-width: 768px) {
-      .desktop-nav {
-        display: none;
-      }
-      
-      .mobile-menu-toggle {
-        display: flex;
-      }
-    }
+    /* Мобильное меню стили перенесены в mobile-menu.css */
 
     .dashboard {
       padding: 32px 0;
@@ -1489,17 +1434,7 @@
 
   <script src="{% static 'js/main.js' %}"></script>
   <script>
-    // Мобильное меню
-    document.addEventListener('DOMContentLoaded', function() {
-      const mobileMenuToggle = document.querySelector('.mobile-menu-toggle');
-      const mobileMenu = document.querySelector('.mobile-menu');
-      
-      if (mobileMenuToggle && mobileMenu) {
-        mobileMenuToggle.addEventListener('click', function() {
-          mobileMenu.classList.toggle('active');
-        });
-      }
-    });
+    /* Мобильное меню JavaScript перенесен в mobile-menu.js */
 
     // Функции для табов
     function showTab(tabName, element) {
@@ -1919,5 +1854,6 @@
       }
     });
   </script>
+  <script src="{% static 'js/mobile-menu.js' %}"></script>
 </body>
 </html> 

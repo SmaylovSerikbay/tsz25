@@ -8,8 +8,19 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Личный кабинет — Той со звездой</title>
   <link rel="stylesheet" href="{% static 'css/style.css' %}">
+  <link rel="stylesheet" href="{% static 'css/mobile-menu.css' %}">
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+  
+  <!-- Touch device styles -->
+  <style>
+    @media (pointer: coarse) {
+      .mobile-menu-toggle {
+        min-width: 24px;
+        min-height: 24px;
+      }
+    }
+  </style>
   <style>
     .dashboard {
       padding: 32px 0;
@@ -866,6 +877,12 @@
         <span>Исполнители</span>
       </a>
       {% if user.is_authenticated %}
+        {% if user.user_type == 'customer' %}
+          <a href="{% url 'main:dashboard' %}#create-order" class="mobile-nav-link">
+            <i class="ri-add-circle-line"></i>
+            <span>Создать заявку</span>
+          </a>
+        {% endif %}
         <div class="mobile-nav-dropdown">
           <button class="mobile-nav-dropdown-toggle">
             <div class="user-info">
@@ -1022,6 +1039,7 @@
     </div>
 </div>
 <script src="{% static 'js/main.js' %}"></script>
+<script src="{% static 'js/mobile-menu.js' %}"></script>
 
 <style>
 .settings-container {
