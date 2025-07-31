@@ -1,7 +1,7 @@
 <!-- Calendar Management Modal -->
 <div id="calendarModal" class="modal">
   <div class="modal-content">
-    <button class="modal-close" onclick="closeModal('calendarModal')">
+    <button class="modal-close" onclick="closeCalendarModal()">
       <i class="ri-close-line"></i>
     </button>
     <div class="modal-header">
@@ -148,5 +148,50 @@ function nextMonthCalendar() {
 // Initialize calendar immediately when page loads
 document.addEventListener('DOMContentLoaded', function() {
   updateCalendar();
+});
+
+// Function to open calendar modal and load existing busy dates
+function openCalendarModal() {
+  // Load existing busy dates from the server
+  fetch('/api/performer/{{ user.id }}/busy-dates/')
+    .then(response => response.json())
+    .then(data => {
+      // Clear existing selected dates
+      selectedDates.clear();
+      
+      // Add existing busy dates to selected dates
+      if (data.busy_dates) {
+        data.busy_dates.forEach(dateString => {
+          selectedDates.add(dateString);
+        });
+      }
+      
+      // Update calendar to show selected dates
+      updateCalendar();
+      
+      // Open modal
+      document.getElementById('calendarModal').style.display = 'block';
+    })
+    .catch(error => {
+      console.error('Error loading busy dates:', error);
+      // Open modal anyway
+      document.getElementById('calendarModal').style.display = 'block';
+    });
+}
+
+// Function to close calendar modal
+function closeCalendarModal() {
+  document.getElementById('calendarModal').style.display = 'none';
+  // Reset selected dates
+  selectedDates.clear();
+  updateCalendar();
+}
+
+// Close modal when clicking outside
+window.addEventListener('click', function(event) {
+  const modal = document.getElementById('calendarModal');
+  if (event.target === modal) {
+    closeCalendarModal();
+  }
 });
 </script> 

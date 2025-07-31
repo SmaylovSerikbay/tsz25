@@ -8,7 +8,7 @@ from .models import User, Order, Category, Review, Portfolio, Tariff, BusyDate, 
 from .forms import UserRegistrationForm, UserProfileForm, OrderForm, ReviewForm, PortfolioForm, TariffForm
 from .services import WhatsAppOTPService
 import json
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date
 from django.views.decorators.http import require_http_methods, require_GET, require_POST
 from django.views.decorators.csrf import csrf_exempt
 from django.db import models
@@ -409,6 +409,9 @@ def profile_settings(request):
 
 @login_required
 def dashboard(request):
+    # Очищаем прошедшие занятые даты
+    cleanup_past_busy_dates()
+    
     if request.user.user_type == 'performer':
         # Получаем все новые заявки-запросы, на которые исполнитель еще не откликался
         all_orders = Order.objects.filter(
@@ -1097,8 +1100,9 @@ def cancel_order(request, order_id):
         return redirect('main:dashboard')
     
     if request.method == 'POST':
-        # Удаляем дату из занятых
-        BusyDate.objects.filter(user=order.performer, date=order.event_date).delete()
+        # Удаляем дату из занятых только для заявок (не для бронирований)
+        if order.order_type == 'request':
+            BusyDate.objects.filter(user=order.performer, date=order.event_date).delete()
         
         order.status = 'cancelled'
         order.save()
@@ -1116,8 +1120,9 @@ def delete_order(request, order_id):
         return redirect('main:dashboard')
     
     if request.method == 'POST':
-        # Удаляем дату из занятых
-        BusyDate.objects.filter(user=order.performer, date=order.event_date).delete()
+        # Удаляем дату из занятых только для заявок (не для бронирований)
+        if order.order_type == 'request':
+            BusyDate.objects.filter(user=order.performer, date=order.event_date).delete()
         
         order.delete()
         messages.success(request, 'Заказ успешно удален')
@@ -1148,8 +1153,9 @@ def performer_cancel_order(request, order_id):
     
     if request.method == 'POST':
         try:
-            # Удаляем дату из занятых
-            BusyDate.objects.filter(user=request.user, date=order.event_date).delete()
+            # Удаляем дату из занятых только для заявок (не для бронирований)
+            if order.order_type == 'request':
+                BusyDate.objects.filter(user=request.user, date=order.event_date).delete()
             
             # Удаляем отклик исполнителя на этот заказ
             OrderResponse.objects.filter(order=order, performer=request.user).delete()
@@ -1817,8 +1823,8 @@ def cancel_order_api(request, order_id):
             # Удаляем отклики исполнителей
             OrderResponse.objects.filter(order=order).delete()
             
-            # Удаляем занятые даты исполнителей
-            if order.performer:
+            # Удаляем занятые даты исполнителей только для заявок (не для бронирований)
+            if order.performer and order.order_type == 'request':
                 BusyDate.objects.filter(user=order.performer, date=order.event_date).delete()
             
             # Очищаем выбранных исполнителей и возвращаем статус 'new'
@@ -1864,9 +1870,10 @@ def complete_order_api(request, order_id):
         order.status = 'completed'
         order.save()
         
-        # Освобождаем дату из занятых дат исполнителя, если дата еще не прошла
+        # Освобождаем дату из занятых дат исполнителя только для заявок (не для бронирований)
+        # При бронировании дата должна оставаться занятой до самого события
         from datetime import date
-        if performer and order.event_date >= date.today():
+        if performer and order.order_type == 'request' and order.event_date >= date.today():
             from main.models import BusyDate
             BusyDate.objects.filter(
                 user=performer, 
@@ -2137,3 +2144,24 @@ def cancel_response(request, response_id):
         
     except Exception as e:
         return JsonResponse({'error': 'Произошла ошибка при отмене отклика'}, status=500)
+
+def cleanup_past_busy_dates():
+    """Очищает занятые даты, которые уже прошли"""
+    today = date.today()
+    
+    # Удаляем занятые даты, которые уже прошли
+    BusyDate.objects.filter(date__lt=today).delete()
+    
+    # Также удаляем занятые даты для завершенных бронирований, которые уже прошли
+    completed_bookings = Order.objects.filter(
+        order_type='booking',
+        status='completed',
+        event_date__lt=today
+    )
+    
+    for booking in completed_bookings:
+        if booking.performer:
+            BusyDate.objects.filter(
+                user=booking.performer,
+                date=booking.event_date
+            ).delete()
