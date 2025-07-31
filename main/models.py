@@ -149,7 +149,7 @@ class Order(models.Model):
     city = models.CharField(max_length=100)
     venue = models.CharField(max_length=200, blank=True)
     guest_count = models.IntegerField(validators=[MinValueValidator(1)])
-    description = models.TextField()
+    description = models.TextField(blank=True)
     budget_min = models.DecimalField(max_digits=10, decimal_places=2)
     budget_max = models.DecimalField(max_digits=10, decimal_places=2)
     services = models.JSONField()  # Хранит список выбранных услуг

@@ -30,6 +30,9 @@ class OrderForm(forms.ModelForm):
     
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        # Делаем поле description необязательным
+        self.fields['description'].required = False
+        
         # Получаем города из базы данных
         from .models import City
         cities = City.objects.filter(is_active=True).order_by('name')

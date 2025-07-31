@@ -852,6 +852,8 @@ def create_order_request(request):
     """Создание заявки заказчиком"""
     if request.method == 'POST':
         if request.user.user_type != 'customer':
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return JsonResponse({'error': 'Только заказчики могут создавать заявки'}, status=403)
             messages.error(request, 'Только заказчики могут создавать заявки')
             return redirect('main:dashboard')
             
@@ -873,9 +875,29 @@ def create_order_request(request):
                 order.services = []
                 
             order.save()
+            
+            # Если это AJAX-запрос, возвращаем JSON
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return JsonResponse({
+                    'success': True,
+                    'message': 'Заявка успешно создана',
+                    'order_id': order.id
+                })
+            
             messages.success(request, 'Заявка успешно создана')
             return redirect('main:order_detail', order.id)
         else:
+            # Если это AJAX-запрос, возвращаем ошибки в JSON
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                errors = {}
+                for field, field_errors in form.errors.items():
+                    errors[field] = field_errors[0] if field_errors else 'Ошибка валидации'
+                return JsonResponse({
+                    'success': False,
+                    'errors': errors,
+                    'message': 'Пожалуйста, исправьте ошибки в форме'
+                }, status=400)
+            
             messages.error(request, 'Пожалуйста, исправьте ошибки в форме')
     else:
         form = OrderForm()
@@ -1011,6 +1033,8 @@ def edit_order(request, order_id):
     order = get_object_or_404(Order, id=order_id)
     
     if request.user != order.customer:
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return JsonResponse({'error': 'У вас нет прав для редактирования этого заказа'}, status=403)
         messages.error(request, 'У вас нет прав для редактирования этого заказа')
         return redirect('main:dashboard')
         
@@ -1029,8 +1053,28 @@ def edit_order(request, order_id):
             except json.JSONDecodeError:
                 order.services = []
             order.save()
+            
+            # Если это AJAX-запрос, возвращаем JSON
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return JsonResponse({
+                    'success': True,
+                    'message': 'Заказ успешно обновлен!',
+                    'order_id': order.id
+                })
+            
             messages.success(request, 'Заказ успешно обновлен!')
             return redirect('main:order_detail', order_id=order.id)
+        else:
+            # Если это AJAX-запрос, возвращаем ошибки в JSON
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                errors = {}
+                for field, field_errors in form.errors.items():
+                    errors[field] = field_errors[0] if field_errors else 'Ошибка валидации'
+                return JsonResponse({
+                    'success': False,
+                    'errors': errors,
+                    'message': 'Пожалуйста, исправьте ошибки в форме'
+                }, status=400)
     else:
         form = OrderForm(instance=order)
     

@@ -1,0 +1,1017 @@
+<!-- Модальное окно для создания заказа -->
+<div id="createOrderModal" class="modal">
+  <div class="modal-content create-order-modal">
+    <button class="modal-close" onclick="closeCreateOrderModal()">&times;</button>
+    
+    <div class="modal-header">
+      <h3 class="modal-title">
+        <i class="ri-add-circle-line"></i>
+        Создать новую заявку
+      </h3>
+      <p class="modal-subtitle">Заполните информацию о вашем мероприятии</p>
+    </div>
+
+    <form id="createOrderForm" onsubmit="submitCreateOrder(event)">
+      {% csrf_token %}
+      
+      <!-- Прогресс-бар -->
+      <div class="step-progress">
+        <div class="step-indicator active" data-step="1">
+          <div class="step-number">1</div>
+          <div class="step-label">Основная информация</div>
+        </div>
+        <div class="step-indicator" data-step="2">
+          <div class="step-number">2</div>
+          <div class="step-label">Дата и место</div>
+        </div>
+        <div class="step-indicator" data-step="3">
+          <div class="step-number">3</div>
+          <div class="step-label">Услуги</div>
+        </div>
+        <div class="step-indicator" data-step="4">
+          <div class="step-number">4</div>
+          <div class="step-label">Бюджет</div>
+        </div>
+        <div class="step-indicator" data-step="5">
+          <div class="step-number">5</div>
+          <div class="step-label">Дополнительно</div>
+        </div>
+      </div>
+
+      <!-- Контейнер для шагов -->
+      <div class="form-steps-container">
+        <!-- Шаг 1: Основная информация -->
+      <div class="form-step active" data-step="1">
+        <h4 class="section-title">
+          <i class="ri-information-line"></i>
+          Основная информация
+        </h4>
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="orderTitle">Название мероприятия *</label>
+            <input type="text" id="orderTitle" name="title" class="form-input" required 
+                   placeholder="Например: Свадьба Али и Айши">
+          </div>
+          <div class="form-group">
+            <label for="eventType">Тип мероприятия *</label>
+            <select id="eventType" name="event_type" class="form-input" required>
+              <option value="">Выберите тип</option>
+              <option value="wedding">Свадьба</option>
+              <option value="birthday">День рождения</option>
+              <option value="corporate">Корпоратив</option>
+              <option value="other">Другое</option>
+            </select>
+          </div>
+        </div>
+        <div class="step-actions">
+          <button type="button" class="btn btn-outline" onclick="closeCreateOrderModal()">
+            <i class="ri-close-line"></i>
+            Отмена
+          </button>
+          <button type="button" class="btn btn-accent" onclick="nextStep()">
+            Далее
+            <i class="ri-arrow-right-line"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Шаг 2: Дата и место -->
+      <div class="form-step" data-step="2">
+        <h4 class="section-title">
+          <i class="ri-map-pin-time-line"></i>
+          Дата и место
+        </h4>
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="eventDate">Дата мероприятия *</label>
+            <input type="date" id="eventDate" name="event_date" class="form-input" required>
+          </div>
+          <div class="form-group">
+            <label for="orderCity">Город *</label>
+            <select id="orderCity" name="city" class="form-input" required>
+              <option value="">Выберите город</option>
+              {% for city in cities %}
+                <option value="{{ city.name }}">{{ city.name }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="form-group full">
+            <label for="venue">Место проведения *</label>
+            <input type="text" id="venue" name="venue" class="form-input" required
+                   placeholder="Адрес или название места">
+          </div>
+          <div class="form-group">
+            <label for="guestCount">Количество гостей *</label>
+            <input type="number" id="guestCount" name="guest_count" class="form-input" 
+                   min="1" required placeholder="Например: 50">
+          </div>
+        </div>
+        <div class="step-actions">
+          <button type="button" class="btn btn-outline" onclick="prevStep()">
+            <i class="ri-arrow-left-line"></i>
+            Назад
+          </button>
+          <button type="button" class="btn btn-accent" onclick="nextStep()">
+            Далее
+            <i class="ri-arrow-right-line"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Шаг 3: Услуги -->
+      <div class="form-step" data-step="3">
+        <h4 class="section-title">
+          <i class="ri-service-line"></i>
+          Необходимые услуги *
+        </h4>
+        <div class="services-grid">
+          {% for service_type in service_types %}
+          <div class="service-card" data-service="{{ service_type.code }}">
+            <div class="service-icon">
+              <i class="{{ service_type.icon }}"></i>
+            </div>
+            <h5>{{ service_type.name }}</h5>
+          </div>
+          {% endfor %}
+        </div>
+        <input type="hidden" name="services" id="selectedServices" value="[]">
+        <div class="form-hint">Выберите хотя бы одну услугу</div>
+        <div class="step-actions">
+          <button type="button" class="btn btn-outline" onclick="prevStep()">
+            <i class="ri-arrow-left-line"></i>
+            Назад
+          </button>
+          <button type="button" class="btn btn-accent" onclick="nextStep()">
+            Далее
+            <i class="ri-arrow-right-line"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Шаг 4: Бюджет -->
+      <div class="form-step" data-step="4">
+        <h4 class="section-title">
+          <i class="ri-money-dollar-circle-line"></i>
+          Бюджет
+        </h4>
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="budgetMin">Минимальный бюджет (₸) *</label>
+            <input type="number" id="budgetMin" name="budget_min" class="form-input" 
+                   min="0" required placeholder="Например: 50000">
+          </div>
+          <div class="form-group">
+            <label for="budgetMax">Максимальный бюджет (₸) *</label>
+            <input type="number" id="budgetMax" name="budget_max" class="form-input" 
+                   min="0" required placeholder="Например: 100000">
+          </div>
+        </div>
+        <div class="step-actions">
+          <button type="button" class="btn btn-outline" onclick="prevStep()">
+            <i class="ri-arrow-left-line"></i>
+            Назад
+          </button>
+          <button type="button" class="btn btn-accent" onclick="nextStep()">
+            Далее
+            <i class="ri-arrow-right-line"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Шаг 5: Дополнительная информация -->
+      <div class="form-step" data-step="5">
+        <h4 class="section-title">
+          <i class="ri-file-text-line"></i>
+          Дополнительная информация
+        </h4>
+        <div class="form-group">
+          <label for="description">Пожелания и комментарии</label>
+          <textarea id="description" name="description" class="form-input" rows="4" 
+                    placeholder="Расскажите о ваших пожеланиях, особых требованиях или деталях мероприятия..."></textarea>
+        </div>
+        <div class="step-actions">
+          <button type="button" class="btn btn-outline" onclick="prevStep()">
+            <i class="ri-arrow-left-line"></i>
+            Назад
+          </button>
+          <button type="submit" class="btn btn-accent" id="submitOrderBtn">
+            <i class="ri-check-line"></i>
+            Создать заявку
+          </button>
+        </div>
+      </div>
+      </div> <!-- Закрытие контейнера form-steps-container -->
+    </form>
+  </div>
+</div>
+
+<style>
+/* Стили для модального окна создания заказа */
+.create-order-modal {
+  max-width: 800px;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+/* Прогресс-бар */
+.step-progress {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 32px;
+  padding: 0 20px;
+  position: relative;
+}
+
+.step-progress::before {
+  content: '';
+  position: absolute;
+  top: 20px;
+  left: 30px;
+  right: 30px;
+  height: 2px;
+  background: #e9ecef;
+  z-index: 1;
+}
+
+.step-indicator {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  z-index: 2;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.step-indicator:hover {
+  transform: translateY(-2px);
+}
+
+.step-number {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #e9ecef;
+  color: #6c757d;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 0.9rem;
+  margin-bottom: 8px;
+  transition: all 0.3s ease;
+  border: 2px solid #e9ecef;
+}
+
+.step-label {
+  font-size: 0.8rem;
+  color: #6c757d;
+  text-align: center;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.step-indicator.active .step-number {
+  background: var(--primary-color);
+  color: white;
+  border-color: var(--primary-color);
+}
+
+.step-indicator.active .step-label {
+  color: var(--primary-color);
+  font-weight: 600;
+}
+
+.step-indicator.completed .step-number {
+  background: #28a745;
+  color: white;
+  border-color: #28a745;
+}
+
+.step-indicator.completed .step-label {
+  color: #28a745;
+}
+
+/* Шаги формы */
+.form-step {
+  display: none !important;
+  opacity: 0;
+  visibility: hidden;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.form-step.active {
+  display: block !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  position: relative;
+}
+
+/* Контейнер для шагов */
+.form-steps-container {
+  position: relative;
+  min-height: 200px;
+}
+
+/* Действия шагов */
+.step-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 24px;
+  padding-top: 16px;
+  border-top: 1px solid #e9ecef;
+}
+
+.step-actions .btn {
+  min-width: 120px;
+  justify-content: center;
+}
+
+.modal-subtitle {
+  color: #6c757d;
+  margin: 8px 0 0 0;
+  font-size: 0.95rem;
+}
+
+.form-section {
+  margin-bottom: 24px;
+  padding: 20px;
+  background: #f8f9fa;
+  border-radius: 12px;
+  border: 1px solid #e9ecef;
+}
+
+.section-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin: 0 0 12px 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.section-title i {
+  color: var(--primary-color);
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.form-group.full {
+  grid-column: 1 / -1;
+}
+
+.form-group label {
+  font-weight: 500;
+  color: #495057;
+  font-size: 0.9rem;
+}
+
+.form-input {
+  padding: 8px 10px;
+  border: 2px solid #e3e8ff;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  transition: all 0.2s;
+}
+
+.form-input:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(64, 112, 244, 0.1);
+  outline: none;
+}
+
+textarea.form-input {
+  min-height: 80px;
+  resize: vertical;
+}
+
+/* Стили для выбора услуг */
+.services-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.service-card {
+  background: white;
+  border: 2px solid #e9ecef;
+  border-radius: 6px;
+  padding: 12px 8px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.service-card:hover {
+  border-color: var(--primary-color);
+  transform: translateY(-2px);
+}
+
+.service-card.selected {
+  background: var(--primary-color);
+  border-color: var(--primary-color);
+  color: white;
+}
+
+.service-card.selected .service-icon {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.service-card.selected h5 {
+  color: white;
+}
+
+.service-icon {
+  width: 32px;
+  height: 32px;
+  margin: 0 auto 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f8f9fa;
+  border-radius: 50%;
+}
+
+.service-icon i {
+  font-size: 16px;
+  color: var(--primary-color);
+}
+
+.service-card.selected .service-icon i {
+  color: white;
+}
+
+.service-card h5 {
+  font-size: 0.8rem;
+  font-weight: 600;
+  margin: 0;
+  color: #1a1a1a;
+}
+
+.form-hint {
+  font-size: 0.8rem;
+  color: #6c757d;
+  font-style: italic;
+}
+
+.form-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid #e9ecef;
+}
+
+/* Стили для ошибок валидации */
+.form-input.error {
+  border-color: #dc3545;
+  box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.1);
+}
+
+.form-input.error:focus {
+  border-color: #dc3545;
+  box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.1);
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+  .create-order-modal {
+    margin: 10px;
+    max-width: calc(100% - 20px);
+    max-height: calc(100vh - 20px);
+  }
+
+  .step-progress {
+    padding: 0 10px;
+    margin-bottom: 24px;
+  }
+
+  .step-number {
+    width: 32px;
+    height: 32px;
+    font-size: 0.8rem;
+  }
+
+  .step-label {
+    font-size: 0.7rem;
+  }
+
+  .step-progress::before {
+    left: 20px;
+    right: 20px;
+    top: 16px;
+  }
+
+  .form-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .services-grid {
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 8px;
+  }
+
+  .service-card {
+    padding: 12px;
+  }
+
+  .service-icon {
+    width: 32px;
+    height: 32px;
+  }
+
+  .service-icon i {
+    font-size: 16px;
+  }
+
+  .step-actions {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .step-actions .btn {
+    width: 100%;
+  }
+}
+</style>
+
+<script>
+// Переменные для управления шагами
+let currentStep = 1;
+const totalSteps = 5;
+
+// Функции для работы с модальным окном создания заказа
+function closeCreateOrderModal() {
+  document.getElementById('createOrderModal').style.display = 'none';
+  document.getElementById('createOrderForm').reset();
+  // Сбрасываем выбранные услуги
+  document.querySelectorAll('.service-card').forEach(card => {
+    card.classList.remove('selected');
+  });
+  document.getElementById('selectedServices').value = '[]';
+  // Сбрасываем шаги
+  resetSteps();
+}
+
+// Функция сброса шагов
+function resetSteps() {
+  console.log('resetSteps called');
+  currentStep = 1;
+  updateStepProgress();
+  
+  // Принудительно показываем первый шаг
+  document.querySelectorAll('.form-step').forEach(step => {
+    step.classList.remove('active');
+    step.style.display = 'none';
+    step.style.opacity = '0';
+    step.style.visibility = 'hidden';
+    step.style.position = 'absolute';
+  });
+  
+  const firstStep = document.querySelector('.form-step[data-step="1"]');
+  if (firstStep) {
+    firstStep.style.display = 'block';
+    firstStep.style.position = 'relative';
+    firstStep.style.opacity = '1';
+    firstStep.style.visibility = 'visible';
+    firstStep.classList.add('active');
+    console.log('First step activated');
+  }
+}
+
+// Функция обновления прогресс-бара
+function updateStepProgress() {
+  document.querySelectorAll('.step-indicator').forEach((indicator, index) => {
+    const stepNumber = index + 1;
+    indicator.classList.remove('active', 'completed');
+    
+    if (stepNumber === currentStep) {
+      indicator.classList.add('active');
+    } else if (stepNumber < currentStep) {
+      indicator.classList.add('completed');
+    }
+  });
+}
+
+// Функция показа шага
+function showStep(stepNumber) {
+  console.log('showStep called with:', stepNumber);
+  
+  // Скрываем все шаги
+  document.querySelectorAll('.form-step').forEach(step => {
+    step.classList.remove('active');
+    step.style.display = 'none';
+    step.style.opacity = '0';
+    step.style.visibility = 'hidden';
+    step.style.position = 'absolute';
+  });
+  
+  // Показываем нужный шаг
+  const targetStep = document.querySelector(`.form-step[data-step="${stepNumber}"]`);
+  if (targetStep) {
+    targetStep.style.display = 'block';
+    targetStep.style.position = 'relative';
+    // Небольшая задержка для плавного появления
+    setTimeout(() => {
+      targetStep.classList.add('active');
+      targetStep.style.opacity = '1';
+      targetStep.style.visibility = 'visible';
+    }, 10);
+    console.log('Step shown:', stepNumber);
+  } else {
+    console.error('Step not found:', stepNumber);
+  }
+}
+
+// Функция перехода к следующему шагу
+function nextStep() {
+  if (validateCurrentStep()) {
+    if (currentStep < totalSteps) {
+      currentStep++;
+      updateStepProgress();
+      showStep(currentStep);
+    }
+  }
+}
+
+// Функция перехода к предыдущему шагу
+function prevStep() {
+  if (currentStep > 1) {
+    currentStep--;
+    updateStepProgress();
+    showStep(currentStep);
+  }
+}
+
+// Делаем функции глобальными
+window.nextStep = nextStep;
+window.prevStep = prevStep;
+window.resetSteps = resetSteps;
+window.closeCreateOrderModal = closeCreateOrderModal;
+window.showStep = showStep;
+window.updateStepProgress = updateStepProgress;
+
+// Функция валидации текущего шага
+function validateCurrentStep() {
+  let isValid = true;
+  
+  // Проверяем все обязательные поля во всех шагах до текущего
+  for (let step = 1; step <= currentStep; step++) {
+    const stepElement = document.querySelector(`.form-step[data-step="${step}"]`);
+    if (stepElement) {
+      const requiredFields = stepElement.querySelectorAll('[required]');
+      requiredFields.forEach(field => {
+        // Исключаем поле description из валидации
+        if (field.name === 'description') {
+          return;
+        }
+        
+        // Исключаем поле comment из валидации
+        if (field.name === 'comment') {
+          return;
+        }
+        
+        if (!field.value.trim()) {
+          field.classList.add('error');
+          isValid = false;
+        } else {
+          field.classList.remove('error');
+        }
+      });
+    }
+  }
+  
+  // Специальная валидация для шага с услугами
+  if (currentStep === 3) {
+    const selectedServices = JSON.parse(document.getElementById('selectedServices').value);
+    if (selectedServices.length === 0) {
+      showNotification('Пожалуйста, выберите хотя бы одну услугу', 'error');
+      isValid = false;
+    }
+  }
+  
+  // Специальная валидация для бюджета
+  if (currentStep === 4) {
+    const budgetMin = parseInt(document.getElementById('budgetMin').value);
+    const budgetMax = parseInt(document.getElementById('budgetMax').value);
+    if (budgetMin > budgetMax) {
+      showNotification('Минимальный бюджет не может быть больше максимального', 'error');
+      isValid = false;
+    }
+  }
+  
+  if (!isValid) {
+    // Находим первое пустое обязательное поле для показа пользователю
+    for (let step = 1; step <= currentStep; step++) {
+      const stepElement = document.querySelector(`.form-step[data-step="${step}"]`);
+      if (stepElement) {
+        const requiredFields = stepElement.querySelectorAll('[required]');
+        for (let field of requiredFields) {
+          // Исключаем поле description из валидации
+          if (field.name === 'description') {
+            continue;
+          }
+          
+          // Исключаем поле comment из валидации
+          if (field.name === 'comment') {
+            continue;
+          }
+          
+          if (!field.value.trim()) {
+            const fieldName = field.previousElementSibling?.textContent || 'поле';
+            showNotification(`Пожалуйста, заполните поле: ${fieldName.replace(' *', '')}`, 'error');
+            return false;
+          }
+        }
+      }
+    }
+    showNotification('Пожалуйста, заполните все обязательные поля', 'error');
+  }
+  
+  return isValid;
+}
+
+// Инициализация при загрузке страницы
+document.addEventListener('DOMContentLoaded', function() {
+  console.log('DOM loaded, initializing step interface');
+  
+  // Показываем первый шаг по умолчанию
+  const firstStep = document.querySelector('.form-step[data-step="1"]');
+  if (firstStep) {
+    firstStep.style.display = 'block';
+    firstStep.style.position = 'relative';
+    firstStep.style.opacity = '1';
+    firstStep.style.visibility = 'visible';
+    firstStep.classList.add('active');
+    console.log('First step initialized');
+  }
+  
+  updateStepProgress();
+  
+  // Обработчики кликов по индикаторам шагов
+  document.querySelectorAll('.step-indicator').forEach(indicator => {
+    indicator.addEventListener('click', function() {
+      const stepNumber = parseInt(this.getAttribute('data-step'));
+      if (stepNumber <= currentStep) {
+        currentStep = stepNumber;
+        updateStepProgress();
+        showStep(currentStep);
+      }
+    });
+  });
+});
+
+// Установка минимальной даты
+document.addEventListener('DOMContentLoaded', function() {
+  const dateInput = document.getElementById('eventDate');
+  if (dateInput) {
+    const today = new Date();
+    const tomorrow = new Date(today);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    dateInput.min = tomorrow.toISOString().split('T')[0];
+  }
+});
+
+// Выбор услуг
+document.addEventListener('DOMContentLoaded', function() {
+  const selectedServices = new Set();
+  
+  document.querySelectorAll('.service-card').forEach(card => {
+    card.addEventListener('click', function() {
+      const service = card.getAttribute('data-service');
+      if (!service) return;
+      
+      if (selectedServices.has(service)) {
+        selectedServices.delete(service);
+        card.classList.remove('selected');
+      } else {
+        selectedServices.add(service);
+        card.classList.add('selected');
+      }
+      
+      document.getElementById('selectedServices').value = JSON.stringify(Array.from(selectedServices));
+    });
+  });
+});
+
+// Отправка формы создания заказа
+function submitCreateOrder(event) {
+  event.preventDefault();
+  
+  const form = event.target;
+  const formData = new FormData(form);
+  
+  // Проверяем все обязательные поля
+  const allRequiredFields = document.querySelectorAll('[required]');
+  let hasEmptyFields = false;
+  
+  console.log('Найдено обязательных полей:', allRequiredFields.length);
+  allRequiredFields.forEach(field => {
+    // Исключаем поле description из валидации
+    if (field.name === 'description') {
+      console.log('Пропускаем поле description - оно необязательное');
+      return;
+    }
+    
+    // Исключаем поле comment из валидации (если оно есть)
+    if (field.name === 'comment') {
+      console.log('Пропускаем поле comment - оно необязательное');
+      return;
+    }
+    
+    console.log('Поле:', field.name, 'Значение:', field.value, 'Обязательное:', field.hasAttribute('required'), 'Элемент:', field);
+    if (!field.value.trim()) {
+      field.classList.add('error');
+      hasEmptyFields = true;
+      console.log('Пустое обязательное поле:', field.name);
+    } else {
+      field.classList.remove('error');
+    }
+  });
+  
+  if (hasEmptyFields) {
+    // Находим первое пустое поле для показа пользователю
+    for (let field of allRequiredFields) {
+      // Исключаем поле description из валидации
+      if (field.name === 'description') {
+        continue;
+      }
+      
+      // Исключаем поле comment из валидации
+      if (field.name === 'comment') {
+        continue;
+      }
+      
+      if (!field.value.trim()) {
+        const fieldName = field.previousElementSibling?.textContent || 'поле';
+        showNotification(`Пожалуйста, заполните поле: ${fieldName.replace(' *', '')}`, 'error');
+        return;
+      }
+    }
+  }
+  
+  // Проверяем, что выбраны услуги
+  const selectedServices = JSON.parse(document.getElementById('selectedServices').value);
+  if (selectedServices.length === 0) {
+    showNotification('Пожалуйста, выберите хотя бы одну услугу', 'error');
+    return;
+  }
+  
+  // Проверяем бюджет
+  const budgetMin = parseInt(formData.get('budget_min'));
+  const budgetMax = parseInt(formData.get('budget_max'));
+  if (budgetMin > budgetMax) {
+    showNotification('Минимальный бюджет не может быть больше максимального', 'error');
+    return;
+  }
+  
+  // Блокируем кнопку отправки
+  const submitBtn = document.getElementById('submitOrderBtn');
+  const originalText = submitBtn.innerHTML;
+  submitBtn.innerHTML = '<i class="ri-loader-4-line"></i> Создание...';
+  submitBtn.disabled = true;
+  
+  fetch('{% url "main:create_order" %}', {
+    method: 'POST',
+    headers: {
+      'X-CSRFToken': getCookie('csrftoken'),
+      'X-Requested-With': 'XMLHttpRequest'
+    },
+    body: formData
+  })
+  .then(response => {
+    if (!response.ok) {
+      return response.json().then(data => {
+        throw new Error(data.message || `HTTP error! status: ${response.status}`);
+      });
+    }
+    return response.json();
+  })
+  .then(data => {
+    if (data.success) {
+      showNotification(data.message || 'Заявка успешно создана!', 'success');
+      closeCreateOrderModal();
+      setTimeout(() => { location.reload(); }, 1000);
+    } else {
+      showNotification(data.message || 'Ошибка при создании заявки', 'error');
+    }
+  })
+  .catch(error => {
+    console.error('Error:', error);
+    showNotification('Ошибка при создании заявки: ' + error.message, 'error');
+  })
+  .finally(() => {
+    // Восстанавливаем кнопку
+    submitBtn.innerHTML = originalText;
+    submitBtn.disabled = false;
+  });
+}
+
+// Отправка формы редактирования заказа
+function submitEditOrder(event, orderId) {
+  event.preventDefault();
+  
+  const form = event.target;
+  const formData = new FormData(form);
+  
+  // Проверяем, что выбраны услуги
+  const selectedServices = JSON.parse(document.getElementById('selectedServices').value);
+  if (selectedServices.length === 0) {
+    showNotification('Пожалуйста, выберите хотя бы одну услугу', 'error');
+    return;
+  }
+  
+  // Проверяем бюджет
+  const budgetMin = parseInt(formData.get('budget_min'));
+  const budgetMax = parseInt(formData.get('budget_max'));
+  if (budgetMin > budgetMax) {
+    showNotification('Минимальный бюджет не может быть больше максимального', 'error');
+    return;
+  }
+  
+  // Блокируем кнопку отправки
+  const submitBtn = document.getElementById('submitOrderBtn');
+  const originalText = submitBtn.innerHTML;
+  submitBtn.innerHTML = '<i class="ri-loader-4-line"></i> Сохранение...';
+  submitBtn.disabled = true;
+  
+  fetch(`/order/${orderId}/edit/`, {
+    method: 'POST',
+    headers: {
+      'X-CSRFToken': getCookie('csrftoken'),
+      'X-Requested-With': 'XMLHttpRequest'
+    },
+    body: formData
+  })
+  .then(response => {
+    if (!response.ok) {
+      return response.json().then(data => {
+        throw new Error(data.message || `HTTP error! status: ${response.status}`);
+      });
+    }
+    return response.json();
+  })
+  .then(data => {
+    if (data.success) {
+      showNotification(data.message || 'Заявка успешно обновлена!', 'success');
+      closeCreateOrderModal();
+      setTimeout(() => { location.reload(); }, 1000);
+    } else {
+      showNotification(data.message || 'Ошибка при обновлении заявки', 'error');
+    }
+  })
+  .catch(error => {
+    console.error('Error:', error);
+    showNotification('Ошибка при обновлении заявки: ' + error.message, 'error');
+  })
+  .finally(() => {
+    // Восстанавливаем кнопку
+    submitBtn.innerHTML = originalText;
+    submitBtn.disabled = false;
+  });
+}
+
+// Установка минимальной даты и обработчики услуг
+document.addEventListener('DOMContentLoaded', function() {
+  const eventDateInput = document.getElementById('eventDate');
+  if (eventDateInput) {
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    eventDateInput.min = tomorrow.toISOString().split('T')[0];
+  }
+  
+  // Обработчики для выбора услуг
+  document.querySelectorAll('.service-card').forEach(card => {
+    card.addEventListener('click', function() {
+      this.classList.toggle('selected');
+      updateSelectedServices();
+    });
+  });
+});
+
+// Функция обновления выбранных услуг
+function updateSelectedServices() {
+  const selectedCards = document.querySelectorAll('.service-card.selected');
+  const selectedServices = Array.from(selectedCards).map(card => card.getAttribute('data-service'));
+  document.getElementById('selectedServices').value = JSON.stringify(selectedServices);
+}
+</script> 
