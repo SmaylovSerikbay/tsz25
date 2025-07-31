@@ -1500,10 +1500,11 @@ def get_performer_busy_dates(request, performer_id):
         performer = User.objects.get(id=performer_id, user_type='performer')
         busy_dates = BusyDate.objects.filter(user=performer).values_list('date', flat=True)
         
-        # Также получаем даты из заказов
+        # Также получаем даты из активных заказов (только in_progress)
+        # Завершенные заказы (completed) не должны блокировать даты
         order_dates = Order.objects.filter(
             performer=performer,
-            status__in=['in_progress', 'completed']
+            status='in_progress'
         ).values_list('event_date', flat=True)
         
         # Объединяем даты и убираем дубликаты
