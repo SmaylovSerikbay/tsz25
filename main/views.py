@@ -1731,6 +1731,10 @@ def accept_response(request, response_id):
         selected_performers[service_type] = response.performer.id
         order.selected_performers = selected_performers
         
+        # Устанавливаем исполнителя для заказа (берем первого из выбранных)
+        if not order.performer:
+            order.performer = response.performer
+        
         # Проверяем, выбраны ли все необходимые услуги
         if set(selected_performers.keys()) == set(order.services):
             order.status = 'in_progress'
@@ -1781,6 +1785,7 @@ def reject_response(request, response_id):
             if remaining_responses == 0:
                 # Очищаем выбранных исполнителей и возвращаем статус 'new'
                 order.selected_performers = {}
+                order.performer = None  # Очищаем исполнителя
                 order.status = 'new'
                 order.save()
         
@@ -1840,8 +1845,15 @@ def complete_order_api(request, order_id):
     try:
         order = Order.objects.get(id=order_id)
         
+        # Определяем исполнителя заказа
+        performer = order.performer
+        if not performer and order.selected_performers:
+            # Если performer не установлен, берем первого из selected_performers
+            first_performer_id = list(order.selected_performers.values())[0]
+            performer = User.objects.get(id=first_performer_id)
+        
         # Проверяем, что это исполнитель или заказчик заказа
-        if request.user not in [order.performer, order.customer]:
+        if request.user not in [performer, order.customer]:
             return JsonResponse({'success': False, 'error': 'Только участники заказа могут завершить заказ'})
         
         # Проверяем, что заказ в работе
@@ -1854,10 +1866,10 @@ def complete_order_api(request, order_id):
         
         # Освобождаем дату из занятых дат исполнителя, если дата еще не прошла
         from datetime import date
-        if order.event_date >= date.today():
+        if performer and order.event_date >= date.today():
             from main.models import BusyDate
             BusyDate.objects.filter(
-                user=order.performer, 
+                user=performer, 
                 date=order.event_date
             ).delete()
         
