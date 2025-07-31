@@ -6,8 +6,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Каталог исполнителей — Той со звездой</title>
   <link rel="icon" type="image/jpeg" href="{% static 'images/favicon.jpg' %}">
-  <link rel="stylesheet" href="{% static 'css/style.css' %}">
-  <link rel="stylesheet" href="{% static 'css/mobile-menu.css' %}">
+      <link rel="stylesheet" href="{% static 'css/style.css' %}?v=3">
+    <link rel="stylesheet" href="{% static 'css/mobile-menu.css' %}?v=3">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
   
@@ -504,10 +504,11 @@
       }
     }
 
-    @media (max-width: 777px) {
+    @media (max-width: 777px) and (min-width: 550px) {
       .performers-grid {
         grid-template-columns: repeat(2, 1fr);
-        gap: 10px;
+        gap: 12px;
+        background-color: rgba(0, 255, 0, 0.1) !important; /* ТЕСТОВЫЙ СТИЛЬ - ЗЕЛЕНЫЙ */
       }
       
       .performer-content {
@@ -549,15 +550,18 @@
     @media (max-width: 768px) {
       .desktop-nav {
         display: none !important;
-      }
-      
-      .filters-bar {
+    }
+
+    .filters-bar {
         padding: 20px;
       }
+      }
 
+    @media (max-width: 464px) {
       .performers-grid {
         grid-template-columns: 1fr;
         gap: 8px;
+        background-color: rgba(255, 0, 255, 0.1) !important; /* ТЕСТОВЫЙ СТИЛЬ - МАГЕНТА */
       }
       
       .performer-content {
@@ -575,7 +579,7 @@
       .performer-type {
         font-size: 0.7rem;
       }
-      
+
       .performer-stats {
         padding: 5px;
         margin-bottom: 8px;

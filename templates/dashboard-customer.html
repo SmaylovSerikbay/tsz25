@@ -7,9 +7,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Личный кабинет — Той со звездой</title>
-  <link rel="stylesheet" href="{% static 'css/style.css' %}">
-  <link rel="stylesheet" href="{% static 'css/mobile.css' %}">
-  <link rel="stylesheet" href="{% static 'css/mobile-menu.css' %}">
+      <link rel="stylesheet" href="{% static 'css/style.css' %}?v=4">
+      <link rel="stylesheet" href="{% static 'css/mobile.css' %}?v=4">
+      <link rel="stylesheet" href="{% static 'css/mobile-menu.css' %}?v=4">
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
   
@@ -597,8 +597,8 @@
     .quick-actions {
       display: flex;
       gap: 12px;
-      flex-wrap: wrap;
       margin-bottom: 24px;
+      
     }
 
     .btn {
@@ -847,7 +847,7 @@
       margin-top: 4px;
     }
 
-    /* Адаптивность */
+    /* Адаптивная таблица для мобильных устройств */
     @media (max-width: 768px) {
       .dashboard-header {
         flex-direction: column;
@@ -870,28 +870,210 @@
         padding-bottom: 8px;
       }
 
-      .data-table {
+      /* Скрываем заголовок таблицы на мобильных */
+      .data-table thead {
+        display: none;
+      }
+
+          /* Делаем строки таблицы блоками в стиле карточек */
+    .data-table tbody tr {
+      display: flex;
+      flex-direction: column;
+      margin-bottom: 16px;
+      border: 1px solid #e9ecef;
+      border-radius: 12px;
+      background: white;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      overflow: hidden;
+      padding: 16px;
+    }
+
+    /* Контейнер для строк таблицы */
+    .data-table tbody {
+      display: grid;
+      grid-template-columns: repeat(1, 1fr);
+      gap: 16px;
+    }
+
+          /* Делаем ячейки блоками */
+    .data-table tbody td {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 0;
+      border: none;
+      position: relative;
+      text-align: left;
+    }
+
+      /* Убираем нижнюю границу у последней ячейки */
+      .data-table tbody td:last-child {
+        border-bottom: none;
+      }
+
+          /* Добавляем лейблы для ячеек */
+    .data-table tbody td::before {
+      content: attr(data-label);
+      font-weight: 600;
+      color: #495057;
+      font-size: 0.85rem;
+      min-width: 80px;
+    }
+
+      /* Специальные стили для ячеек с действиями */
+      .data-table tbody td[data-label="Действия"]::before {
+        margin-bottom: 8px;
+      }
+
+              /* Стили для кнопок действий на мобильных */
+    .action-buttons {
+      display: flex;
+      flex-direction: row;
+      gap: 12px;
+      margin-top: 12px;
+      justify-content: flex-start;
+      align-items: center;
+    }
+
+    .action-buttons .btn {
+      padding: 10px 16px;
+      font-size: 0.85rem;
+      min-height: 40px;
+      border-radius: 8px;
+      font-weight: 500;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+          /* Стили для статусов на мобильных */
+    .status-badge {
+      display: inline-block;
+      padding: 4px 8px;
+      font-size: 0.75rem;
+      border-radius: 12px;
+      font-weight: 500;
+    }
+
+    /* Стили для бюджета на мобильных */
+    .budget-amount {
+      font-weight: 600;
+      color: var(--primary-color);
+      font-size: 0.9rem;
+    }
+
+          /* Стили для названия заказа на мобильных */
+    .order-title {
+      font-weight: 600;
+      color: #1a1a1a;
+      font-size: 1rem;
+      margin-bottom: 4px;
+    }
+
+    .order-event-type {
+      font-size: 0.85rem;
+      color: #6c757d;
+    }
+
+      /* Стили для пустого состояния */
+      .data-table tbody tr td[colspan] {
+        text-align: center;
+        padding: 40px 20px;
+        border: none;
+      }
+
+      .data-table tbody tr td[colspan]::before {
+        display: none;
+      }
+
+      .data-table tbody tr td[colspan] i {
+        font-size: 48px;
+        margin-bottom: 16px;
+        display: block;
+        color: #6c757d;
+      }
+
+      .data-table tbody tr td[colspan] p {
+        margin: 16px 0;
+        color: #6c757d;
+        font-size: 1rem;
+      }
+
+      .data-table tbody tr td[colspan] .btn {
+        margin-top: 16px;
+        width: auto;
+        display: inline-flex;
+      }
+    }
+
+    /* Дополнительные стили для очень маленьких экранов */
+    @media (max-width: 480px) {
+      .data-table tbody td {
+        padding: 10px 12px;
+      }
+
+      .action-buttons .btn {
+        padding: 6px 10px;
+        font-size: 0.8rem;
+        min-height: 32px;
+      }
+
+      .order-title {
+        font-size: 0.95rem;
+      }
+
+      .order-event-type {
         font-size: 0.8rem;
       }
 
-      .data-table th,
-      .data-table td {
-        padding: 8px 6px;
-      }
-
-      .action-buttons {
-        flex-direction: column;
-        gap: 2px;
-      }
-
-      .btn-small {
-        width: 100%;
-        justify-content: center;
-        padding: 4px 6px;
-        font-size: 0.65rem;
-        min-height: 28px;
+      .status-badge {
+        font-size: 0.75rem;
+        padding: 4px 10px;
       }
     }
+
+    /* Стили для экранов меньше 465px - 1 колонка */
+    @media (max-width: 550px) {
+      .data-table tbody {
+        gap: 12px;
+      }
+
+      .data-table tbody tr {
+        margin-bottom: 12px;
+      }
+
+      .data-table tbody td {
+        padding: 8px 10px;
+      }
+
+      .action-buttons .btn {
+        padding: 4px 8px;
+        font-size: 0.75rem;
+        min-height: 28px;
+      }
+
+      .order-title {
+        font-size: 0.9rem;
+      }
+
+      .order-event-type {
+        font-size: 0.75rem;
+      }
+
+      .status-badge {
+        font-size: 0.7rem;
+        padding: 3px 8px;
+      }
+    }
+    @media (max-width: 400px) {
+      .action-buttons {
+        flex-direction: column;
+
+      }
+      .action-buttons .btn {
+        width: 100px;
+      }
+    }
+
 
     /* Стили для рейтинга */
     .rating-input {
@@ -1182,21 +1364,21 @@
               <tbody>
                 {% for order in orders %}
                 <tr>
-                  <td>
+                  <td data-label="Название">
                     <div class="order-title">{{ order.title }}</div>
                     <div class="order-event-type">{{ order.get_event_type_display }}</div>
                   </td>
-                  <td>{{ order.event_date|date:"d.m.Y" }}</td>
-                  <td>
+                  <td data-label="Дата">{{ order.event_date|date:"d.m.Y" }}</td>
+                  <td data-label="Тип">
                     {% if order.order_type == 'booking' %}
                       <i class="ri-calendar-check-line"></i> Бронирование
                     {% else %}
                       <i class="ri-file-list-line"></i> Заявка
                     {% endif %}
                   </td>
-                  <td><span class="status-badge status-{{ order.status }}">{{ order.get_status_display }}</span></td>
-                  <td><span class="budget-amount">{{ order.budget_min }} - {{ order.budget_max }} ₸</span></td>
-                  <td>
+                  <td data-label="Статус"><span class="status-badge status-{{ order.status }}">{{ order.get_status_display }}</span></td>
+                  <td data-label="Бюджет"><span class="budget-amount">{{ order.budget_min }} - {{ order.budget_max }} ₸</span></td>
+                  <td data-label="Действия">
                     <div class="action-buttons">
                       <button onclick="openOrderDetailModal({{ order.id }}, 'view')" class="btn btn-small btn-outline">Подробнее</button>
                       {% if order.status == 'new' %}
@@ -1244,19 +1426,19 @@
               <tbody>
                 {% for response in responses %}
                 <tr>
-                  <td>
+                  <td data-label="Заказ">
                     <div class="order-title">{{ response.order.title }}</div>
                     <div class="order-event-type">{{ response.order.event_date|date:"d.m.Y" }}</div>
                   </td>
-                  <td>
+                  <td data-label="Исполнитель">
                     <div class="performer-info">
                       <div class="order-title">{{ response.performer.get_full_name }}</div>
                       <div class="order-event-type">{{ response.performer.service_type.name|default:"Не указано" }}</div>
                     </div>
                   </td>
-                  <td><span class="budget-amount">{{ response.price }} ₸</span></td>
-                  <td>{{ response.created_at|date:"d.m.Y" }}</td>
-                  <td>
+                  <td data-label="Цена"><span class="budget-amount">{{ response.price }} ₸</span></td>
+                  <td data-label="Дата отклика">{{ response.created_at|date:"d.m.Y" }}</td>
+                  <td data-label="Действия">
                     <div class="action-buttons">
                       <button onclick="openQuickProfileModal({{ response.performer.id }})" class="btn btn-small btn-outline">Профиль</button>
                       <button onclick="acceptResponse({{ response.id }})" class="btn btn-small btn-accent">Принять</button>
@@ -1280,7 +1462,9 @@
         <!-- Таб Бронирования -->
         <div id="bookings" class="tab-content">
           <h3>Мои бронирования ({{ bookings_count }})</h3>
-          <div class="table-container">
+          
+          <!-- Desktop Table View -->
+          <div class="table-container desktop-table">
             <table class="data-table">
               <thead>
                 <tr>
@@ -1294,16 +1478,16 @@
               <tbody>
                 {% for booking in bookings %}
                 <tr>
-                  <td>
+                  <td data-label="Исполнитель">
                     <div class="performer-info">
                       <div class="order-title">{{ booking.performer.get_full_name }}</div>
                       <div class="order-event-type">{{ booking.performer.service_type.name|default:"Не указано" }}</div>
                     </div>
                   </td>
-                  <td>{{ booking.event_date|date:"d.m.Y" }}</td>
-                  <td><span class="status-badge status-{{ booking.status }}">{{ booking.get_status_display }}</span></td>
-                  <td><span class="budget-amount">{{ booking.budget_min }} - {{ booking.budget_max }} ₸</span></td>
-                  <td>
+                  <td data-label="Дата">{{ booking.event_date|date:"d.m.Y" }}</td>
+                  <td data-label="Статус"><span class="status-badge status-{{ booking.status }}">{{ booking.get_status_display }}</span></td>
+                  <td data-label="Бюджет"><span class="budget-amount">{{ booking.budget_min }} - {{ booking.budget_max }} ₸</span></td>
+                  <td data-label="Действия">
                     <div class="action-buttons">
                       <button onclick="openOrderDetailModal({{ booking.id }}, 'view')" class="btn btn-small btn-outline">Подробнее</button>
                       {% if booking.status == 'in_progress' %}
@@ -1328,6 +1512,48 @@
                 {% endfor %}
               </tbody>
             </table>
+          </div>
+
+          <!-- Mobile Card View -->
+          <div class="mobile-cards-container">
+            {% for booking in bookings %}
+            <div class="booking-card">
+              <div class="booking-card-header">
+                <div class="performer-info">
+                  <div class="order-title">{{ booking.performer.get_full_name }}</div>
+                  <div class="order-event-type">{{ booking.performer.service_type.name|default:"Не указано" }}</div>
+                </div>
+                <span class="status-badge status-{{ booking.status }}">{{ booking.get_status_display }}</span>
+              </div>
+              <div class="booking-card-body">
+                <div class="booking-info-row">
+                  <div class="info-label">Дата:</div>
+                  <div class="info-value">{{ booking.event_date|date:"d.m.Y" }}</div>
+                </div>
+                <div class="booking-info-row">
+                  <div class="info-label">Бюджет:</div>
+                  <div class="info-value budget-amount">{{ booking.budget_min }} - {{ booking.budget_max }} ₸</div>
+                </div>
+              </div>
+              <div class="booking-card-actions">
+                <button onclick="openOrderDetailModal({{ booking.id }}, 'view')" class="btn btn-small btn-outline">Подробнее</button>
+                {% if booking.status == 'in_progress' %}
+                  <button onclick="openChatModal({{ booking.id }}, null)" class="btn btn-small btn-primary">Чат</button>
+                  <button onclick="completeOrder({{ booking.id }})" class="btn btn-small btn-accent">Завершить</button>
+                {% elif booking.status == 'new' %}
+                  <button onclick="cancelOrder({{ booking.id }})" class="btn btn-small btn-danger">Отменить</button>
+                {% elif booking.status == 'cancelled' %}
+                  <span class="btn btn-small btn-danger">Отклонено</span>
+                {% endif %}
+              </div>
+            </div>
+            {% empty %}
+            <div class="empty-state">
+              <i class="ri-calendar-check-line"></i>
+              <p>У вас пока нет бронирований</p>
+              <a href="{% url 'main:catalog' %}" class="btn btn-accent">Найти исполнителя</a>
+            </div>
+            {% endfor %}
           </div>
         </div>
 
@@ -1854,6 +2080,6 @@
       }
     });
   </script>
-  <script src="{% static 'js/mobile-menu.js' %}"></script>
+      <script src="{% static 'js/mobile-menu.js' %}?v=2"></script>
 </body>
 </html> 
