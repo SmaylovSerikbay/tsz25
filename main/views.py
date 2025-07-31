@@ -931,17 +931,26 @@ def create_order_booking(request, performer_id):
         details = request.POST.get('details')
         order_id = request.POST.get('order_id')  # ID существующей заявки
         
-        # Парсим дату
+        # Парсим дату с учетом часового пояса
         try:
+            from django.utils import timezone
+            
+            # Парсим дату и создаем datetime в текущем часовом поясе
             event_date = datetime.strptime(event_date_str, '%Y-%m-%d').date()
             
+            # Отладочная информация
+            print(f"DEBUG: Исходная дата: {event_date_str}")
+            print(f"DEBUG: Parsed date: {event_date}")
+            print(f"DEBUG: Current timezone: {timezone.get_current_timezone()}")
+            print(f"DEBUG: Current date: {timezone.now().date()}")
+            
             # Проверяем, что дата не в прошлом
-            if event_date < datetime.now().date():
+            if event_date < timezone.now().date():
                 messages.error(request, 'Нельзя выбрать прошедшую дату')
                 return redirect('main:profile', performer_id)
                 
             # Проверяем, что дата не слишком далеко в будущем
-            max_date = datetime.now().date() + timedelta(days=180)  # 6 месяцев
+            max_date = timezone.now().date() + timedelta(days=180)  # 6 месяцев
             if event_date > max_date:
                 messages.error(request, 'Нельзя бронировать более чем на 6 месяцев вперед')
                 return redirect('main:profile', performer_id)

@@ -251,6 +251,17 @@ document.getElementById('bookingForm').addEventListener('submit', function(e) {
   
   const formData = new FormData(this);
   const performerId = formData.get('performer_id');
+  const eventDate = formData.get('event_date');
+  
+  // Отладочная информация
+  console.log('DEBUG: Отправляемая дата:', eventDate);
+  console.log('DEBUG: Текущая дата:', new Date().toISOString().split('T')[0]);
+  
+  // Проверяем, что дата выбрана
+  if (!eventDate) {
+    alert('Пожалуйста, выберите дату мероприятия');
+    return;
+  }
   
   fetch(`/create-order-booking/${performerId}/`, {
     method: 'POST',
