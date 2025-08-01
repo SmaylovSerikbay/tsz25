@@ -6,21 +6,25 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Личный кабинет исполнителя — Той со звездой</title>
-                                                       <link rel="stylesheet" href="{% static 'css/style.css' %}?v=18">
-                   <link rel="stylesheet" href="{% static 'css/responsive.css' %}?v=18">
-                   <link rel="stylesheet" href="{% static 'css/mobile.css' %}?v=18">
-                   <link rel="stylesheet" href="{% static 'css/mobile-menu.css' %}?v=18">
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
   
-
+  <!-- Touch device styles -->
+  <style>
+    @media (pointer: coarse) {
+      .mobile-menu-toggle {
+        min-width: 24px;
+        min-height: 24px;
+      }
+    }
+  </style>
   <style>
     /* Основные стили */
     .dashboard-container {
-      max-width: 100%;
+      max-width: 1600px;
       margin: 0 auto;
       padding: 20px;
-      box-sizing: border-box;
     }
 
     /* Табы */
@@ -31,22 +35,15 @@
       overflow: hidden;
       min-height: 600px;
       width: 100%;
-      max-width: 100%;
+      min-width: 1400px;
+      max-width: 1600px;
       margin: 0 auto;
-      box-sizing: border-box;
     }
 
      .tabs-header {
       display: flex;
        background: #f8f9fa;
        border-bottom: 1px solid #e9ecef;
-       overflow-x: auto;
-       scrollbar-width: none;
-       -ms-overflow-style: none;
-     }
-
-     .tabs-header::-webkit-scrollbar {
-       display: none;
      }
 
      .tab-button {
@@ -61,10 +58,6 @@
        transition: all 0.2s;
        position: relative;
       white-space: nowrap;
-       display: flex;
-       align-items: center;
-       justify-content: center;
-       gap: 8px;
     }
 
      .tab-button.active {
@@ -80,444 +73,17 @@
      .tab-content {
        display: none;
        padding: 24px;
+       min-height: 500px;
        width: 100%;
-       max-width: 100%;
+       max-width: 1600px;
        overflow-x: auto;
-     }
-
-     /* Адаптивные стили для tab-content */
-     @media (max-width: 768px) {
-       .tab-content {
-         padding: 16px;
-         min-height: auto;
-         max-width: 100%;
-         width: 100%;
-         overflow-x: auto;
-         box-sizing: border-box;
-       }
-       
-       .tab-content .table-container {
-         overflow-x: auto;
-         border-radius: 8px;
-         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-         margin-bottom: 16px;
-       }
-
-       .tab-content .data-table {
-         font-size: 14px;
-         min-width: 200px; /* Фиксированная минимальная ширина для прокрутки */
-         width: 100%;
-       }
-
-       .tab-content .data-table th,
-       .tab-content .data-table td {
-         padding: 12px 8px;
-         font-size: 14px;
-         white-space: nowrap;
-         min-width: 100px; /* Минимальная ширина колонок */
-       }
-
-       /* Фиксированные ширины колонок для прокрутки */
-       .data-table th:nth-child(1),
-       .data-table td:nth-child(1) {
-         min-width: 200px;
-         width: 200px;
-       }
-
-       .data-table th:nth-child(2),
-       .data-table td:nth-child(2) {
-         min-width: 100px;
-         width: 100px;
-       }
-
-       .data-table th:nth-child(3),
-       .data-table td:nth-child(3) {
-         min-width: 120px;
-         width: 120px;
-       }
-
-       .data-table th:nth-child(4),
-       .data-table td:nth-child(4) {
-         min-width: 100px;
-         width: 100px;
-       }
-
-       .data-table th:nth-child(5),
-       .data-table td:nth-child(5) {
-         min-width: 100px;
-         width: 100px;
-       }
-
-       .data-table th:nth-child(6),
-       .data-table td:nth-child(6) {
-         min-width: 150px;
-         width: 150px;
-       }
-
-       .action-buttons {
-         display: flex;
-         gap: 8px;
-       }
-
-       .action-buttons .btn {
-         padding: 8px 12px;
-         font-size: 12px;
-         white-space: nowrap;
-         min-width: auto;
-       }
-
-       .status-badge {
-         font-size: 12px;
-         padding: 4px 8px;
-       }
-
-       .order-title {
-         font-size: 14px;
-       }
-
-       .order-event-type {
-         font-size: 12px;
-       }
-
-       .budget-amount {
-         font-size: 14px;
-       }
-     }
-
-     /* Стили для экранов меньше 570px - горизонтальная прокрутка */
-     @media (max-width: 570px) {
-       .tab-content {
-         padding: 12px;
-         max-width: 100%;
-         width: 100%;
-         overflow-x: auto;
-         box-sizing: border-box;
-       }
-       
-       .tab-content .table-container {
-         overflow-x: auto;
-         border-radius: 8px;
-         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-         margin-bottom: 12px;
-       }
-
-       .tab-content .data-table {
-         font-size: 13px;
-         min-width: 550px; /* Немного меньше для 570px */
-       }
-
-       .tab-content .data-table th,
-       .tab-content .data-table td {
-         padding: 10px 6px;
-         font-size: 13px;
-         white-space: nowrap;
-       }
-
-       /* Адаптируем ширины колонок */
-       .data-table th:nth-child(1),
-       .data-table td:nth-child(1) {
-         min-width: 180px;
-         width: 180px;
-       }
-
-       .data-table th:nth-child(2),
-       .data-table td:nth-child(2) {
-         min-width: 90px;
-         width: 90px;
-       }
-
-       .data-table th:nth-child(3),
-       .data-table td:nth-child(3) {
-         min-width: 100px;
-         width: 100px;
-       }
-
-       .data-table th:nth-child(4),
-       .data-table td:nth-child(4) {
-         min-width: 90px;
-         width: 90px;
-       }
-
-       .data-table th:nth-child(5),
-       .data-table td:nth-child(5) {
-         min-width: 90px;
-         width: 90px;
-       }
-
-       .data-table th:nth-child(6),
-       .data-table td:nth-child(6) {
-         min-width: 120px;
-         width: 120px;
-       }
-
-       .action-buttons {
-         display: flex;
-         gap: 6px;
-         flex-wrap: nowrap;
-       }
-
-       .action-buttons .btn {
-         padding: 6px 10px;
-         font-size: 11px;
-         white-space: nowrap;
-       }
-
-       .status-badge {
-         font-size: 11px;
-         padding: 3px 6px;
-       }
-
-       .order-title {
-         font-size: 13px;
-       }
-
-       .order-event-type {
-         font-size: 11px;
-       }
-
-       .budget-amount {
-         font-size: 13px;
-       }
-     }
-
-     /* Стили для экранов 375px и меньше - горизонтальная прокрутка */
-     @media (max-width: 375px) {
-       .tab-content {
-         padding: 8px;
-         max-width: 100%;
-         width: 100%;
-         overflow-x: auto;
-         box-sizing: border-box;
-       }
-       
-       .tab-content .table-container {
-         overflow-x: auto;
-         border-radius: 6px;
-         box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
-         margin-bottom: 8px;
-       }
-
-       .tab-content .data-table {
-         font-size: 12px;
-         min-width: 500px; /* Минимальная ширина для прокрутки */
-       }
-
-       .tab-content .data-table th,
-       .tab-content .data-table td {
-         padding: 8px 4px;
-         font-size: 12px;
-         white-space: nowrap;
-       }
-
-       /* Адаптируем ширины колонок для очень маленьких экранов */
-       .data-table th:nth-child(1),
-       .data-table td:nth-child(1) {
-         min-width: 160px;
-         width: 160px;
-       }
-
-       .data-table th:nth-child(2),
-       .data-table td:nth-child(2) {
-         min-width: 80px;
-         width: 80px;
-       }
-
-       .data-table th:nth-child(3),
-       .data-table td:nth-child(3) {
-         min-width: 90px;
-         width: 90px;
-       }
-
-       .data-table th:nth-child(4),
-       .data-table td:nth-child(4) {
-         min-width: 80px;
-         width: 80px;
-       }
-
-       .data-table th:nth-child(5),
-       .data-table td:nth-child(5) {
-         min-width: 80px;
-         width: 80px;
-       }
-
-       .data-table th:nth-child(6),
-       .data-table td:nth-child(6) {
-         min-width: 100px;
-         width: 100px;
-       }
-
-       .action-buttons {
-         display: flex;
-         gap: 4px;
-         flex-wrap: nowrap;
-       }
-
-       .action-buttons .btn {
-         padding: 4px 8px;
-         font-size: 10px;
-         white-space: nowrap;
-       }
-
-       .status-badge {
-         font-size: 10px;
-         padding: 2px 4px;
-       }
-
-       .order-title {
-         font-size: 12px;
-       }
-
-       .order-event-type {
-         font-size: 10px;
-       }
-
-       .budget-amount {
-         font-size: 12px;
-       }
-     }
-
-     @media (max-width: 480px) {
-       .tab-content {
-         padding: 6px !important;
-         min-height: auto !important;
-       }
-       
-       .tab-content .data-table th,
-       .tab-content .data-table td {
-         padding: 4px 3px !important;
-         font-size: 10px !important;
-       }
-
-       /* Убираем min-width для маленьких экранов */
-       .data-table th:nth-child(1),
-       .data-table td:nth-child(1) {
-         max-width: 100px !important;
-         width: auto !important;
-       }
-
-       .data-table th:nth-child(2),
-       .data-table td:nth-child(2) {
-         width: auto !important;
-       }
-
-       .data-table th:nth-child(3),
-       .data-table td:nth-child(3) {
-         width: auto !important;
-       }
-
-       .data-table th:nth-child(4),
-       .data-table td:nth-child(4) {
-         width: auto !important;
-       }
-
-       .data-table th:nth-child(5),
-       .data-table td:nth-child(5) {
-         width: auto !important;
-       }
-
-       .data-table th:nth-child(6),
-       .data-table td:nth-child(6) {
-         width: auto !important;
-       }
-     }
-
-     @media (max-width: 375px) {
-       .tab-content {
-         padding: 2px !important;
-         min-height: auto !important;
-       }
-       
-       .tab-content .table-container {
-         margin-bottom: 4px !important;
-         border-radius: 2px !important;
-       }
-
-       .tab-content .data-table {
-         font-size: 8px !important;
-         table-layout: fixed !important;
-         width: 100% !important;
-       }
-
-       .tab-content .data-table th,
-       .tab-content .data-table td {
-         padding: 2px 1px !important;
-         font-size: 8px !important;
-         word-wrap: normal !important;
-         overflow-wrap: normal !important;
-         text-overflow: ellipsis !important;
-         overflow: hidden !important;
-       }
-
-       /* Полностью убираем все width ограничения */
-       .data-table th:nth-child(1),
-       .data-table td:nth-child(1),
-       .data-table th:nth-child(2),
-       .data-table td:nth-child(2),
-       .data-table th:nth-child(3),
-       .data-table td:nth-child(3),
-       .data-table th:nth-child(4),
-       .data-table td:nth-child(4),
-       .data-table th:nth-child(5),
-       .data-table td:nth-child(5),
-       .data-table th:nth-child(6),
-       .data-table td:nth-child(6) {
-         width: auto !important;
-         min-width: auto !important;
-         max-width: none !important;
-       }
-
-       .action-buttons {
-         flex-direction: column !important;
-         gap: 2px !important;
-       }
-
-       .action-buttons .btn {
-         padding: 1px 2px !important;
-         font-size: 7px !important;
-         height: auto !important;
-         min-height: auto !important;
-         width: 100% !important;
-       }
-
-       .status-badge {
-         font-size: 7px !important;
-         padding: 1px 2px !important;
-       }
-
-       .order-title {
-         font-size: 8px !important;
-       }
-
-       .order-event-type {
-         font-size: 6px !important;
-       }
-
-       .budget-amount {
-         font-size: 7px !important;
-       }
-     }
-
-       .data-table th:nth-child(4),
-       .data-table td:nth-child(4) {
-         width: auto !important;
-       }
-
-       .data-table th:nth-child(5),
-       .data-table td:nth-child(5) {
-         width: auto !important;
-       }
-
-       .data-table th:nth-child(6),
-       .data-table td:nth-child(6) {
-         width: auto !important;
-       }
      }
 
      .tab-content.active {
       display: block;
     }
 
-    /* Таблицы - десктоп */
+    /* Таблицы */
     .table-container {
       overflow-x: auto;
       max-width: 100%;
@@ -528,7 +94,7 @@
       max-width: 100%;
       border-collapse: collapse;
       font-size: 0.9rem;
-      table-layout: auto;
+      table-layout: auto; /* Changed from fixed to auto for better responsiveness */
     }
 
     .data-table th,
@@ -545,6 +111,7 @@
     .data-table th:nth-child(1), /* Название */
     .data-table td:nth-child(1) {
       width: 22%;
+      min-width: 160px;
       max-width: 220px;
     }
 
@@ -572,26 +139,31 @@
     .data-table th:nth-child(2), /* Дата */
     .data-table td:nth-child(2) {
       width: 12%;
+      min-width: 80px;
     }
 
     .data-table th:nth-child(3), /* Город */
     .data-table td:nth-child(3) {
       width: 15%;
+      min-width: 100px;
     }
 
     .data-table th:nth-child(4), /* Бюджет */
     .data-table td:nth-child(4) {
       width: 18%;
+      min-width: 120px;
     }
 
     .data-table th:nth-child(5), /* Статус */
     .data-table td:nth-child(5) {
       width: 10%;
+      min-width: 80px;
     }
 
     .data-table th:nth-child(6), /* Действия */
     .data-table td:nth-child(6) {
       width: 25%;
+      min-width: 180px;
     }
 
     .data-table th {
@@ -612,50 +184,202 @@
       white-space: nowrap;
       display: inline-block;
       text-align: center;
+      min-width: 60px;
     }
 
-    .status-new {
-      background: #e3f2fd;
-      color: #1976d2;
-    }
+    .status-new { background: #e3f2fd; color: #1976d2; }
+    .status-in_progress { background: #e8f5e9; color: #2e7d32; }
+    .status-completed { background: #f3e5f5; color: #7b1fa2; }
+    .status-cancelled { background: #ffebee; color: #c62828; }
 
-    .status-in_progress {
-      background: #e8f5e9;
-      color: #2e7d32;
-    }
-
-    .status-completed {
-      background: #f3e5f5;
-      color: #7b1fa2;
-    }
-
-    .status-cancelled {
-      background: #ffebee;
-      color: #c62828;
-    }
-
-    .quick-actions {
-      margin: 30px 0;
-    }
-
-    /* Кнопки действий */
     .action-buttons {
       display: flex;
-      gap: 8px;
+      gap: 4px;
+      flex-wrap: nowrap;
+      align-items: center;
     }
 
-    .action-buttons .btn {
-      padding: 6px 12px;
-      font-size: 0.8rem;
-      min-height: 32px;
+    .btn-small {
+  padding: 4px 8px;
+  font-size: 0.7rem;
+      border-radius: 4px;
+  white-space: nowrap;
+  min-width: auto;
+  flex-shrink: 0;
+}
+
+.btn-danger {
+  background: #dc3545;
+      color: white;
+      border: none;
+}
+
+.btn-danger:hover {
+  background: #c82333;
+}
+
+/* Chat Modal Styles */
+.chat-container {
+      display: flex;
+  flex-direction: column;
+  height: 400px;
+  max-height: 60vh;
+}
+
+.chat-messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  margin-bottom: 16px;
+}
+
+.chat-input {
+      display: flex;
+      gap: 8px;
+  align-items: center;
+}
+
+.chat-input .form-input {
+  flex: 1;
+  padding: 10px 12px;
+  border: 2px solid #e3e8ff;
+  border-radius: 6px;
+      font-size: 0.9rem;
+    }
+
+.chat-input .btn {
+      padding: 10px 16px;
+      font-size: 0.9rem;
+    }
+
+.message {
+  margin-bottom: 12px;
+  max-width: 80%;
+}
+
+.message.sent {
+  margin-left: auto;
+  text-align: right;
+}
+
+.message.received {
+  margin-right: auto;
+  text-align: left;
+}
+
+.message-content {
+  background: var(--primary-color);
+      color: white;
+  padding: 8px 12px;
+  border-radius: 12px;
+  display: inline-block;
+  word-wrap: break-word;
+}
+
+.message.received .message-content {
+  background: #e9ecef;
+  color: #495057;
+}
+
+.message-time {
+  font-size: 0.75rem;
+  color: #6c757d;
+  margin-top: 4px;
+}
+
+         /* Карточки для портфолио и тарифов */
+     .cards-grid {
+      display: grid;
+       grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+       gap: 16px;
+       margin-bottom: 24px;
+      max-width: 100%;
+       overflow-x: auto;
+     }
+
+    .card {
+      background: white;
+      border: 1px solid #e9ecef;
+      border-radius: 12px;
+      overflow: hidden;
+      transition: all 0.2s;
+    }
+
+    .card:hover {
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      transform: translateY(-2px);
+    }
+
+    .card-image {
+      width: 100%;
+      height: 150px;
+      object-fit: cover;
+    }
+
+    .card-content {
+      padding: 16px;
+    }
+
+    .card-title {
+      font-weight: 600;
+      margin-bottom: 8px;
+      color: #1a1a1a;
+    }
+
+    .card-price {
+      color: var(--primary-color);
+      font-weight: 700;
+      font-size: 1.1rem;
+    }
+
+    /* Календарь */
+    .calendar-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 8px;
+      margin-bottom: 20px;
+    }
+
+    .calendar-day {
+      aspect-ratio: 1;
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 4px;
+      background: #f8f9fa;
       border-radius: 8px;
       font-weight: 500;
-      transition: all 0.2s;
+      font-size: 0.9rem;
+    }
+
+    .calendar-day.busy {
+      background: #ffe5e5;
+      color: #e74c3c;
+    }
+
+    .calendar-day.free {
+      background: #e8f5e9;
+      color: #1aaf5d;
+    }
+
+    /* Быстрые действия */
+    .quick-actions {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      padding: 12px 20px;
+      border-radius: 8px;
+      font-weight: 500;
       text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.2s;
       border: none;
       cursor: pointer;
     }
@@ -669,36 +393,6 @@
       background: white;
       color: var(--primary-color);
       border: 2px solid var(--primary-color);
-    }
-
-    .btn-accent {
-      background: #28a745;
-      color: white;
-      border: none;
-    }
-
-    .btn-danger {
-      background: #dc3545;
-      color: white;
-      border: none;
-    }
-
-    .btn-accent:hover {
-      background: #218838;
-    }
-
-    .btn-danger:hover {
-      background: #c82333;
-    }
-
-    .btn-success {
-      background: #28a745;
-      color: white;
-      border: none;
-    }
-
-    .btn-success:hover {
-      background: #218838;
     }
 
     .btn:hover {
@@ -715,7 +409,7 @@
       width: 100%;
       height: 100%;
       background: rgba(0, 0, 0, 0.5);
-      z-index: 1002;
+      z-index: 1000;
       overflow-y: auto;
     }
 
@@ -785,583 +479,198 @@
       outline: none;
     }
 
+     .form-footer {
+      display: flex;
+      gap: 12px;
+       justify-content: flex-end;
+     }
 
+     /* Адаптивность */
+     @media (max-width: 768px) {
+       .dashboard-container {
+      padding: 12px;
+       }
 
-    /* МОБИЛЬНЫЕ КАРТОЧКИ ДЛЯ ТАБЛИЦ */
-    @media (max-width: 768px) {
-      .table-container {
-        display: none; /* Скрываем десктопную таблицу */
-      }
+       .tabs-header {
+         flex-direction: column;
+       }
 
-      .mobile-cards-container {
-        display: grid;
-        gap: 12px;
-        margin-top: 16px;
-      }
+       .tab-button {
+         border-bottom: 1px solid #e9ecef;
+       }
 
-      .order-card {
-        background: white;
-        border: 1px solid #e9ecef;
-        border-radius: 12px;
-        padding: 16px;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-        transition: all 0.2s ease;
-      }
+       .tab-button.active {
+         border-bottom: 2px solid var(--primary-color);
+       }
 
-      .order-card:hover {
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-        transform: translateY(-2px);
-      }
+       .cards-grid {
+         grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+       }
 
-      .order-card-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: flex-start;
-        margin-bottom: 12px;
-        flex-wrap: wrap;
-        gap: 8px;
-      }
+       .data-table {
+         font-size: 0.8rem;
+       }
 
-      .order-card-header .order-title {
-        font-weight: 600;
-        color: #1a1a1a;
-        font-size: 1rem;
-        margin-bottom: 4px;
-        flex: 1;
-      }
+       .data-table th,
+       .data-table td {
+         padding: 6px 4px;
+       }
 
-      .order-card-header .order-event-type {
-        font-size: 0.85rem;
-        color: #6c757d;
-        font-style: italic;
-      }
+       /* Уменьшаем минимальную ширину колонок на мобильных */
+       .data-table th:nth-child(1),
+       .data-table td:nth-child(1) {
+         min-width: 120px;
+       }
 
-      .order-card-header .status-badge {
-        align-self: flex-start;
-        flex-shrink: 0;
-      }
+       .data-table th:nth-child(2),
+       .data-table td:nth-child(2) {
+         min-width: 60px;
+       }
 
-      .order-card-body {
-        margin-bottom: 12px;
-      }
+       .data-table th:nth-child(3),
+       .data-table td:nth-child(3) {
+         min-width: 80px;
+       }
 
-      .order-info-row {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 8px 0;
-        border-bottom: 1px solid #f1f3f4;
-        font-size: 0.9rem;
-      }
+       .data-table th:nth-child(4),
+       .data-table td:nth-child(4) {
+         min-width: 100px;
+       }
 
-      .order-info-row:last-child {
-        border-bottom: none;
-      }
+       .data-table th:nth-child(5),
+       .data-table td:nth-child(5) {
+         min-width: 60px;
+       }
 
-      .info-label {
-        color: #6c757d;
-        font-weight: 500;
-        display: flex;
-        align-items: center;
-        gap: 6px;
-      }
+       .data-table th:nth-child(6),
+       .data-table td:nth-child(6) {
+         min-width: 120px;
+       }
 
-      .info-value {
-        color: #1a1a1a;
-        font-weight: 500;
-      }
+       .action-buttons {
+         flex-direction: column;
+         gap: 4px;
+       }
 
-      .info-value.budget-amount {
-        color: var(--primary-color);
-        font-weight: 600;
-      }
+       .btn-small {
+         padding: 4px 8px;
+         font-size: 0.7rem;
+       }
 
-      .order-card-actions {
-        display: flex;
-        gap: 8px;
-        flex-wrap: wrap;
-        justify-content: flex-start;
-      }
+       /* Дополнительные стили для очень маленьких экранов */
+       .data-table {
+         font-size: 0.75rem;
+       }
 
-      .order-card-actions .btn {
-        padding: 8px 12px;
-        font-size: 0.85rem;
-        min-height: 36px;
-        flex: 1;
-        justify-content: center;
-      }
+       .order-title {
+         font-size: 0.85rem;
+       }
 
-      .empty-state {
-        text-align: center;
-        padding: 40px 20px;
-        color: #6c757d;
-        background: white;
-        border-radius: 12px;
-        border: 1px solid #e9ecef;
-        min-height: 200px;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-      }
+       .order-event-type {
+         font-size: 0.7rem;
+       }
 
-      .empty-state i {
-        font-size: 48px;
-        margin-bottom: 16px;
-        display: block;
-        color: #dee2e6;
-      }
+       .budget-amount {
+         font-size: 0.8rem;
+       }
 
-      .empty-state h3 {
-        margin: 0 0 8px 0;
-        font-size: 1.1rem;
-        font-weight: 600;
-        color: #495057;
-      }
+       /* Адаптивность для профиля */
+       .profile-info-container {
+         flex-direction: column !important;
+         gap: 16px !important;
+       }
 
-      .empty-state p {
-        margin: 0;
-        font-size: 0.9rem;
-        color: #6c757d;
-        line-height: 1.4;
-      }
+       .profile-photo-section {
+      text-align: center;
+         width: 100% !important;
+       }
 
-      .desktop-table {
-        display: none;
-      }
+       .profile-stats-grid {
+         grid-template-columns: repeat(2, 1fr) !important;
+         gap: 12px !important;
+       }
+
+       .contact-info-grid {
+         grid-template-columns: 1fr !important;
+         gap: 8px !important;
+       }
+     }
+
+    /* Хедер и футер */
+    .header {
+      background: white;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+      position: sticky;
+      top: 0;
+      z-index: 1000;
     }
 
-    @media (max-width: 480px) {
-      .order-card {
-        padding: 12px;
-      }
-
-      .order-card-header {
-        margin-bottom: 10px;
-      }
-
-      .order-card-header .order-title {
-        font-size: 0.95rem;
-      }
-
-      .order-card-header .order-event-type {
-        font-size: 0.8rem;
-      }
-
-      .order-info-row {
-        font-size: 0.85rem;
-        padding: 6px 0;
-      }
-
-      .order-card-actions {
-        gap: 6px;
-      }
-
-      .order-card-actions .btn {
-        padding: 6px 10px;
-        font-size: 0.8rem;
-        min-height: 32px;
-      }
-
-      .empty-state {
-        padding: 24px 12px;
-        min-height: 150px;
-      }
-
-      .empty-state i {
-        font-size: 36px;
-        margin-bottom: 12px;
-      }
-
-      .empty-state h3 {
-        font-size: 1rem;
-        margin-bottom: 6px;
-      }
-
-      .empty-state p {
-        font-size: 0.85rem;
-      }
+    .header .container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 16px;
     }
 
-    /* Мобильная адаптация табов */
-    @media (max-width: 768px) {
-      .dashboard-container {
-        padding: 12px;
-        max-width: 100%;
-        width: 100%;
-        box-sizing: border-box;
-      }
-
-      .tabs-container {
-        border-radius: 12px;
-        max-width: 100%;
-        width: 100%;
-        box-sizing: border-box;
-      }
-
-      .tabs-header {
-        gap: 0;
-      }
-
-      .tab-button {
-        flex: 1;
-        padding: 14px 8px;
-        font-size: 0.85rem;
-        border-radius: 0;
-        position: relative;
-      }
-
-      .tab-button i {
-        font-size: 1rem;
-        margin-right: 4px;
-      }
-
-      .tab-button.active::after {
-        content: '';
-        position: absolute;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        height: 2px;
-        background: var(--primary-color);
-      }
-
-      .tab-content {
-        padding: 16px;
-      }
-
-      .order-title {
-        font-size: 0.9rem;
-      }
-
-      .order-event-type {
-        font-size: 0.75rem;
-      }
-
-      /* Улучшенные стили для быстрых действий */
-      .quick-actions {
-        display: flex;
-        flex-direction: column;
-        gap: 12px;
-        margin-bottom: 20px;
-      }
-
-      .quick-actions .btn {
-        width: 100%;
-        justify-content: center;
-        padding: 12px 16px;
-        font-size: 0.9rem;
-      }
+    .nav {
+      display: flex;
+      gap: 24px;
     }
 
-    @media (max-width: 480px) {
-      .dashboard-container {
-        padding: 12px;
-        max-width: 100%;
-        width: 100%;
-        box-sizing: border-box;
-      }
-
-      .tabs-container {
-        border-radius: 8px;
-        max-width: 100%;
-        width: 100%;
-        box-sizing: border-box;
-      }
-
-      .tab-button {
-        padding: 10px 12px;
-        font-size: 0.8rem;
-      }
-
-      .tab-button i {
-        font-size: 0.9rem;
-      }
-
-      .tab-content {
-        padding: 12px;
-      }
-
-      .quick-actions .btn {
-        padding: 10px 12px;
-        font-size: 0.85rem;
-      }
+    .nav-link {
+      color: #1a1a1a;
+      text-decoration: none;
+      font-weight: 500;
+      transition: color 0.2s;
     }
 
-    /* ГОРИЗОНТАЛЬНАЯ ПРОКРУТКА ДЛЯ ТАБЛИЦ НА МОБИЛЬНЫХ */
-    @media (max-width: 768px) {
-      .table-container {
-        overflow-x: auto;
-        border-radius: 8px;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-        margin-bottom: 16px;
-      }
-
-      .data-table {
-        font-size: 14px;
-        min-width: 600px; /* Фиксированная минимальная ширина для прокрутки */
-        width: 100%;
-      }
-
-      .data-table th,
-      .data-table td {
-        padding: 12px 8px;
-        font-size: 14px;
-        white-space: nowrap;
-        min-width: 100px; /* Минимальная ширина колонок */
-      }
-
-      /* Фиксированные ширины колонок для прокрутки */
-      .data-table th:nth-child(1),
-      .data-table td:nth-child(1) {
-        min-width: 200px;
-        width: 200px;
-      }
-
-      .data-table th:nth-child(2),
-      .data-table td:nth-child(2) {
-        min-width: 100px;
-        width: 100px;
-      }
-
-      .data-table th:nth-child(3),
-      .data-table td:nth-child(3) {
-        min-width: 120px;
-        width: 120px;
-      }
-
-      .data-table th:nth-child(4),
-      .data-table td:nth-child(4) {
-        min-width: 100px;
-        width: 100px;
-      }
-
-      .data-table th:nth-child(5),
-      .data-table td:nth-child(5) {
-        min-width: 100px;
-        width: 100px;
-      }
-
-      .data-table th:nth-child(6),
-      .data-table td:nth-child(6) {
-        min-width: 150px;
-        width: 150px;
-      }
-
-      .action-buttons {
-        display: flex;
-        gap: 8px;
-        flex-wrap: nowrap;
-      }
-
-      .action-buttons .btn {
-        padding: 8px 12px;
-        font-size: 12px;
-        white-space: nowrap;
-        min-width: auto;
-      }
-
-      .status-badge {
-        font-size: 12px;
-        padding: 4px 8px;
-      }
-
-      .order-title {
-        font-size: 14px;
-      }
-
-      .order-event-type {
-        font-size: 12px;
-      }
-
-      .budget-amount {
-        font-size: 14px;
-      }
+    .nav-link:hover {
+      color: var(--primary-color);
     }
 
-    /* Стили для экранов меньше 570px - горизонтальная прокрутка */
-    @media (max-width: 570px) {
-      .table-container {
-        overflow-x: auto;
-        border-radius: 8px;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-        margin-bottom: 12px;
-      }
-
-      .data-table {
-        font-size: 13px;
-        min-width: 550px; /* Немного меньше для 570px */
-      }
-
-      .data-table th,
-      .data-table td {
-        padding: 10px 6px;
-        font-size: 13px;
-        white-space: nowrap;
-      }
-
-      /* Адаптируем ширины колонок */
-      .data-table th:nth-child(1),
-      .data-table td:nth-child(1) {
-        min-width: 180px;
-        width: 180px;
-      }
-
-      .data-table th:nth-child(2),
-      .data-table td:nth-child(2) {
-        min-width: 90px;
-        width: 90px;
-      }
-
-      .data-table th:nth-child(3),
-      .data-table td:nth-child(3) {
-        min-width: 100px;
-        width: 100px;
-      }
-
-      .data-table th:nth-child(4),
-      .data-table td:nth-child(4) {
-        min-width: 90px;
-        width: 90px;
-      }
-
-      .data-table th:nth-child(5),
-      .data-table td:nth-child(5) {
-        min-width: 90px;
-        width: 90px;
-      }
-
-      .data-table th:nth-child(6),
-      .data-table td:nth-child(6) {
-        min-width: 120px;
-        width: 120px;
-      }
-
-      .action-buttons {
-        display: flex;
-        gap: 6px;
-        flex-wrap: nowrap;
-      }
-
-      .action-buttons .btn {
-        padding: 6px 10px;
-        font-size: 11px;
-        white-space: nowrap;
-      }
-
-      .status-badge {
-        font-size: 11px;
-        padding: 3px 6px;
-      }
-
-      .order-title {
-        font-size: 13px;
-      }
-
-      .order-event-type {
-        font-size: 11px;
-      }
-
-      .budget-amount {
-        font-size: 13px;
-      }
+    .footer {
+      background: white;
+      padding: 16px 0;
+      margin-top: 48px;
+      border-top: 1px solid #e5e7eb;
     }
 
-    /* Стили для экранов 375px и меньше - горизонтальная прокрутка */
-    @media (max-width: 375px) {
-      .table-container {
-        overflow-x: auto;
-        border-radius: 6px;
-        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
-        margin-bottom: 8px;
-      }
+    .footer-content {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
 
-      .data-table {
-        font-size: 12px;
-        min-width: 500px; /* Минимальная ширина для прокрутки */
-      }
+    .footer-links {
+      display: flex;
+      gap: 24px;
+      flex-wrap: wrap;
+    }
 
-      .data-table th,
-      .data-table td {
-        padding: 8px 4px;
-        font-size: 12px;
-        white-space: nowrap;
-      }
+    .footer-links a {
+      color: #666;
+      text-decoration: none;
+      font-size: 0.9rem;
+      transition: color 0.2s;
+    }
 
-      /* Адаптируем ширины колонок для очень маленьких экранов */
-      .data-table th:nth-child(1),
-      .data-table td:nth-child(1) {
-        min-width: 160px;
-        width: 160px;
-      }
+    .footer-links a:hover {
+      color: var(--primary-color);
+    }
 
-      .data-table th:nth-child(2),
-      .data-table td:nth-child(2) {
-        min-width: 80px;
-        width: 80px;
-      }
-
-      .data-table th:nth-child(3),
-      .data-table td:nth-child(3) {
-        min-width: 90px;
-        width: 90px;
-      }
-
-      .data-table th:nth-child(4),
-      .data-table td:nth-child(4) {
-        min-width: 80px;
-        width: 80px;
-      }
-
-      .data-table th:nth-child(5),
-      .data-table td:nth-child(5) {
-        min-width: 80px;
-        width: 80px;
-      }
-
-      .data-table th:nth-child(6),
-      .data-table td:nth-child(6) {
-        min-width: 100px;
-        width: 100px;
-      }
-
-      .action-buttons {
-        display: flex;
-        gap: 4px;
-        flex-wrap: nowrap;
-      }
-
-      .action-buttons .btn {
-        padding: 4px 8px;
-        font-size: 10px;
-        white-space: nowrap;
-      }
-
-      .status-badge {
-        font-size: 10px;
-        padding: 2px 4px;
-      }
-
-      .order-title {
-        font-size: 12px;
-      }
-
-      .order-event-type {
-        font-size: 10px;
-      }
-
-      .budget-amount {
-        font-size: 12px;
-      }
+    .footer-copyright {
+      color: #666;
+      font-size: 0.9rem;
     }
   </style>
 </head>
 <body>
-  <!-- Header -->
-  <header class="header">
+<header class="header">
     <div class="container">
       <div class="logo">Той со звездой</div>
-      <nav class="nav desktop-nav">
+      <nav class="nav">
         <a href="{% url 'main:index' %}" class="nav-link">
           <i class="ri-home-line"></i>
           <span>Главная</span>
@@ -1370,96 +679,13 @@
           <i class="ri-group-line"></i>
           <span>Исполнители</span>
         </a>
-        {% if user.is_authenticated %}
-          {% if user.user_type == 'customer' %}
-            <a href="{% url 'main:dashboard' %}#create-order" class="nav-link">
-              <i class="ri-add-circle-line"></i>
-              <span>Создать заявку</span>
-            </a>
-          {% endif %}
-          <div class="nav-dropdown">
-            <button class="nav-dropdown-toggle">
-              <div class="user-info">
-                {% if user.profile_photo %}
-                  <img src="{{ user.profile_photo.url }}" alt="{{ user.get_full_name }}" class="nav-avatar">
-                {% else %}
-                  <i class="ri-user-line"></i>
-                {% endif %}
-                <span>{{ user.get_full_name|default:user.phone_number }}</span>
-              </div>
-              <i class="ri-arrow-down-s-line"></i>
-            </button>
-            <div class="nav-dropdown-menu">
-              <a href="{% url 'main:dashboard' %}">
-                <i class="ri-dashboard-line"></i>
-                <span>Личный кабинет</span>
-              </a>
-              <a href="{% url 'main:logout' %}">
+        <a href="{% url 'main:logout' %}" class="nav-link">
                 <i class="ri-logout-box-line"></i>
                 <span>Выйти</span>
               </a>
-            </div>
-          </div>
-        {% else %}
-          <a href="{% url 'main:auth' %}" class="nav-link auth-link">
-            <i class="ri-login-box-line"></i>
-            <span>Войти по номеру телефона</span>
-          </a>
-        {% endif %}
       </nav>
-      <button class="mobile-menu-toggle" aria-label="Открыть меню">
-        <span></span>
-        <span style="height: 3.35px;"></span>
-        <span></span>
-      </button>
     </div>
   </header>
-
-  <!-- Mobile Menu -->
-  <div class="mobile-menu">
-    <div class="mobile-menu-content">
-      <nav class="mobile-nav">
-        <a href="{% url 'main:index' %}" class="mobile-nav-link">
-          <i class="ri-home-line"></i>
-          <span>Главная</span>
-        </a>
-        <a href="{% url 'main:catalog' %}" class="mobile-nav-link">
-          <i class="ri-user-star-line"></i>
-          <span>Исполнители</span>
-        </a>
-        {% if user.is_authenticated %}
-          <div class="mobile-nav-dropdown">
-            <button class="mobile-nav-dropdown-toggle">
-              <div class="user-info">
-                {% if user.profile_photo %}
-                  <img src="{{ user.profile_photo.url }}" alt="{{ user.get_full_name }}" class="nav-avatar">
-                {% else %}
-                  <i class="ri-user-line"></i>
-                {% endif %}
-                <span>{{ user.get_full_name|default:user.phone_number }}</span>
-              </div>
-              <i class="ri-arrow-down-s-line"></i>
-            </button>
-            <div class="mobile-nav-dropdown-menu">
-              <a href="{% url 'main:dashboard' %}" class="mobile-nav-link">
-                <i class="ri-dashboard-line"></i>
-                <span>Личный кабинет</span>
-              </a>
-              <a href="{% url 'main:logout' %}" class="mobile-nav-link">
-                <i class="ri-logout-box-line"></i>
-                <span>Выйти</span>
-              </a>
-            </div>
-          </div>
-        {% else %}
-          <a href="{% url 'main:auth' %}" class="mobile-nav-link auth-link">
-            <i class="ri-login-box-line"></i>
-            <span>Войти по номеру телефона</span>
-          </a>
-        {% endif %}
-      </nav>
-    </div>
-  </div>
 
   <main class="dashboard-container">
     <!-- Табы -->
@@ -1497,9 +723,7 @@
             </div>
 
         <h3>Доступные заявки ({{ new_requests_count }})</h3>
-        
-        <!-- Десктопная таблица -->
-        <div class="table-container desktop-table">
+        <div class="table-container">
           <table class="data-table">
             <thead>
               <tr>
@@ -1526,7 +750,7 @@
                   <div class="action-buttons">
                     <button data-order-id="{{ order.id }}" data-action="respond" class="btn btn-small btn-primary order-action-btn">Откликнуться</button>
                     <button data-order-id="{{ order.id }}" data-action="view" class="btn btn-small btn-outline order-action-btn">Подробнее</button>
-                  </div>
+          </div>
                 </td>
               </tr>
               {% empty %}
@@ -1539,64 +763,10 @@
               {% endfor %}
             </tbody>
           </table>
-        </div>
-
-        <!-- Мобильные карточки -->
-        <div class="mobile-cards-container">
-          {% for order in available_orders %}
-          <div class="order-card">
-            <div class="order-card-header">
-              <div>
-                <div class="order-title">{{ order.title }}</div>
-                <div class="order-event-type">{{ order.get_event_type_display }}</div>
-              </div>
-              <span class="status-badge status-{{ order.status }}">{{ order.get_status_display }}</span>
-            </div>
-            <div class="order-card-body">
-              <div class="order-info-row">
-                <span class="info-label">
-                  <i class="ri-calendar-line"></i>
-                  Дата
-                </span>
-                <span class="info-value">{{ order.event_date|date:"d.m.Y" }}</span>
-              </div>
-              <div class="order-info-row">
-                <span class="info-label">
-                  <i class="ri-map-pin-line"></i>
-                  Город
-                </span>
-                <span class="info-value">{{ order.city }}</span>
-              </div>
-              <div class="order-info-row">
-                <span class="info-label">
-                  <i class="ri-money-dollar-circle-line"></i>
-                  Бюджет
-                </span>
-                <span class="info-value budget-amount">{{ order.budget_min }} - {{ order.budget_max }} ₸</span>
-              </div>
-            </div>
-            <div class="order-card-actions">
-              <button data-order-id="{{ order.id }}" data-action="respond" class="btn btn-primary order-action-btn">
-                <i class="ri-add-line"></i> Откликнуться
-              </button>
-              <button data-order-id="{{ order.id }}" data-action="view" class="btn btn-outline order-action-btn">
-                <i class="ri-eye-line"></i> Подробнее
-              </button>
-            </div>
-          </div>
-          {% empty %}
-          <div class="empty-state">
-            <i class="ri-search-line"></i>
-            <h3>Нет доступных заявок</h3>
-            <p>Пока нет новых заявок для вас</p>
-          </div>
-          {% endfor %}
-        </div>
+  </div>
 
         <h3 style="margin-top: 32px;">Мои активные заказы</h3>
-        
-        <!-- Десктопная таблица -->
-        <div class="table-container desktop-table">
+        <div class="table-container">
           <table class="data-table">
             <thead>
               <tr>
@@ -1619,13 +789,13 @@
                 <td>
                   {% if order.order_type == 'booking' %}
                     <i class="ri-calendar-check-line"></i> Бронирование
-                  {% else %}
+          {% else %}
                     <i class="ri-file-list-line"></i> Заявка
-                  {% endif %}
+          {% endif %}
                 </td>
                 <td><span class="status-badge status-{{ order.status }}">{{ order.get_status_display }}</span></td>
                 <td><span class="budget-amount">{{ order.budget_min }} - {{ order.budget_max }} ₸</span></td>
-                <td>
+                                <td>
                   <div class="action-buttons">
                     <button data-order-id="{{ order.id }}" data-action="view" class="btn btn-small btn-outline order-action-btn">Подробнее</button>
                     {% if order.status == 'in_progress' %}
@@ -1653,91 +823,10 @@
               {% endfor %}
             </tbody>
           </table>
-        </div>
-
-        <!-- Мобильные карточки -->
-        <div class="mobile-cards-container">
-          {% for order in active_orders %}
-          <div class="order-card">
-            <div class="order-card-header">
-              <div>
-                <div class="order-title">{{ order.title }}</div>
-                <div class="order-event-type">{{ order.get_event_type_display }}</div>
               </div>
-              <span class="status-badge status-{{ order.status }}">{{ order.get_status_display }}</span>
-            </div>
-            <div class="order-card-body">
-              <div class="order-info-row">
-                <span class="info-label">
-                  <i class="ri-calendar-line"></i>
-                  Дата
-                </span>
-                <span class="info-value">{{ order.event_date|date:"d.m.Y" }}</span>
-              </div>
-              <div class="order-info-row">
-                <span class="info-label">
-                  <i class="ri-file-list-line"></i>
-                  Тип
-                </span>
-                <span class="info-value">
-                  {% if order.order_type == 'booking' %}
-                    <i class="ri-calendar-check-line"></i> Бронирование
-                  {% else %}
-                    <i class="ri-file-list-line"></i> Заявка
-                  {% endif %}
-                </span>
-              </div>
-              <div class="order-info-row">
-                <span class="info-label">
-                  <i class="ri-money-dollar-circle-line"></i>
-                  Бюджет
-                </span>
-                <span class="info-value budget-amount">{{ order.budget_min }} - {{ order.budget_max }} ₸</span>
-              </div>
-            </div>
-            <div class="order-card-actions">
-              <button data-order-id="{{ order.id }}" data-action="view" class="btn btn-outline order-action-btn">
-                <i class="ri-eye-line"></i> Подробнее
-              </button>
-              {% if order.status == 'in_progress' %}
-                <button data-order-id="{{ order.id }}" data-action="chat" class="btn btn-primary chat-btn">
-                  <i class="ri-chat-1-line"></i> Чат
-                </button>
-                <button data-order-id="{{ order.id }}" data-action="complete" class="btn btn-accent complete-btn">
-                  <i class="ri-check-line"></i> Завершить
-                </button>
-              {% elif order.status == 'new' %}
-                {% if order.order_type == 'booking' %}
-                  <button data-order-id="{{ order.id }}" data-action="accept" class="btn btn-accent accept-btn">
-                    <i class="ri-check-line"></i> Принять
-                  </button>
-                  <button data-order-id="{{ order.id }}" data-action="reject" class="btn btn-danger reject-btn">
-                    <i class="ri-close-line"></i> Отклонить
-                  </button>
-                {% else %}
-                  <button data-order-id="{{ order.id }}" data-action="chat" class="btn btn-primary chat-btn">
-                    <i class="ri-chat-1-line"></i> Чат
-                  </button>
-                  <button data-order-id="{{ order.id }}" data-action="cancel" class="btn btn-danger cancel-btn">
-                    <i class="ri-close-line"></i> Отменить
-                  </button>
-                {% endif %}
-              {% endif %}
-            </div>
-          </div>
-          {% empty %}
-          <div class="empty-state">
-            <i class="ri-shopping-bag-line"></i>
-            <h3>У вас пока нет активных заказов</h3>
-            <p>Здесь будут отображаться ваши текущие заказы</p>
-          </div>
-          {% endfor %}
-        </div>
 
         <h3 style="margin-top: 32px;">Мои отклики</h3>
-        
-        <!-- Десктопная таблица -->
-        <div class="table-container desktop-table">
+        <div class="table-container">
           <table class="data-table">
             <thead>
               <tr>
@@ -1789,83 +878,7 @@
               {% endfor %}
             </tbody>
           </table>
-        </div>
-
-        <!-- Мобильные карточки -->
-        <div class="mobile-cards-container">
-          {% for response in my_responses %}
-          <div class="order-card">
-            <div class="order-card-header">
-              <div>
-                <div class="order-title">{{ response.order.title }}</div>
-                <div class="order-event-type">{{ response.order.event_date|date:"d.m.Y" }}</div>
-              </div>
-              <span class="status-badge status-{{ response.order.status }}">{{ response.order.get_status_display }}</span>
-            </div>
-            <div class="order-card-body">
-              <div class="order-info-row">
-                <span class="info-label">
-                  <i class="ri-user-line"></i>
-                  Заказчик
-                </span>
-                <span class="info-value">{{ response.order.customer.get_full_name }}</span>
-              </div>
-              <div class="order-info-row">
-                <span class="info-label">
-                  <i class="ri-money-dollar-circle-line"></i>
-                  Моя цена
-                </span>
-                <span class="info-value budget-amount">{{ response.price }} ₸</span>
-              </div>
-              <div class="order-info-row">
-                <span class="info-label">
-                  <i class="ri-calendar-line"></i>
-                  Дата отклика
-                </span>
-                <span class="info-value">{{ response.created_at|date:"d.m.Y" }}</span>
-              </div>
-            </div>
-            <div class="order-card-actions">
-              <button data-order-id="{{ response.order.id }}" data-action="view" class="btn btn-outline order-action-btn">
-                <i class="ri-eye-line"></i> Посмотреть
-              </button>
-              {% if response.order.status == 'new' %}
-                <span class="btn btn-success" style="background: #28a745; color: white; cursor: default;">
-                  <i class="ri-check-line"></i> Отклик отправлен
-                </span>
-                <button data-response-id="{{ response.id }}" data-action="cancel-response" class="btn btn-danger cancel-response-btn">
-                  <i class="ri-close-line"></i> Отменить отклик
-                </button>
-              {% elif response.order.status == 'in_progress' %}
-                {% with selected_performers=response.order.selected_performers|default:"{}" %}
-                  {% if response.performer.service_type.code in selected_performers and selected_performers|get_item:response.performer.service_type.code == response.performer.id %}
-                    <span class="btn btn-accent" style="background: #28a745; color: white; cursor: default;">
-                      <i class="ri-check-line"></i> Принят
-                    </span>
-                  {% else %}
-                    <span class="btn btn-success" style="background: #28a745; color: white; cursor: default;">
-                      <i class="ri-check-line"></i> Отклик отправлен
-                    </span>
-                    <button data-response-id="{{ response.id }}" data-action="cancel-response" class="btn btn-danger cancel-response-btn">
-                      <i class="ri-close-line"></i> Отменить отклик
-                    </button>
-                  {% endif %}
-                {% endwith %}
-              {% elif response.order.status == 'cancelled' %}
-                <span class="btn btn-danger" style="background: #dc3545; color: white; cursor: default;">
-                  <i class="ri-close-line"></i> Заказ отменен
-                </span>
-              {% endif %}
-            </div>
           </div>
-          {% empty %}
-          <div class="empty-state">
-            <i class="ri-message-3-line"></i>
-            <h3>Нет откликов</h3>
-            <p>Здесь будут отображаться ваши отклики на заказы</p>
-          </div>
-          {% endfor %}
-        </div>
         </div>
 
       <!-- Таб Портфолио -->
@@ -2459,7 +1472,7 @@
     }
   </script>
   
-
+  <script src="{% static 'js/main.js' %}"></script>
   
   <script>
     // Обработчики для всех кнопок действий
@@ -2522,8 +1535,5 @@
       });
     });
   </script>
-                                                                          <script src="{% static 'js/main.js' %}?v=18"></script>
-  <script src="{% static 'js/mobile-menu.js' %}?v=20"></script>
-  <script src="{% static 'js/responsive.js' %}?v=18"></script>
 </body>
 </html> 

@@ -241,7 +241,7 @@
     }
     
     .desktop-nav {
-        display: none !important;
+        display: none;
     }
     
     .mobile-menu {
