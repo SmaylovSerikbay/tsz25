@@ -9,7 +9,70 @@ document.addEventListener('DOMContentLoaded', function() {
     let lastScrollTop = 0;
     let menuOverlay;
 
+    // Мобильное меню
+    if (mobileMenuToggle && mobileMenu) {
+        mobileMenuToggle.addEventListener('click', function() {
+            mobileMenuToggle.classList.toggle('active');
+            mobileMenu.classList.toggle('active');
+            body.style.overflow = mobileMenu.classList.contains('active') ? 'hidden' : 'auto';
+        });
 
+        // Закрытие мобильного меню при клике на оверлей
+        mobileMenu.addEventListener('click', function(e) {
+            if (e.target === mobileMenu) {
+                closeMobileMenu();
+            }
+        });
+
+        // Закрытие мобильного меню при клике на ссылку
+        const mobileNavLinks = mobileMenu.querySelectorAll('.mobile-nav-link');
+        mobileNavLinks.forEach(link => {
+            link.addEventListener('click', function() {
+                closeMobileMenu();
+            });
+        });
+    }
+
+    // Мобильные дропдауны
+    mobileDropdowns.forEach(dropdown => {
+        dropdown.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            const menu = this.nextElementSibling;
+            const isActive = menu.classList.contains('active');
+            
+            // Закрываем все другие дропдауны
+            mobileDropdowns.forEach(otherDropdown => {
+                if (otherDropdown !== dropdown) {
+                    const otherMenu = otherDropdown.nextElementSibling;
+                    const otherToggle = otherDropdown;
+                    if (otherMenu) otherMenu.classList.remove('active');
+                    if (otherToggle) otherToggle.classList.remove('active');
+                }
+            });
+            
+            // Переключаем текущий дропдаун
+            this.classList.toggle('active');
+            if (menu) {
+                menu.classList.toggle('active');
+            }
+        });
+    });
+
+    // Функция закрытия мобильного меню
+    function closeMobileMenu() {
+        if (mobileMenuToggle) mobileMenuToggle.classList.remove('active');
+        if (mobileMenu) mobileMenu.classList.remove('active');
+        body.style.overflow = 'auto';
+        
+        // Закрываем все мобильные дропдауны
+        mobileDropdowns.forEach(dropdown => {
+            dropdown.classList.remove('active');
+            const menu = dropdown.nextElementSibling;
+            if (menu) menu.classList.remove('active');
+        });
+    }
 
     // Create menu overlay
     function createOverlay() {

@@ -91,6 +91,10 @@
     
     /* Мобильное меню стили перенесены в mobile-menu.css */
     
+    .mobile-menu-toggle {
+        display: flex;
+    }
+    
     /* Основной контент */
     .main {
         padding-top: calc(60px + 15px);
@@ -1347,7 +1351,10 @@
         min-height: 44px;
     }
     
-
+    .mobile-menu-toggle {
+        min-width: 44px;
+        min-height: 44px;
+    }
     
     .calendar-day-cell {
         min-height: 44px;
