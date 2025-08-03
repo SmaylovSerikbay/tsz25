@@ -12,19 +12,7 @@ document.addEventListener('DOMContentLoaded', function() {
             e.preventDefault();
             e.stopPropagation();
             
-            mobileMenuToggle.classList.toggle('active');
-            mobileMenu.classList.toggle('active');
-            
-            // Блокируем прокрутку body при открытом меню
-            if (mobileMenu.classList.contains('active')) {
-                document.body.style.overflow = 'hidden';
-                document.body.style.position = 'fixed';
-                document.body.style.width = '100%';
-            } else {
-                document.body.style.overflow = '';
-                document.body.style.position = '';
-                document.body.style.width = '';
-            }
+            toggleMobileMenu();
         });
         
         // Закрытие мобильного меню при клике вне его
@@ -44,24 +32,67 @@ document.addEventListener('DOMContentLoaded', function() {
         // Закрытие мобильного меню при клике на ссылку
         const mobileNavLinks = document.querySelectorAll('.mobile-nav-link');
         mobileNavLinks.forEach(link => {
-            link.addEventListener('click', function() {
+            link.addEventListener('click', function(e) {
                 // Не закрываем меню для дропдаунов
                 if (!this.closest('.mobile-nav-dropdown-menu')) {
+                    // Добавляем небольшую задержку для плавности
                     setTimeout(() => {
                         closeMobileMenu();
-                    }, 100);
+                    }, 150);
                 }
             });
         });
+        
+        // Функция переключения мобильного меню
+        function toggleMobileMenu() {
+            const isActive = mobileMenu.classList.contains('active');
+            
+            if (isActive) {
+                closeMobileMenu();
+            } else {
+                openMobileMenu();
+            }
+        }
+        
+        // Функция открытия мобильного меню
+        function openMobileMenu() {
+            mobileMenuToggle.classList.add('active');
+            mobileMenu.classList.add('active');
+            document.body.classList.add('menu-open');
+            
+            // Сохраняем позицию скролла
+            const scrollY = window.scrollY;
+            document.body.style.top = `-${scrollY}px`;
+            document.body.style.position = 'fixed';
+            document.body.style.width = '100%';
+            document.body.style.overflow = 'hidden';
+        }
         
         // Функция закрытия мобильного меню
         function closeMobileMenu() {
             mobileMenuToggle.classList.remove('active');
             mobileMenu.classList.remove('active');
-            document.body.style.overflow = '';
+            document.body.classList.remove('menu-open');
+            
+            // Восстанавливаем позицию скролла
+            const scrollY = document.body.style.top;
             document.body.style.position = '';
+            document.body.style.top = '';
             document.body.style.width = '';
+            document.body.style.overflow = '';
+            window.scrollTo(0, parseInt(scrollY || '0') * -1);
         }
+        
+        // Обработка изменения размера окна
+        let resizeTimeout;
+        window.addEventListener('resize', function() {
+            clearTimeout(resizeTimeout);
+            resizeTimeout = setTimeout(function() {
+                if (window.innerWidth > 768 && mobileMenu.classList.contains('active')) {
+                    closeMobileMenu();
+                }
+            }, 250);
+        });
     }
     
     // Мобильные дропдауны
@@ -74,6 +105,21 @@ document.addEventListener('DOMContentLoaded', function() {
             
             const dropdownMenu = this.nextElementSibling;
             const arrow = this.querySelector('i:last-child');
+            
+            // Закрываем все другие дропдауны
+            mobileDropdownToggles.forEach(otherToggle => {
+                if (otherToggle !== toggle) {
+                    otherToggle.classList.remove('active');
+                    const otherMenu = otherToggle.nextElementSibling;
+                    if (otherMenu) {
+                        otherMenu.classList.remove('active');
+                    }
+                    const otherArrow = otherToggle.querySelector('i:last-child');
+                    if (otherArrow) {
+                        otherArrow.style.transform = '';
+                    }
+                }
+            });
             
             this.classList.toggle('active');
             dropdownMenu.classList.toggle('active');
@@ -95,6 +141,21 @@ document.addEventListener('DOMContentLoaded', function() {
             const dropdownMenu = this.nextElementSibling;
             const arrow = this.querySelector('i:last-child');
             
+            // Закрываем все другие дропдауны
+            desktopDropdownToggles.forEach(otherToggle => {
+                if (otherToggle !== toggle) {
+                    otherToggle.classList.remove('active');
+                    const otherMenu = otherToggle.nextElementSibling;
+                    if (otherMenu) {
+                        otherMenu.classList.remove('active');
+                    }
+                    const otherArrow = otherToggle.querySelector('i:last-child');
+                    if (otherArrow) {
+                        otherArrow.style.transform = '';
+                    }
+                }
+            });
+            
             this.classList.toggle('active');
             dropdownMenu.classList.toggle('active');
             
@@ -103,12 +164,14 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
         
-        // Закрытие дропдауна при клике вне его
+        // Закрытие дропдаунов при клике вне их
         document.addEventListener('click', function(e) {
             if (!toggle.contains(e.target)) {
                 toggle.classList.remove('active');
                 const dropdownMenu = toggle.nextElementSibling;
-                dropdownMenu.classList.remove('active');
+                if (dropdownMenu) {
+                    dropdownMenu.classList.remove('active');
+                }
                 const arrow = toggle.querySelector('i:last-child');
                 if (arrow) {
                     arrow.style.transform = '';
@@ -117,43 +180,40 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
     
-    // Закрытие всех дропдаунов при клике вне их
-    document.addEventListener('click', function(e) {
-        if (!e.target.closest('.nav-dropdown') && !e.target.closest('.mobile-nav-dropdown')) {
-            document.querySelectorAll('.nav-dropdown-menu').forEach(m => m.classList.remove('active'));
-            document.querySelectorAll('.nav-dropdown-toggle').forEach(t => t.classList.remove('active'));
-            document.querySelectorAll('.mobile-nav-dropdown-menu').forEach(m => m.classList.remove('active'));
-            document.querySelectorAll('.mobile-nav-dropdown-toggle').forEach(t => t.classList.remove('active'));
+    // Обработка изменения размера окна
+    function handleResize() {
+        // Закрываем мобильное меню при переходе на десктоп
+        if (window.innerWidth > 768) {
+            if (mobileMenu && mobileMenu.classList.contains('active')) {
+                mobileMenuToggle.classList.remove('active');
+                mobileMenu.classList.remove('active');
+                document.body.classList.remove('menu-open');
+                document.body.style.position = '';
+                document.body.style.top = '';
+                document.body.style.width = '';
+                document.body.style.overflow = '';
+            }
         }
-    });
-    
-    // Touch-события для мобильных устройств
-    if ('ontouchstart' in window) {
-        const touchElements = document.querySelectorAll('.mobile-nav-link, .mobile-nav-dropdown-toggle, .btn');
         
-        touchElements.forEach(element => {
-            element.addEventListener('touchstart', function() {
-                this.style.transform = 'scale(0.98)';
-            });
-            
-            element.addEventListener('touchend', function() {
-                this.style.transform = '';
-            });
+        // Закрываем все дропдауны при изменении размера
+        const allDropdownToggles = document.querySelectorAll('.nav-dropdown-toggle, .mobile-nav-dropdown-toggle');
+        allDropdownToggles.forEach(toggle => {
+            toggle.classList.remove('active');
+            const dropdownMenu = toggle.nextElementSibling;
+            if (dropdownMenu) {
+                dropdownMenu.classList.remove('active');
+            }
+            const arrow = toggle.querySelector('i:last-child');
+            if (arrow) {
+                arrow.style.transform = '';
+            }
         });
     }
     
-    // Адаптация для разных размеров экранов
-    function handleResize() {
-        const isMobile = window.innerWidth <= 768;
-        
-        if (!isMobile && mobileMenu.classList.contains('active')) {
-            closeMobileMenu();
-        }
-    }
-    
+    // Добавляем обработчик изменения размера окна
     window.addEventListener('resize', handleResize);
     
-    // Инициализация при загрузке
+    // Инициализация при загрузке страницы
     handleResize();
 });
 
@@ -166,9 +226,11 @@ window.MobileMenu = {
         if (mobileMenuToggle && mobileMenu) {
             mobileMenuToggle.classList.remove('active');
             mobileMenu.classList.remove('active');
-            document.body.style.overflow = '';
+            document.body.classList.remove('menu-open');
             document.body.style.position = '';
+            document.body.style.top = '';
             document.body.style.width = '';
+            document.body.style.overflow = '';
         }
     },
     
@@ -179,6 +241,7 @@ window.MobileMenu = {
         if (mobileMenuToggle && mobileMenu) {
             mobileMenuToggle.classList.add('active');
             mobileMenu.classList.add('active');
+            document.body.classList.add('menu-open');
             document.body.style.overflow = 'hidden';
             document.body.style.position = 'fixed';
             document.body.style.width = '100%';

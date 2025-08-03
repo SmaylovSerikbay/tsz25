@@ -8,8 +8,8 @@
   <title>Личный кабинет исполнителя — Той со звездой</title>
                                                        <link rel="stylesheet" href="{% static 'css/style.css' %}?v=18">
                    <link rel="stylesheet" href="{% static 'css/responsive.css' %}?v=18">
-                   <link rel="stylesheet" href="{% static 'css/mobile.css' %}?v=18">
-                   <link rel="stylesheet" href="{% static 'css/mobile-menu.css' %}?v=18">
+                   <link rel="stylesheet" href="{% static 'css/mobile.css' %}?v=20">
+                   <link rel="stylesheet" href="{% static 'css/mobile-menu.css' %}?v=19">
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
   
@@ -17,10 +17,12 @@
   <style>
     /* Основные стили */
     .dashboard-container {
-      max-width: 100%;
-      margin: 0 auto;
+      margin: 60px auto 0;
       padding: 20px;
       box-sizing: border-box;
+      max-width: 1600px;
+      width: 100%;
+
     }
 
     /* Табы */
@@ -29,11 +31,12 @@
       border-radius: 16px;
       box-shadow: 0 2px 12px rgba(0,0,0,0.08);
       overflow: hidden;
+      max-width: 1600px;
       min-height: 600px;
       width: 100%;
-      max-width: 100%;
       margin: 0 auto;
       box-sizing: border-box;
+
     }
 
      .tabs-header {
@@ -81,7 +84,7 @@
        display: none;
        padding: 24px;
        width: 100%;
-       max-width: 100%;
+       max-width: 1600px;       
        overflow-x: auto;
      }
 
@@ -994,36 +997,77 @@
 
       .tabs-container {
         border-radius: 12px;
-        max-width: 100%;
+        max-width: 1600px;        
         width: 100%;
         box-sizing: border-box;
+        margin-top: 20px; /* Добавляем отступ от хедера */
       }
 
       .tabs-header {
-        gap: 0;
+        display:none;
+        gap: 8px;
+        overflow-x: auto;
+        padding: 12px 0;
+        margin-bottom: 20px;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: thin;
+        scrollbar-color: var(--primary-color) #f1f1f1;
+      }
+
+      .tabs-header::-webkit-scrollbar {
+        height: 4px;
+      }
+
+      .tabs-header::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 2px;
+      }
+
+      .tabs-header::-webkit-scrollbar-thumb {
+        background: var(--primary-color);
+        border-radius: 2px;
       }
 
       .tab-button {
-        flex: 1;
-        padding: 14px 8px;
-        font-size: 0.85rem;
-        border-radius: 0;
+        min-height: 48px;
+        padding: 12px 20px;
+        font-size: 14px;
+        border-radius: 8px;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        transition: all 0.2s ease;
+        background: white;
+        border: 2px solid transparent;
+        color: var(--text-secondary);
+        cursor: pointer;
+        white-space: nowrap;
+        flex-shrink: 0;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         position: relative;
+        min-width: 100px;
       }
 
       .tab-button i {
-        font-size: 1rem;
-        margin-right: 4px;
+        font-size: 18px;
+      }
+
+      .tab-button:hover {
+        background: var(--primary-light);
+        color: var(--primary-dark);
+        transform: translateY(-1px);
+      }
+
+      .tab-button.active {
+        background: var(--primary-color);
+        color: white;
+        border-color: var(--primary-color);
+        box-shadow: 0 4px 8px rgba(212, 175, 55, 0.3);
       }
 
       .tab-button.active::after {
-        content: '';
-        position: absolute;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        height: 2px;
-        background: var(--primary-color);
+        display: none; /* Убираем старый индикатор */
       }
 
       .tab-content {
@@ -1056,7 +1100,7 @@
 
     @media (max-width: 480px) {
       .dashboard-container {
-        padding: 12px;
+        padding: 8px;
         max-width: 100%;
         width: 100%;
         box-sizing: border-box;
@@ -1067,15 +1111,23 @@
         max-width: 100%;
         width: 100%;
         box-sizing: border-box;
+        margin-top: 16px;
+      }
+
+      .tabs-header {
+        gap: 4px;
+        padding: 8px 0;
       }
 
       .tab-button {
-        padding: 10px 12px;
-        font-size: 0.8rem;
+        min-height: 40px;
+        padding: 8px 12px;
+        font-size: 12px;
+        border-radius: 6px;
       }
 
       .tab-button i {
-        font-size: 0.9rem;
+        font-size: 14px;
       }
 
       .tab-content {
@@ -1083,8 +1135,9 @@
       }
 
       .quick-actions .btn {
-        padding: 10px 12px;
-        font-size: 0.85rem;
+        padding: 8px 12px;
+        font-size: 13px;
+        min-height: 40px;
       }
     }
 
@@ -1480,7 +1533,32 @@
         <button class="tab-button" onclick="showTab('profile')">
           <i class="ri-user-settings-line"></i> Профиль
         </button>
-              </div>
+      </div>
+      
+      <!-- Мобильный дропдаун для табов -->
+      <div class="mobile-tabs-dropdown">
+        <button class="mobile-tabs-toggle" onclick="toggleMobileTabs()">
+          <span class="current-tab-text">Заказы</span>
+          <i class="ri-arrow-down-s-line"></i>
+        </button>
+        <div class="mobile-tabs-menu" id="mobileTabsMenu">
+          <button class="mobile-tab-option active" onclick="selectMobileTab('orders', 'Заказы')">
+            <i class="ri-file-list-line"></i> Заказы
+          </button>
+          <button class="mobile-tab-option" onclick="selectMobileTab('portfolio', 'Портфолио')">
+            <i class="ri-gallery-line"></i> Портфолио
+          </button>
+          <button class="mobile-tab-option" onclick="selectMobileTab('tariffs', 'Тарифы')">
+            <i class="ri-money-dollar-circle-line"></i> Тарифы
+          </button>
+          <button class="mobile-tab-option" onclick="selectMobileTab('calendar', 'Календарь')">
+            <i class="ri-calendar-line"></i> Календарь
+          </button>
+          <button class="mobile-tab-option" onclick="selectMobileTab('profile', 'Профиль')">
+            <i class="ri-user-settings-line"></i> Профиль
+          </button>
+        </div>
+      </div>
 
       <!-- Таб Заказы -->
       <div id="orders" class="tab-content active">
@@ -1983,7 +2061,7 @@
                   <!-- Информация о пользователе -->
          <div style="background: white; border-radius: 16px; padding: 32px; margin-bottom: 24px; box-shadow: 0 2px 12px rgba(0,0,0,0.08);">
            <!-- Основная информация -->
-           <div style="display: flex; align-items: center; gap: 24px; margin-bottom: 32px; padding-bottom: 24px; border-bottom: 1px solid #e9ecef;">
+           <div style="display: flex; align-items: center; gap: 24px; margin-bottom: 32px; padding-bottom: 24px; border-bottom: 1px solid #e9ecef; flex-wrap: wrap;">
              <!-- Фото профиля -->
              {% if user.profile_photo %}
                <img src="{{ user.profile_photo.url }}" alt="Фото профиля" style="width: 100px; height: 100px; border-radius: 50%; object-fit: cover; border: 4px solid #f8f9fa;">
@@ -2010,10 +2088,11 @@
                    {{ user.service_type.name|default:"Не указана" }}
                  </span>
                   </div>
-               <button class="btn btn-primary" onclick="openEditProfileModal()" style="padding: 10px 20px; font-size: 0.9rem;">
-                 <i class="ri-edit-line"></i> Редактировать профиль
-               </button>
+                  <button class="btn btn-primary" onclick="openEditProfileModal()" style="padding: 10px 20px; font-size: 0.9rem;">
+                    <i class="ri-edit-line"></i> Редактировать профиль
+                  </button>
                 </div>
+
               </div>
            
            <!-- Статистика -->
@@ -2172,6 +2251,37 @@
       
       // Добавляем активный класс к кнопке
       event.target.classList.add('active');
+    }
+
+    // Функции для мобильного дропдауна табов
+    function toggleMobileTabs() {
+      const menu = document.getElementById('mobileTabsMenu');
+      const toggle = document.querySelector('.mobile-tabs-toggle');
+      
+      menu.classList.toggle('active');
+      toggle.classList.toggle('active');
+    }
+
+    function selectMobileTab(tabName, tabText) {
+      // Скрываем все табы
+      const tabContents = document.querySelectorAll('.tab-content');
+      tabContents.forEach(content => content.classList.remove('active'));
+      
+      // Убираем активный класс со всех опций
+      const tabOptions = document.querySelectorAll('.mobile-tab-option');
+      tabOptions.forEach(option => option.classList.remove('active'));
+      
+      // Показываем нужный таб
+      document.getElementById(tabName).classList.add('active');
+      
+      // Добавляем активный класс к выбранной опции
+      event.target.classList.add('active');
+      
+      // Обновляем текст в кнопке дропдауна
+      document.querySelector('.current-tab-text').textContent = tabText;
+      
+      // Закрываем дропдаун
+      toggleMobileTabs();
     }
 
     function openModal(modalId) {

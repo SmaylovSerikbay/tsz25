@@ -1,0 +1,461 @@
+/* ===== ДОПОЛНИТЕЛЬНЫЕ УЛУЧШЕНИЯ ДЛЯ ПРОФИЛЯ ===== */
+
+/* Улучшенные стили для профиля на мобильных устройствах */
+@media (max-width: 768px) {
+    /* Улучшенная структура профиля */
+    .profile-container {
+        background: #f8f9fa;
+        min-height: calc(100vh - var(--header-height));
+        padding: 0 !important;
+    }
+
+    .profile-header {
+        margin: 0 !important;
+        border-radius: 0 !important;
+        box-shadow: none !important;
+        border-bottom: 1px solid #e9ecef;
+    }
+
+    .profile-tabs {
+        margin: 0 !important;
+        border-radius: 0 !important;
+        box-shadow: none !important;
+    }
+
+    /* Улучшенные табы */
+    .tab-buttons {
+        background: white !important;
+        border-bottom: 1px solid #e9ecef;
+        position: sticky !important;
+        top: var(--header-height) !important;
+        z-index: 100 !important;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        padding: 0 !important;
+        margin: 0 !important;
+        width: 100% !important;
+        overflow-x: auto !important;
+        scrollbar-width: none !important;
+        -ms-overflow-style: none !important;
+    }
+
+    .tab-buttons::-webkit-scrollbar {
+        display: none !important;
+    }
+
+    .tab-button {
+        min-width: 100px !important;
+        padding: 14px 16px !important;
+        font-size: 0.85rem !important;
+        flex-shrink: 0 !important;
+        background: transparent !important;
+        border: none !important;
+        color: #6c757d !important;
+        cursor: pointer !important;
+        transition: all 0.2s ease !important;
+        border-bottom: 2px solid transparent !important;
+        white-space: nowrap !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        gap: 6px !important;
+        position: relative !important;
+    }
+
+    .tab-button:hover {
+        color: var(--primary-color) !important;
+        background: rgba(212, 175, 55, 0.1) !important;
+    }
+
+    .tab-button.active {
+        color: var(--primary-color) !important;
+        border-bottom-color: var(--primary-color) !important;
+        background: white !important;
+        font-weight: 600 !important;
+    }
+
+    .tab-button.active::after {
+        content: '' !important;
+        position: absolute !important;
+        bottom: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        height: 2px !important;
+        background: var(--primary-color) !important;
+    }
+
+    .tab-button i {
+        font-size: 0.9rem !important;
+        flex-shrink: 0 !important;
+    }
+
+    .tab-content {
+        padding: var(--spacing-md) !important;
+        background: white !important;
+        border-radius: 0 !important;
+        min-height: calc(100vh - var(--header-height) - 60px) !important;
+    }
+
+    /* Улучшенная сетка портфолио */
+    .portfolio-grid {
+        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)) !important;
+        gap: var(--spacing-sm) !important;
+        padding: 0 !important;
+    }
+
+    .portfolio-item {
+        aspect-ratio: 1 !important;
+        border-radius: 8px !important;
+        overflow: hidden !important;
+        background: #f8f9fa !important;
+        cursor: pointer !important;
+        transition: transform 0.3s ease !important;
+    }
+
+    .portfolio-item:hover {
+        transform: scale(1.02) !important;
+    }
+
+    .portfolio-item img {
+        width: 100% !important;
+        height: 100% !important;
+        object-fit: cover !important;
+        object-position: center !important;
+        transition: transform 0.3s ease !important;
+    }
+
+    .portfolio-item:hover img {
+        transform: scale(1.05) !important;
+    }
+
+    /* Улучшенные карточки тарифов */
+    .tariff-card {
+        background: white !important;
+        border-radius: 12px !important;
+        padding: var(--spacing-lg) !important;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1) !important;
+        transition: all 0.3s ease !important;
+        border: 1px solid #e9ecef !important;
+    }
+
+    .tariff-card:hover {
+        transform: translateY(-2px) !important;
+        box-shadow: 0 4px 16px rgba(0,0,0,0.15) !important;
+    }
+
+    /* Улучшенные отзывы */
+    .review-card {
+        background: white !important;
+        border-radius: 12px !important;
+        padding: var(--spacing-lg) !important;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1) !important;
+        transition: all 0.3s ease !important;
+        border: 1px solid #e9ecef !important;
+    }
+
+    .review-card:hover {
+        transform: translateY(-2px) !important;
+        box-shadow: 0 4px 16px rgba(0,0,0,0.15) !important;
+    }
+}
+
+@media (max-width: 480px) {
+    .profile-container {
+        padding: 0 !important;
+    }
+
+    .profile-header {
+        padding: var(--spacing-md) !important;
+        text-align: center !important;
+    }
+
+    .profile-photo {
+        width: 80px !important;
+        height: 80px !important;
+        margin: 0 auto var(--spacing-sm) !important;
+        display: block !important;
+    }
+
+    .profile-name {
+        font-size: 1.3rem !important;
+        margin-bottom: var(--spacing-xs) !important;
+        word-wrap: break-word !important;
+        overflow-wrap: break-word !important;
+    }
+
+    .profile-bio {
+        font-size: 0.85rem !important;
+        margin-bottom: var(--spacing-sm) !important;
+        word-wrap: break-word !important;
+        overflow-wrap: break-word !important;
+        line-height: 1.5 !important;
+    }
+
+    .profile-meta {
+        gap: var(--spacing-sm) !important;
+        flex-wrap: wrap !important;
+        justify-content: center !important;
+    }
+
+    .meta-item {
+        font-size: 0.8rem !important;
+        padding: var(--spacing-xs) var(--spacing-sm) !important;
+        min-width: fit-content !important;
+        text-align: center !important;
+    }
+
+    .tab-button {
+        min-width: 70px !important;
+        padding: 10px 12px !important;
+        font-size: 0.75rem !important;
+    }
+
+    .tab-button i {
+        font-size: 0.75rem !important;
+    }
+
+    .tab-content {
+        padding: var(--spacing-sm) !important;
+    }
+
+    .portfolio-grid {
+        grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)) !important;
+        gap: var(--spacing-xs) !important;
+    }
+
+    .section {
+        margin-bottom: var(--spacing-md) !important;
+    }
+
+    .section-title {
+        font-size: 1.2rem !important;
+        margin-bottom: var(--spacing-sm) !important;
+    }
+}
+
+@media (max-width: 360px) {
+    .profile-container {
+        padding: 0 !important;
+    }
+
+    .profile-header {
+        padding: 12px !important;
+        margin-bottom: 0 !important;
+    }
+
+    .profile-photo {
+        width: 70px !important;
+        height: 70px !important;
+        margin-bottom: 8px !important;
+    }
+
+    .profile-name {
+        font-size: 1.1rem !important;
+    }
+
+    .profile-bio {
+        font-size: 0.8rem !important;
+    }
+
+    .meta-item {
+        font-size: 0.75rem !important;
+        padding: 6px 10px !important;
+    }
+
+    .tab-button {
+        min-width: 60px !important;
+        padding: 8px 10px !important;
+        font-size: 0.7rem !important;
+    }
+
+    .tab-button i {
+        font-size: 0.7rem !important;
+    }
+
+    .portfolio-grid {
+        grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)) !important;
+        gap: 6px !important;
+    }
+}
+
+/* Ландшафтная ориентация */
+@media (max-width: 768px) and (orientation: landscape) {
+    .profile-header {
+        padding: var(--spacing-md) !important;
+    }
+
+    .profile-photo {
+        width: 60px !important;
+        height: 60px !important;
+        margin-bottom: var(--spacing-sm) !important;
+    }
+
+    .profile-name {
+        font-size: 1.2rem !important;
+    }
+
+    .profile-bio {
+        font-size: 0.8rem !important;
+        margin-bottom: var(--spacing-sm) !important;
+    }
+
+    .meta-item {
+        font-size: 0.75rem !important;
+        padding: var(--spacing-xs) var(--spacing-sm) !important;
+    }
+
+    .tab-button {
+        padding: 8px 12px !important;
+        font-size: 0.75rem !important;
+        min-width: 70px !important;
+    }
+
+    .tab-content {
+        padding: var(--spacing-sm) !important;
+    }
+}
+
+/* Улучшения для touch-устройств */
+@media (pointer: coarse) {
+    .tab-button {
+        min-height: 44px !important;
+    }
+
+    .meta-item {
+        min-height: 44px !important;
+    }
+
+    .profile-photo {
+        min-width: 44px !important;
+        min-height: 44px !important;
+    }
+
+    .portfolio-item {
+        min-height: 44px !important;
+    }
+}
+
+/* Анимации для плавности */
+.tab-button {
+    transition: all 0.2s ease !important;
+}
+
+.tab-button:active {
+    transform: scale(0.98) !important;
+}
+
+.profile-photo {
+    transition: transform 0.3s ease !important;
+}
+
+.meta-item {
+    transition: all 0.2s ease !important;
+}
+
+.portfolio-item {
+    transition: transform 0.3s ease !important;
+}
+
+/* Улучшения для скролла */
+.tab-buttons {
+    -webkit-overflow-scrolling: touch !important;
+    scroll-behavior: smooth !important;
+}
+
+/* Исправления для iOS Safari */
+@supports (-webkit-touch-callout: none) {
+    .tab-buttons {
+        -webkit-overflow-scrolling: touch !important;
+    }
+    
+    .profile-container {
+        -webkit-overflow-scrolling: touch !important;
+    }
+}
+
+/* Улучшения для Android Chrome */
+@media screen and (-webkit-min-device-pixel-ratio: 0) {
+    .tab-buttons {
+        scrollbar-width: none !important;
+        -ms-overflow-style: none !important;
+    }
+    
+    .tab-buttons::-webkit-scrollbar {
+        display: none !important;
+    }
+}
+
+/* Дополнительные улучшения для доступности */
+.tab-button:focus {
+    outline: 2px solid var(--primary-color) !important;
+    outline-offset: 2px !important;
+}
+
+.meta-item:focus {
+    outline: 2px solid var(--primary-color) !important;
+    outline-offset: 2px !important;
+}
+
+.portfolio-item:focus {
+    outline: 2px solid var(--primary-color) !important;
+    outline-offset: 2px !important;
+}
+
+/* Темная тема */
+@media (prefers-color-scheme: dark) {
+    .profile-container {
+        background: #1a1a1a !important;
+    }
+
+    .profile-header {
+        background: #2a2a2a !important;
+        color: white !important;
+    }
+
+    .profile-tabs {
+        background: #2a2a2a !important;
+    }
+
+    .tab-buttons {
+        background: #2a2a2a !important;
+        border-bottom-color: #404040 !important;
+    }
+
+    .tab-button {
+        color: #cccccc !important;
+    }
+
+    .tab-button:hover {
+        background: rgba(212, 175, 55, 0.2) !important;
+    }
+
+    .tab-button.active {
+        background: #1a1a1a !important;
+        color: var(--primary-color) !important;
+    }
+
+    .tab-content {
+        background: #1a1a1a !important;
+        color: white !important;
+    }
+
+    .portfolio-item {
+        background: #2a2a2a !important;
+    }
+
+    .tariff-card,
+    .review-card {
+        background: #2a2a2a !important;
+        color: white !important;
+        border-color: #404040 !important;
+    }
+}
+
+/* Улучшения для reduced motion */
+@media (prefers-reduced-motion: reduce) {
+    .tab-button,
+    .profile-photo,
+    .meta-item,
+    .portfolio-item {
+        transition: none !important;
+    }
+} 
