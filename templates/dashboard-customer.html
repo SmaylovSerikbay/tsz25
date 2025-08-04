@@ -7,11 +7,15 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Личный кабинет — Той со звездой</title>
-      <link rel="stylesheet" href="{% static 'css/style.css' %}?v=4">
-      <link rel="stylesheet" href="{% static 'css/mobile.css' %}?v=4">
+      <link rel="stylesheet" href="{% static 'css/style.css' %}?v=20">
+      <link rel="stylesheet" href="{% static 'css/mobile.css' %}?v=21">
       <link rel="stylesheet" href="{% static 'css/mobile-menu.css' %}?v=19">
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+  
+  <!-- Загружаем скрипты в head для раннего доступа к функциям -->
+  <script src="{% static 'js/main.js' %}?v=19"></script>
+  <script src="{% static 'js/mobile-menu.js' %}?v=20"></script>
   
   <!-- Touch device styles -->
   <style>
@@ -1665,7 +1669,6 @@
         fetch(`/order/response/${responseId}/accept/`, {
           method: 'POST',
           headers: {
-            'Content-Type': 'application/json',
             'X-CSRFToken': getCookie('csrftoken')
           }
         })
@@ -1696,7 +1699,6 @@
         fetch(`/order/response/${responseId}/reject/`, {
           method: 'POST',
           headers: {
-            'Content-Type': 'application/json',
             'X-CSRFToken': getCookie('csrftoken')
           }
         })
@@ -2058,6 +2060,5 @@
       }
     });
   </script>
-      <script src="{% static 'js/mobile-menu.js' %}?v=2"></script>
 </body>
 </html> 

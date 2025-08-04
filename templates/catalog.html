@@ -11,6 +11,10 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
   
+  <!-- Load JavaScript files early -->
+  <script src="{% static 'js/main.js' %}"></script>
+  <script src="{% static 'js/mobile-menu.js' %}"></script>
+  
   <!-- Touch device styles -->
   <style>
     @media (pointer: coarse) {
@@ -1486,7 +1490,7 @@
             <div class="performer-actions">
               <a href="{% url 'main:view_profile' performer.id %}" class="btn btn-primary">Профиль</a>
               {% if user.is_authenticated and user.user_type == 'customer' %}
-              <button onclick="openBookingModal('{{ performer.id }}')" class="btn btn-outline" style="cursor: pointer;">Забронировать</button>
+              <button onclick="if(typeof openBookingModal === 'function') { openBookingModal('{{ performer.id }}'); } else { console.error('openBookingModal not found'); alert('Ошибка загрузки функции бронирования'); }" class="btn btn-outline" style="cursor: pointer;">Забронировать</button>
               {% endif %}
             </div>
           </div>
@@ -1579,8 +1583,16 @@
 
     // Booking Modal Function - uses main.js openBookingModal
     console.log('Catalog page loaded, openBookingModal available:', typeof openBookingModal);
+    console.log('Window openBookingModal:', typeof window.openBookingModal);
+    console.log('Document ready state:', document.readyState);
+    
+    // Ensure openBookingModal is available globally
+    if (typeof window.openBookingModal === 'function') {
+      window.openBookingModal = window.openBookingModal;
+      console.log('openBookingModal is properly exported');
+    } else {
+      console.error('openBookingModal is not available');
+    }
   </script>
-  <script src="{% static 'js/main.js' %}"></script>
-  <script src="{% static 'js/mobile-menu.js' %}"></script>
 </body>
 </html> 

@@ -572,22 +572,42 @@
   }
 
   /* Улучшенные чаты */
-  .chat-message {
-    padding: 12px 16px;
-    border-radius: 12px;
+  .chat-container {
+    height: 350px;
+    max-height: 50vh;
+  }
+
+  .chat-messages {
+    padding: 10px;
+  }
+
+  .chat-input {
+    gap: 8px;
+  }
+
+  .chat-input .form-input {
+    font-size: 14px;
+    padding: 8px 12px;
+  }
+
+  .chat-input .btn {
+    padding: 8px 12px;
+    font-size: 14px;
+  }
+
+  .message {
     margin-bottom: 8px;
-    max-width: 80%;
   }
 
-  .chat-message.sent {
-    background: var(--primary-color);
-    color: white;
-    margin-left: auto;
+  .message-content {
+    padding: 8px 12px;
+    font-size: 14px;
+    max-width: 85%;
   }
 
-  .chat-message.received {
-    background: #f3f4f6;
-    color: #374151;
+  .message-time {
+    font-size: 11px;
+    margin-top: 3px;
   }
 
   /* Улучшенные отзывы */
@@ -1268,6 +1288,7 @@
   .modal-content {
     margin: 8px;
     width: calc(100% - 16px);
+    padding: 12px !important;
   }
   
   .modal-header {

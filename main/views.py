@@ -763,8 +763,8 @@ def order_detail(request, order_id):
                 response_id = request.POST.get('response_id')
                 try:
                     response = OrderResponse.objects.get(id=response_id, order=order)
-                    # Проверка: исполнитель не должен быть уже выбран и заказ должен быть новым
-                    if order.performer is not None or order.status != 'new':
+                    # Проверка: заказ должен быть новым или в работе
+                    if order.status not in ['new', 'in_progress']:
                         return redirect('main:order_detail', order_id=order.id)
                     else:
                         # Получаем специализацию исполнителя
@@ -772,21 +772,40 @@ def order_detail(request, order_id):
                         selected_performers = order.selected_performers or {}
                         selected_performers[service_type] = response.performer.id
                         order.selected_performers = selected_performers
-                        if set(selected_performers.keys()) == set(order.services):
-                            order.status = 'in_progress'
-                            order.save()
-                        else:
-                            order.save()
+                        # Преобразуем order.services в set для корректного сравнения
+                        order_services_set = set(order.services) if isinstance(order.services, list) else set()
+                        
+                        # Добавляем отладочную информацию
+                        print(f"DEBUG order_detail: order.services = {order.services}")
+                        print(f"DEBUG order_detail: order_services_set = {order_services_set}")
+                        print(f"DEBUG order_detail: selected_performers = {selected_performers}")
+                        print(f"DEBUG order_detail: selected_performers.keys() = {set(selected_performers.keys())}")
+                        print(f"DEBUG order_detail: Сравнение: {set(selected_performers.keys())} == {order_services_set}")
+                        print(f"DEBUG order_detail: order.order_type = {order.order_type}")
+                        
+                        # ВСЕГДА устанавливаем статус в работу при принятии отклика
+                        order.status = 'in_progress'
+                        print(f"DEBUG order_detail: Статус изменен на 'in_progress' (принятие отклика)")
+                        
+                        order.save()
+                        
+                        # Сохраняем информацию об исполнителе перед удалением отклика
+                        performer = response.performer
+                        
                         # Удаляем все остальные отклики по этой услуге
                         OrderResponse.objects.filter(order=order, performer__service_type__code=service_type).exclude(id=response_id).delete()
+                        
+                        # Также удаляем сам принятый отклик, так как он больше не нужен
+                        response.delete()
                         messages.success(request, f'Исполнитель по услуге {service_type} успешно выбран')
                         
                         # Создаем первое сообщение в чате от заказчика
                         Message.objects.create(
                             order=order,
                             from_user=request.user,
-                            to_user=response.performer,
-                            content=f'Здравствуйте! Я выбрал вас для выполнения услуги "{service_type}". Давайте обсудим детали.'
+                            to_user=performer,
+                            content=f'Здравствуйте! Я выбрал вас для выполнения услуги "{service_type}". Давайте обсудим детали.',
+                            performer=performer
                         )
                 except OrderResponse.DoesNotExist:
                     messages.error(request, 'Отклик не найден')
@@ -814,14 +833,19 @@ def order_detail(request, order_id):
         for r in responses:
             # Если услуга не выбрана или выбран другой исполнитель
             service_type_code = r.performer.service_type.code if r.performer.service_type else None
-            if service_type_code not in selected or selected[service_type_code] != r.performer.id:
+            if service_type_code and (service_type_code not in selected or str(selected[service_type_code]) != str(r.performer.id)):
                 unselected_responses.append(r)
 
     is_selected_performer = False
     if request.user.user_type == 'performer' and order.selected_performers:
         service_type_code = request.user.service_type.code if request.user.service_type else None
-        if service_type_code in order.selected_performers and order.selected_performers[service_type_code] == request.user.id:
+        if service_type_code in order.selected_performers and str(order.selected_performers[service_type_code]) == str(request.user.id):
             is_selected_performer = True
+    
+    # Для заказчика показываем чат, если заказ в работе и есть выбранные исполнители
+    can_show_chat = False
+    if request.user == order.customer and order.status == 'in_progress' and order.selected_performers:
+        can_show_chat = True
     can_take_order = (
         request.user.user_type == 'performer'
         and order.status == 'new'
@@ -844,6 +868,7 @@ def order_detail(request, order_id):
         'responses': unselected_responses if request.user == order.customer else None,
         'performers_by_id': {pid: User.objects.filter(id=pid).first() for pid in (order.selected_performers or {}).values()} if order.selected_performers else {},
         'is_selected_performer': is_selected_performer,
+        'can_show_chat': can_show_chat,
         'service_types': service_types,
         'service_types_dict': service_types_dict,
     }
@@ -1725,12 +1750,19 @@ def accept_response(request, response_id):
         response = get_object_or_404(OrderResponse, id=response_id)
         order = response.order
         
+        # Добавляем отладочную информацию
+        print(f"DEBUG accept_response: Начало обработки отклика {response_id}")
+        print(f"DEBUG accept_response: Заказ {order.id}, статус: {order.status}")
+        print(f"DEBUG accept_response: Заказчик: {order.customer}, Пользователь: {request.user}")
+        print(f"DEBUG accept_response: Content-Type: {request.content_type}")
+        print(f"DEBUG accept_response: POST data: {request.POST}")
+        
         # Проверяем, что пользователь является заказчиком этого заказа
         if request.user != order.customer:
             return JsonResponse({'error': 'У вас нет прав для принятия этого отклика'}, status=403)
         
-        # Проверяем, что заказ еще новый
-        if order.status != 'new':
+        # Проверяем, что заказ еще новый или в работе
+        if order.status not in ['new', 'in_progress']:
             return JsonResponse({'error': 'Заказ уже не доступен для принятия откликов'}, status=400)
         
         # Проверяем, что исполнитель не выбран по этой услуге
@@ -1751,10 +1783,25 @@ def accept_response(request, response_id):
             order.performer = response.performer
         
         # Проверяем, выбраны ли все необходимые услуги
-        if set(selected_performers.keys()) == set(order.services):
-            order.status = 'in_progress'
+        # Преобразуем order.services в set для корректного сравнения
+        order_services_set = set(order.services) if isinstance(order.services, list) else set()
+        
+        # Добавляем отладочную информацию
+        print(f"DEBUG: order.services = {order.services}")
+        print(f"DEBUG: order_services_set = {order_services_set}")
+        print(f"DEBUG: selected_performers = {selected_performers}")
+        print(f"DEBUG: selected_performers.keys() = {set(selected_performers.keys())}")
+        print(f"DEBUG: Сравнение: {set(selected_performers.keys())} == {order_services_set}")
+        print(f"DEBUG: order.order_type = {order.order_type}")
+        
+        # ВСЕГДА устанавливаем статус в работу при принятии отклика
+        order.status = 'in_progress'
+        print(f"DEBUG: Статус изменен на 'in_progress' (принятие отклика)")
         
         order.save()
+        
+        # Сохраняем информацию об исполнителе перед удалением отклика
+        performer = response.performer
         
         # Удаляем все остальные отклики по этой услуге
         OrderResponse.objects.filter(
@@ -1762,21 +1809,26 @@ def accept_response(request, response_id):
             performer__service_type__code=service_type
         ).exclude(id=response_id).delete()
         
+        # Также удаляем сам принятый отклик, так как он больше не нужен
+        response.delete()
+        
         # Создаем первое сообщение в чате
         Message.objects.create(
             order=order,
             from_user=request.user,
-            to_user=response.performer,
+            to_user=performer,
             content=f'Здравствуйте! Я выбрал вас для выполнения услуги "{service_type}". Давайте обсудим детали.',
-            performer=response.performer
+            performer=performer
         )
         
+        print(f"DEBUG accept_response: Успешно завершено. Статус заказа: {order.status}")
         return JsonResponse({
             'success': True,
             'message': f'Исполнитель по услуге {service_type} успешно выбран'
         })
         
     except Exception as e:
+        print(f"DEBUG accept_response: Ошибка: {str(e)}")
         return JsonResponse({'error': 'Произошла ошибка при принятии отклика'}, status=500)
 
 @login_required

@@ -6,13 +6,17 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Личный кабинет исполнителя — Той со звездой</title>
-                                                       <link rel="stylesheet" href="{% static 'css/style.css' %}?v=18">
-                   <link rel="stylesheet" href="{% static 'css/responsive.css' %}?v=18">
-                   <link rel="stylesheet" href="{% static 'css/mobile.css' %}?v=20">
-                   <link rel="stylesheet" href="{% static 'css/mobile-menu.css' %}?v=19">
+                                                                                                                 <link rel="stylesheet" href="{% static 'css/style.css' %}?v=20">
+                                                          <link rel="stylesheet" href="{% static 'css/responsive.css' %}?v=18">
+                                                          <link rel="stylesheet" href="{% static 'css/mobile.css' %}?v=21">
+                                                          <link rel="stylesheet" href="{% static 'css/mobile-menu.css' %}?v=19">
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
   
+  <!-- Загружаем скрипты в head для раннего доступа к функциям -->
+  <script src="{% static 'js/main.js' %}?v=19"></script>
+  <script src="{% static 'js/mobile-menu.js' %}?v=20"></script>
+  <script src="{% static 'js/responsive.js' %}?v=18"></script>
 
   <style>
     /* Основные стили */
@@ -490,12 +494,10 @@
 
 
        .order-title {
-         font-size: 12px !important;
+         font-size: 15px !important;
        }
 
-       .order-event-type {
-         font-size: 6px !important;
-       }
+    
 
        .budget-amount {
          font-size: 7px !important;
@@ -2579,15 +2581,9 @@
         button.addEventListener('click', function() {
           const orderId = this.getAttribute('data-order-id');
           const action = this.getAttribute('data-action');
-          openOrderDetailModal(orderId, action);
-        });
-      });
-
-      // Кнопки чата
-      document.querySelectorAll('.chat-btn').forEach(button => {
-        button.addEventListener('click', function() {
-          const orderId = this.getAttribute('data-order-id');
-          openChatModal(orderId, null);
+          if (typeof openOrderDetailModal === 'function') {
+            openOrderDetailModal(orderId, action);
+          }
         });
       });
 
@@ -2595,7 +2591,9 @@
       document.querySelectorAll('.complete-btn').forEach(button => {
         button.addEventListener('click', function() {
           const orderId = this.getAttribute('data-order-id');
-          completeOrder(orderId);
+          if (typeof completeOrder === 'function') {
+            completeOrder(orderId);
+          }
         });
       });
 
@@ -2603,7 +2601,9 @@
       document.querySelectorAll('.accept-btn').forEach(button => {
         button.addEventListener('click', function() {
           const orderId = this.getAttribute('data-order-id');
-          acceptBooking(orderId);
+          if (typeof acceptBooking === 'function') {
+            acceptBooking(orderId);
+          }
         });
       });
 
@@ -2611,7 +2611,9 @@
       document.querySelectorAll('.reject-btn').forEach(button => {
         button.addEventListener('click', function() {
           const orderId = this.getAttribute('data-order-id');
-          rejectBooking(orderId);
+          if (typeof rejectBooking === 'function') {
+            rejectBooking(orderId);
+          }
         });
       });
 
@@ -2619,7 +2621,9 @@
       document.querySelectorAll('.cancel-btn').forEach(button => {
         button.addEventListener('click', function() {
           const orderId = this.getAttribute('data-order-id');
-          cancelOrder(orderId);
+          if (typeof cancelOrder === 'function') {
+            cancelOrder(orderId);
+          }
         });
       });
 
@@ -2627,13 +2631,35 @@
       document.querySelectorAll('.cancel-response-btn').forEach(button => {
         button.addEventListener('click', function() {
           const responseId = this.getAttribute('data-response-id');
-          cancelResponse(responseId);
+          if (typeof cancelResponse === 'function') {
+            cancelResponse(responseId);
+          }
         });
       });
     });
   </script>
-                                                                          <script src="{% static 'js/main.js' %}?v=18"></script>
-  <script src="{% static 'js/mobile-menu.js' %}?v=20"></script>
-  <script src="{% static 'js/responsive.js' %}?v=18"></script>
+
+<!-- Chat Modal -->
+<div id="chatModal" class="modal">
+  <div class="modal-content">
+    <button class="modal-close" onclick="closeModal('chatModal')">
+      <i class="ri-close-line"></i>
+    </button>
+    <div class="modal-header">
+      <h2 class="modal-title">Чат</h2>
+    </div>
+    <div class="chat-container">
+      <div class="chat-messages" id="chatMessages"></div>
+      <form id="chatForm" class="chat-input" onsubmit="sendMessage(event)">
+        {% csrf_token %}
+        <input type="text" class="form-input" placeholder="Введите сообщение..." required>
+        <button type="submit" class="btn accent">
+          <i class="ri-send-plane-fill"></i>
+        </button>
+      </form>
+    </div>
+  </div>
+</div>
+
 </body>
 </html> 

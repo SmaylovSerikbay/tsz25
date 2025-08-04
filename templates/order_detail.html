@@ -175,6 +175,15 @@
                 </button>
               </div>
               {% endif %}
+              
+              {% if can_show_chat %}
+              <div style="display: flex; gap: 8px; margin-top: 8px;">
+                <button class="btn outline small" onclick="openChatModal('{{ order.id }}')">
+                  <i class="ri-message-2-line"></i>
+                  Открыть чат с исполнителями
+                </button>
+              </div>
+              {% endif %}
             </div>
           </div>
         </div>

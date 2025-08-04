@@ -1,3 +1,333 @@
+// Убеждаемся, что getCookie доступна глобально
+window.getCookie = window.getCookie || function(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+};
+
+// Простые и надежные функции чата
+window.openModal = function(modalId) {
+    console.log('openModal called with modalId:', modalId);
+    const modal = document.getElementById(modalId);
+    if (modal) {
+        modal.style.display = 'block';
+        document.body.style.overflow = 'hidden';
+    }
+};
+
+window.closeModal = function(modalId) {
+    const modal = document.getElementById(modalId);
+    if (modal) {
+        modal.style.display = 'none';
+        document.body.style.overflow = 'auto';
+    }
+};
+
+// Закрытие модалки по клику вне содержимого
+document.addEventListener('DOMContentLoaded', function() {
+    window.addEventListener('click', function(event) {
+        if (event.target.classList && event.target.classList.contains('modal')) {
+            closeModal(event.target.id);
+        }
+    });
+    
+    // Обработчики для кнопок чата
+    document.querySelectorAll('.chat-btn').forEach(button => {
+        button.addEventListener('click', function() {
+            const orderId = this.getAttribute('data-order-id');
+            console.log('Chat button clicked for orderId:', orderId);
+            console.log('openChatModal function:', typeof window.openChatModal);
+            if (typeof window.openChatModal === 'function') {
+                window.openChatModal(orderId, null);
+            } else {
+                console.error('openChatModal is not defined');
+                alert('Ошибка: функция чата не загружена');
+            }
+        });
+    });
+});
+
+window.loadMessages = function(orderId, performerId = null) {
+    console.log('loadMessages called with orderId:', orderId, 'performerId:', performerId);
+    let url = `/chat/${orderId}/messages/`;
+    if (performerId) {
+        url += `?performer_id=${performerId}`;
+    }
+    
+    fetch(url)
+        .then(response => response.json())
+        .then(data => {
+            const chatMessages = document.getElementById('chatMessages');
+            if (!chatMessages) return;
+            chatMessages.innerHTML = '';
+            data.messages.forEach(message => {
+                const messageDiv = document.createElement('div');
+                messageDiv.className = `message ${message.is_mine ? 'sent' : 'received'}`;
+                messageDiv.innerHTML = `
+                    <div class="message-content">${message.content}</div>
+                    <div class="message-time">${message.timestamp}</div>
+                `;
+                chatMessages.appendChild(messageDiv);
+            });
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        })
+        .catch(error => {
+            console.error('Error loading messages:', error);
+        });
+};
+
+window.openChatModal = function(orderId, performerId = null) {
+    console.log('openChatModal called with orderId:', orderId, 'performerId:', performerId);
+    openModal('chatModal');
+    const chatModal = document.getElementById('chatModal');
+    if (chatModal) {
+        chatModal.setAttribute('data-order-id', orderId);
+        chatModal.setAttribute('data-performer-id', performerId || '');
+        
+        // Устанавливаем заголовок в зависимости от типа пользователя
+        const chatTitle = document.getElementById('chatTitle');
+        if (chatTitle) {
+            // Проверяем URL чтобы определить тип пользователя
+            const currentUrl = window.location.pathname;
+            if (currentUrl.includes('/dashboard/performer/')) {
+                chatTitle.textContent = 'Чат с заказчиком';
+            } else if (currentUrl.includes('/dashboard/customer/')) {
+                chatTitle.textContent = 'Чат с исполнителем';
+            } else {
+                chatTitle.textContent = 'Чат';
+            }
+        }
+        
+        loadMessages(orderId, performerId);
+    }
+};
+
+window.sendMessage = function(event) {
+    console.log('sendMessage called');
+    event.preventDefault();
+    const form = event.target;
+    const input = form.querySelector('input.form-input');
+    const message = input.value.trim();
+    if (!message) return;
+
+    const chatModal = document.getElementById('chatModal');
+    const orderId = chatModal.getAttribute('data-order-id');
+    const csrfToken = form.querySelector('[name=csrfmiddlewaretoken]').value;
+
+    fetch(`/chat/${orderId}/send/`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrfToken
+        },
+        body: JSON.stringify({ message })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            input.value = '';
+            loadMessages(orderId);
+        } else {
+            alert('Ошибка: ' + (data.error || 'Неизвестная ошибка'));
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Ошибка при отправке сообщения');
+    });
+};
+
+// Убеждаемся, что openBookingModal доступна глобально
+window.openBookingModal = window.openBookingModal || function(performerId) {
+    console.log('openBookingModal called with performerId:', performerId);
+    console.log('Function is defined:', typeof window.openBookingModal);
+    console.log('Document ready state:', document.readyState);
+    
+    // Инициализируем переменные календаря
+    if (!window.calendarCurrentDate) {
+        window.calendarCurrentDate = new Date();
+    }
+    if (!window.calendarMonths) {
+        window.calendarMonths = [
+            'Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь',
+            'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'
+        ];
+    }
+    
+    // Создаем модальное окно для бронирования
+    const modalId = 'bookingModal';
+    const existingModal = document.getElementById(modalId);
+    if (existingModal) {
+        existingModal.remove();
+    }
+
+    const modal = document.createElement('div');
+    modal.id = modalId;
+    modal.className = 'modal';
+    modal.innerHTML = `
+        <div class="modal-content booking-modal">
+            <div class="modal-header">
+                <h3><i class="ri-calendar-check-line"></i> Забронировать исполнителя</h3>
+                <button onclick="closeModal('${modalId}')" class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="bookingForm" method="POST" action="/create-order/${performerId}/">
+                    <input type="hidden" name="csrfmiddlewaretoken" value="${getCookie('csrftoken')}">
+                    
+                    <!-- Выбор типа бронирования -->
+                    <div class="form-group">
+                        <label class="form-label">
+                            <i class="ri-file-list-line"></i> Тип бронирования
+                        </label>
+                        <div class="booking-type-selector">
+                            <label class="booking-type-option">
+                                <input type="radio" name="booking_type" value="new" checked>
+                                <span class="booking-type-content">
+                                    <i class="ri-add-circle-line"></i>
+                                    <div>
+                                        <strong>Новое бронирование</strong>
+                                        <small>Создать новую заявку</small>
+                                    </div>
+                                </span>
+                            </label>
+                            <label class="booking-type-option">
+                                <input type="radio" name="booking_type" value="existing">
+                                <span class="booking-type-content">
+                                    <i class="ri-link"></i>
+                                    <div>
+                                        <strong>Прикрепить к заявке</strong>
+                                        <small>Использовать существующую заявку</small>
+                                    </div>
+                                </span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Выбор существующей заявки (скрыто по умолчанию) -->
+                    <div class="form-group" id="existingOrderGroup" style="display: none;">
+                        <label for="order_id" class="form-label">
+                            <i class="ri-file-list-line"></i> Выберите заявку
+                        </label>
+                        <select id="order_id" name="order_id" class="form-input">
+                            <option value="">Загрузка заявок...</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="event_date" class="form-label">
+                            <i class="ri-calendar-line"></i> Дата мероприятия *
+                        </label>
+                        <div class="date-selection-wrapper">
+                            <input type="hidden" id="event_date" name="event_date" required>
+                            <button type="button" class="btn outline calendar-btn" onclick="openDatePicker()">
+                                <i class="ri-calendar-line"></i> Выбрать дату
+                            </button>
+                        </div>
+                        <div id="calendarPicker" class="calendar-picker" style="display: none;">
+                            <div class="calendar-header">
+                                <button type="button" class="calendar-nav-btn" onclick="prevMonth()">
+                                    <i class="ri-arrow-left-s-line"></i>
+                                </button>
+                                <h4 id="currentMonthDisplay"></h4>
+                                <button type="button" class="calendar-nav-btn" onclick="nextMonth()">
+                                    <i class="ri-arrow-right-s-line"></i>
+                                </button>
+                            </div>
+                            <div class="calendar-weekdays">
+                                <div>Пн</div><div>Вт</div><div>Ср</div><div>Чт</div><div>Пт</div><div>Сб</div><div>Вс</div>
+                            </div>
+                            <div id="calendarDays" class="calendar-days"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="tariff" class="form-label">
+                            <i class="ri-price-tag-line"></i> Выберите тариф *
+                        </label>
+                        <select id="tariff" name="tariff" class="form-input" required>
+                            <option value="">Загрузка тарифов...</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="details" class="form-label">
+                            <i class="ri-file-text-line"></i> Дополнительная информация
+                        </label>
+                        <textarea id="details" name="details" class="form-input" rows="4" placeholder="Опишите детали вашего мероприятия..."></textarea>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="button" onclick="closeModal('${modalId}')" class="btn outline">
+                            <i class="ri-close-line"></i> Отмена
+                        </button>
+                        <button type="submit" class="btn accent">
+                            <i class="ri-check-line"></i> Забронировать
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    `;
+
+    document.body.appendChild(modal);
+    modal.style.display = 'flex';
+
+    // Загружаем тарифы исполнителя
+    if (typeof loadPerformerTariffs === 'function') {
+        loadPerformerTariffs(performerId);
+    }
+    
+    // Загружаем заявки заказчика
+    if (typeof loadCustomerOrders === 'function') {
+        loadCustomerOrders();
+    }
+
+    // Устанавливаем минимальную дату
+    const dateInput = document.getElementById('event_date');
+    const today = new Date();
+    dateInput.min = today.toISOString().split('T')[0];
+
+    // Сохраняем ID исполнителя для использования в календаре
+    window.currentPerformerId = performerId;
+    
+    // Загружаем занятые даты исполнителя
+    if (typeof loadPerformerBusyDates === 'function') {
+        loadPerformerBusyDates(performerId);
+    }
+
+    // Обработчик переключения типа бронирования
+    const bookingTypeRadios = document.querySelectorAll('input[name="booking_type"]');
+    const existingOrderGroup = document.getElementById('existingOrderGroup');
+    
+    bookingTypeRadios.forEach(radio => {
+        radio.addEventListener('change', function() {
+            if (this.value === 'existing') {
+                existingOrderGroup.style.display = 'block';
+            } else {
+                existingOrderGroup.style.display = 'none';
+            }
+        });
+    });
+
+    // Обработчик изменения даты
+    dateInput.addEventListener('change', function() {
+        if (typeof checkDateAvailability === 'function') {
+            checkDateAvailability(performerId, this.value);
+        }
+    });
+    
+    console.log('Booking modal created and displayed');
+};
+
 document.addEventListener('DOMContentLoaded', function() {
     const body = document.body;
     const header = document.querySelector('.header');
@@ -274,7 +604,9 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // Profile Page Functionality
-    initializeProfile();
+    if (typeof initializeProfile === 'function') {
+        initializeProfile();
+    }
 
     // Base Template Functionality
     let lastScroll = 0;
@@ -314,10 +646,10 @@ document.addEventListener('DOMContentLoaded', function() {
     });
     
         // Закрыть при клике вне
-        document.addEventListener('click', function() {
-            headerDropdowns.forEach(dropdown => {
-                dropdown.querySelector('.mobile-nav-dropdown-menu')?.classList.remove('active');
-            });
+    document.addEventListener('click', function() {
+        const headerDropdowns = document.querySelectorAll('.mobile-nav-dropdown');
+        headerDropdowns.forEach(dropdown => {
+            dropdown.querySelector('.mobile-nav-dropdown-menu')?.classList.remove('active');
         });
     });
     
@@ -369,7 +701,9 @@ document.addEventListener('DOMContentLoaded', function() {
     window.showNotification = showNotification;
 
     // Catalog Page Functionality
-    initializeCatalog();
+    if (typeof initializeCatalog === 'function') {
+        initializeCatalog();
+    }
 
     // --- ЛОГИКА ВЫБОРА УСЛУГ В ФОРМЕ ЗАКАЗА ---
     const serviceCards = document.querySelectorAll('.service-card');
@@ -408,7 +742,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
-function closeMenu() {
+window.closeMenu = function() {
     const mobileMenu = document.querySelector('.mobile-menu');
     const mobileMenuToggle = document.querySelector('.mobile-menu-toggle');
     if (mobileMenu && mobileMenuToggle) {
@@ -423,137 +757,13 @@ function closeMenu() {
     }
 }
 
-// Универсальные функции для модальных окон
-function openModal(modalId) {
-  const modal = document.getElementById(modalId);
-  if (modal) {
-    modal.style.display = 'block';
-    document.body.style.overflow = 'hidden';
-    
-    // Специальная обработка для модального окна календаря
-    if (modalId === 'calendarModal') {
-      // Инициализируем календарь при открытии
-      if (typeof updateCalendar === 'function') {
-        // Очищаем существующие даты
-        if (typeof selectedDates !== 'undefined') {
-          selectedDates.clear();
-        }
-        
-        // Добавляем существующие занятые даты из Django контекста
-        // Эти данные должны быть доступны в глобальной переменной
-        if (typeof window.busyDates !== 'undefined') {
-          window.busyDates.forEach(date => {
-            selectedDates.add(date);
-          });
-        }
-        
-        // Обновляем календарь
-        updateCalendar();
-      }
-    }
-  }
-}
+// Удаляем дублирующиеся функции чата, так как они уже определены в начале файла
 
-window.closeModal = function(modalId) {
-    const modal = document.getElementById(modalId);
-    if (modal) {
-        modal.style.display = 'none';
-        document.body.style.overflow = 'auto';
-    }
-}
-
-// Закрытие модалки по клику вне содержимого
-window.addEventListener('click', function(event) {
-  if (event.target.classList && event.target.classList.contains('modal')) {
-    closeModal(event.target.id);
-  }
-});
-
-// Глобальные функции для кнопок в dashboard-performer.html
-function openEditProfileModal() {
-  openModal('editProfileModal');
-}
-function openSubscriptionModal() {
-  openModal('subscriptionModal');
-}
-function openFilterModal() {
-  openModal('filterModal');
-}
-function openResponseModal() {
-  openModal('responseModal');
-}
-
-function loadMessages(orderId, performerId = null) {
-  let url = `/chat/${orderId}/messages/`;
-  if (performerId) {
-    url += `?performer_id=${performerId}`;
-  }
-  fetch(url)
-    .then(response => response.json())
-    .then(data => {
-      const chatMessages = document.getElementById('chatMessages');
-      if (!chatMessages) return;
-      chatMessages.innerHTML = '';
-      data.messages.forEach(message => {
-        const messageDiv = document.createElement('div');
-        messageDiv.className = `message ${message.is_mine ? 'sent' : 'received'}`;
-        messageDiv.innerHTML = `
-          <div class="message-content">${message.content}</div>
-          <div class="message-time">${message.timestamp}</div>
-        `;
-        chatMessages.appendChild(messageDiv);
-      });
-      chatMessages.scrollTop = chatMessages.scrollHeight;
-    });
-}
-
-// Обновляю openChatModal, чтобы подгружать сообщения при открытии
-function openChatModal(orderId, performerId = null) {
-  openModal('chatModal');
-  const chatModal = document.getElementById('chatModal');
-  chatModal.setAttribute('data-order-id', orderId);
-  chatModal.setAttribute('data-performer-id', performerId || '');
-  loadMessages(orderId, performerId);
-}
-
-function sendMessage(event) {
-  event.preventDefault();
-  const form = event.target;
-  const input = form.querySelector('input.form-input');
-  const message = input.value.trim();
-  if (!message) return;
-
-  const chatModal = document.getElementById('chatModal');
-  const orderId = chatModal.getAttribute('data-order-id');
-  const csrfToken = form.querySelector('[name=csrfmiddlewaretoken]').value;
-
-  fetch(`/chat/${orderId}/send/`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'X-CSRFToken': csrfToken
-    },
-    body: JSON.stringify({ message })
-  })
-  .then(response => response.json())
-  .then(data => {
-    if (data.success) {
-      input.value = '';
-      if (typeof loadMessages === 'function') {
-        loadMessages(orderId);
-      }
-    } else {
-      alert('Ошибка: ' + (data.error || 'Неизвестная ошибка'));
-    }
-  })
-  .catch(error => {
-    console.error('Error:', error);
-    alert('Ошибка при отправке сообщения');
-  });
-}
-
+// Экспортируем функции в глобальную область видимости
 window.openBookingModal = function(performerId) {
     console.log('openBookingModal called with performerId:', performerId);
+    console.log('Function is defined:', typeof window.openBookingModal);
+    console.log('Document ready state:', document.readyState);
     
     // Инициализируем переменные календаря
     if (!window.calendarCurrentDate) {
@@ -723,7 +933,40 @@ window.openBookingModal = function(performerId) {
     console.log('Booking modal created and displayed');
 }
 
-function getCookie(name) {
+// Функция отправки бронирования
+window.submitBooking = function(event) {
+    event.preventDefault();
+    
+    const form = event.target;
+    const formData = new FormData(form);
+    
+    fetch('/order/booking/create/', {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-CSRFToken': getCookie('csrftoken')
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showNotification('Бронирование успешно создано!', 'success');
+            closeModal('bookingModal');
+            // Перенаправляем на детали заказа
+            if (data.order_id) {
+                window.location.href = `/order/${data.order_id}/`;
+            }
+        } else {
+            showNotification(data.error || 'Ошибка при создании бронирования', 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showNotification('Ошибка при создании бронирования', 'error');
+    });
+};
+
+window.getCookie = function(name) {
     let cookieValue = null;
     if (document.cookie && document.cookie !== '') {
         const cookies = document.cookie.split(';');
@@ -738,11 +981,13 @@ function getCookie(name) {
     return cookieValue;
 }
 
-function loadPerformerTariffs(performerId) {
+window.loadPerformerTariffs = function(performerId) {
     fetch(`/api/performer/${performerId}/tariffs/`)
         .then(response => response.json())
         .then(data => {
             const tariffSelect = document.getElementById('tariff');
+            if (!tariffSelect) return;
+            
             tariffSelect.innerHTML = '<option value="">Выберите тариф</option>';
             
             if (data.tariffs && data.tariffs.length > 0) {
@@ -759,15 +1004,19 @@ function loadPerformerTariffs(performerId) {
         .catch(error => {
             console.error('Ошибка загрузки тарифов:', error);
             const tariffSelect = document.getElementById('tariff');
-            tariffSelect.innerHTML = '<option value="">Ошибка загрузки тарифов</option>';
+            if (tariffSelect) {
+                tariffSelect.innerHTML = '<option value="">Ошибка загрузки тарифов</option>';
+            }
         });
 }
 
-function loadCustomerOrders() {
+window.loadCustomerOrders = function() {
     fetch('/api/user/orders/')
         .then(response => response.json())
         .then(data => {
             const orderSelect = document.getElementById('order_id');
+            if (!orderSelect) return;
+            
             orderSelect.innerHTML = '<option value="">Выберите заявку</option>';
             
             if (data.orders && data.orders.length > 0) {
@@ -786,11 +1035,13 @@ function loadCustomerOrders() {
         .catch(error => {
             console.error('Ошибка загрузки заявок:', error);
             const orderSelect = document.getElementById('order_id');
-            orderSelect.innerHTML = '<option value="">Ошибка загрузки заявок</option>';
+            if (orderSelect) {
+                orderSelect.innerHTML = '<option value="">Ошибка загрузки заявок</option>';
+            }
         });
 }
 
-function loadPerformerBusyDates(performerId) {
+window.loadPerformerBusyDates = function(performerId) {
     fetch(`/api/performer/${performerId}/busy-dates/`)
         .then(response => response.json())
         .then(data => {
@@ -806,7 +1057,7 @@ function loadPerformerBusyDates(performerId) {
         });
 }
 
-function checkDateAvailability(performerId, selectedDate) {
+window.checkDateAvailability = function(performerId, selectedDate) {
     const dateInput = document.getElementById('event_date');
     const submitButton = document.querySelector('#bookingForm button[type="submit"]');
     const dateWarning = document.getElementById('dateWarning');
@@ -829,12 +1080,18 @@ function checkDateAvailability(performerId, selectedDate) {
             <span>Эта дата уже занята. Выберите другую дату.</span>
         `;
         
-        dateInput.parentNode.appendChild(warning);
-        submitButton.disabled = true;
-        submitButton.style.opacity = '0.5';
+        if (dateInput && dateInput.parentNode) {
+            dateInput.parentNode.appendChild(warning);
+        }
+        if (submitButton) {
+            submitButton.disabled = true;
+            submitButton.style.opacity = '0.5';
+        }
     } else {
-        submitButton.disabled = false;
-        submitButton.style.opacity = '1';
+        if (submitButton) {
+            submitButton.disabled = false;
+            submitButton.style.opacity = '1';
+        }
     }
 }
 
@@ -847,16 +1104,20 @@ const calendarMonths = [
 
 window.openDatePicker = function() {
     const calendarPicker = document.getElementById('calendarPicker');
-    calendarPicker.style.display = 'block';
-    updateCalendarDisplay();
+    if (calendarPicker) {
+        calendarPicker.style.display = 'block';
+        updateCalendarDisplay();
+    }
 }
 
 window.closeDatePicker = function() {
     const calendarPicker = document.getElementById('calendarPicker');
-    calendarPicker.style.display = 'none';
+    if (calendarPicker) {
+        calendarPicker.style.display = 'none';
+    }
 }
 
-function updateCalendarDisplay() {
+window.updateCalendarDisplay = function() {
     const year = window.calendarCurrentDate.getFullYear();
     const month = window.calendarCurrentDate.getMonth();
     
@@ -870,14 +1131,16 @@ function updateCalendarDisplay() {
         currentMonth.textContent = `${window.calendarMonths[month]} ${year}`;
     }
     
+    const calendarDays = document.getElementById('calendarDays');
+    if (!calendarDays) return;
+    
+    calendarDays.innerHTML = '';
+    
     const firstDay = new Date(year, month, 1);
     const lastDay = new Date(year, month + 1, 0);
     
     let firstDayIndex = firstDay.getDay() || 7;
     firstDayIndex--;
-    
-    const calendarDays = document.getElementById('calendarDays');
-    calendarDays.innerHTML = '';
     
     // Добавляем пустые ячейки
     for (let i = 0; i < firstDayIndex; i++) {
@@ -916,7 +1179,7 @@ function updateCalendarDisplay() {
     }
 }
 
-function formatDateString(date) {
+window.formatDateString = function(date) {
     const year = date.getFullYear();
     const month = String(date.getMonth() + 1).padStart(2, '0');
     const day = String(date.getDate()).padStart(2, '0');
@@ -956,7 +1219,7 @@ window.nextMonth = function() {
 }
 
 // Profile Page Functionality
-function initializeProfile() {
+window.initializeProfile = function() {
     const editProfileBtn = document.querySelector('.profile-edit-btn');
     const editProfileModal = document.getElementById('editProfileModal');
     const portfolioModal = document.getElementById('portfolioModal');
@@ -1156,7 +1419,7 @@ function initializeProfile() {
 }
 
 // Catalog Page Functionality
-function initializeCatalog() {
+window.initializeCatalog = function() {
     const catalogGrid = document.querySelector('.catalog-grid');
     
     // Only initialize catalog functionality if we're on a page with catalog grid
@@ -1314,7 +1577,7 @@ function initializeCatalog() {
     let loading = false;
     const loadMoreThreshold = 300;
 
-    function loadMorePerformers() {
+    window.loadMorePerformers = function() {
         if (!catalogGrid || loading) return;
         
         const lastCard = catalogGrid.lastElementChild;
@@ -1371,4 +1634,13 @@ function initializeCatalog() {
     // Add scroll event listener for infinite scroll
     window.addEventListener('scroll', loadMorePerformers);
     window.addEventListener('resize', loadMorePerformers);
-} 
+}
+
+// Явно экспортируем функции чата в глобальную область видимости
+console.log('Exporting chat functions to window object');
+console.log('openChatModal:', typeof window.openChatModal);
+console.log('loadMessages:', typeof window.loadMessages);
+console.log('sendMessage:', typeof window.sendMessage);
+console.log('openModal:', typeof window.openModal);
+console.log('closeModal:', typeof window.closeModal);
+
