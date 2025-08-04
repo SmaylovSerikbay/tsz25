@@ -133,13 +133,20 @@ document.addEventListener('DOMContentLoaded', function() {
     // Десктопные дропдауны
     const desktopDropdownToggles = document.querySelectorAll('.nav-dropdown-toggle');
     
+    console.log('Found desktop dropdown toggles:', desktopDropdownToggles.length);
+    
     desktopDropdownToggles.forEach(toggle => {
+        console.log('Adding event listener to desktop dropdown toggle');
         toggle.addEventListener('click', function(e) {
+            console.log('Desktop dropdown toggle clicked');
             e.preventDefault();
             e.stopPropagation();
             
             const dropdownMenu = this.nextElementSibling;
             const arrow = this.querySelector('i:last-child');
+            
+            console.log('Dropdown menu:', dropdownMenu);
+            console.log('Arrow:', arrow);
             
             // Закрываем все другие дропдауны
             desktopDropdownToggles.forEach(otherToggle => {
@@ -158,6 +165,9 @@ document.addEventListener('DOMContentLoaded', function() {
             
             this.classList.toggle('active');
             dropdownMenu.classList.toggle('active');
+            
+            console.log('Toggle active:', this.classList.contains('active'));
+            console.log('Menu active:', dropdownMenu.classList.contains('active'));
             
             if (arrow) {
                 arrow.style.transform = this.classList.contains('active') ? 'rotate(180deg)' : '';

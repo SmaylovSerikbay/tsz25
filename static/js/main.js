@@ -334,8 +334,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const mobileMenuToggle = document.querySelector('.mobile-menu-toggle');
     const mobileMenu = document.querySelector('.mobile-menu');
     const nav = document.querySelector('.nav');
-    const dropdowns = document.querySelectorAll('.nav-dropdown');
-    const mobileDropdowns = document.querySelectorAll('.mobile-nav-dropdown-toggle');
     let lastScrollTop = 0;
     let menuOverlay;
 
@@ -352,48 +350,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     createOverlay();
 
-    // Dropdown Functionality
-    dropdowns.forEach((dropdown, index) => {
-        const toggle = dropdown.querySelector('.nav-dropdown-toggle');
-        const menu = dropdown.querySelector('.nav-dropdown-menu');
-        
-        if (toggle && menu) {
-            // Remove any existing event listeners to prevent conflicts
-            const newToggle = toggle.cloneNode(true);
-            toggle.parentNode.replaceChild(newToggle, toggle);
-            
-            newToggle.addEventListener('click', function(e) {
-                e.preventDefault();
-                e.stopPropagation();
-
-                // Close other dropdowns
-                dropdowns.forEach(otherDropdown => {
-                    if (otherDropdown !== dropdown) {
-                        const otherMenu = otherDropdown.querySelector('.nav-dropdown-menu');
-                        const otherToggle = otherDropdown.querySelector('.nav-dropdown-toggle');
-                        if (otherMenu) otherMenu.classList.remove('active');
-                        if (otherToggle) otherToggle.classList.remove('active');
-                    }
-                });
-
-                // Toggle current dropdown
-                newToggle.classList.toggle('active');
-                menu.classList.toggle('active');
-            });
-        }
-    });
-
-    // Close dropdowns when clicking outside
-    document.addEventListener('click', function(e) {
-        if (!e.target.closest('.nav-dropdown')) {
-            dropdowns.forEach(dropdown => {
-                const menu = dropdown.querySelector('.nav-dropdown-menu');
-                const toggle = dropdown.querySelector('.nav-dropdown-toggle');
-                if (menu) menu.classList.remove('active');
-                if (toggle) toggle.classList.remove('active');
-            });
-        }
-    });
+    // Dropdown functionality is handled by mobile-menu.js to avoid conflicts
 
     // Close menu on window resize
     window.addEventListener('resize', function() {
@@ -406,12 +363,6 @@ document.addEventListener('DOMContentLoaded', function() {
     window.addEventListener('resize', function() {
         if (window.innerWidth > 768) {
             closeMenu();
-            dropdowns.forEach(dropdown => {
-                const menu = dropdown.querySelector('.nav-dropdown-menu');
-                if (menu) {
-                    menu.classList.remove('active');
-                }
-            });
         }
     });
 

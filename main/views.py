@@ -516,6 +516,9 @@ def dashboard(request):
         
         all_orders_debug = Order.objects.filter(status__in=['in_progress', 'new'], order_type='request')
         
+        # Получаем отзывы о исполнителе
+        reviews = Review.objects.filter(to_user=request.user).select_related('from_user').order_by('-created_at')
+        
         # Получаем города и типы услуг для модальных окон
         cities = City.objects.filter(is_active=True).order_by('name')
         service_types = ServiceType.objects.filter(is_active=True).order_by('sort_order')
@@ -532,6 +535,7 @@ def dashboard(request):
             'rating': request.user.rating,
             'all_orders_debug': all_orders_debug,
             'new_requests_count': len(available_orders),
+            'reviews': reviews,
             'cities': cities,
             'service_types': service_types,
         })
