@@ -87,6 +87,7 @@
        max-width: 1600px;       
        overflow-x: auto;
      }
+     
 
      /* Адаптивные стили для tab-content */
      @media (max-width: 768px) {
@@ -487,8 +488,9 @@
          padding: 1px 2px !important;
        }
 
+
        .order-title {
-         font-size: 8px !important;
+         font-size: 12px !important;
        }
 
        .order-event-type {
@@ -497,22 +499,6 @@
 
        .budget-amount {
          font-size: 7px !important;
-       }
-     }
-
-       .data-table th:nth-child(4),
-       .data-table td:nth-child(4) {
-         width: auto !important;
-       }
-
-       .data-table th:nth-child(5),
-       .data-table td:nth-child(5) {
-         width: auto !important;
-       }
-
-       .data-table th:nth-child(6),
-       .data-table td:nth-child(6) {
-         width: auto !important;
        }
      }
 
@@ -2042,7 +2028,7 @@
         <h3>Занятые даты</h3>
           <div class="calendar-grid">
             {% for date in busy_dates %}
-          <div class="calendar-day busy">
+          <div class="calendar-day busy" style="background-color: #ffe5e5; color: #e74c3c;">
             <div>{{ date.date|date:"d" }}</div>
             <div style="font-size: 0.7rem;">{{ date.date|date:"M" }}</div>
             </div>
@@ -2224,14 +2210,28 @@
   <footer class="footer">
     <div class="container">
       <div class="footer-content">
-        <div class="footer-links">
-          <a href="/privacy-policy/">Политика конфиденциальности</a>
-          <a href="/terms-of-service/">Условия использования</a>
-          <a href="/user-agreement/">Пользовательское соглашение</a>
+        <div class="footer-section">
+          <h3>О нас</h3>
+          <p>Той со звездой - платформа для поиска профессиональных исполнителей для вашего мероприятия.</p>
         </div>
-        <div class="footer-copyright">
-          <p>© 2024 Той со звездой. Все права защищены.</p>
+        <div class="footer-section">
+          <h3>Контакты</h3>
+          <p>Email: <a href="mailto:miras.abildin@bk.ru">miras.abildin@bk.ru</a></p>
+          <p>Телефон: <a href="tel:+77754184629">+7 (775)-418-46-29</a></p>
         </div>
+        <div class="footer-section">
+          <h3>Соцсети</h3>
+          <div class="social-links">
+            <a href="https://www.instagram.com/_miras_event_/" target="_blank"><i class="ri-instagram-line"></i></a>
+            <a href="https://www.tiktok.com/@miras_abildin_?_t=ZM-8yOktSAtIhi&_r=1" target="_blank"><i class="ri-tiktok-line"></i></a>
+            <a href="https://wa.me/77754184629" target="_blank">
+              <i class="ri-whatsapp-line"></i>
+            </a>  
+          </div>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>© 2024 Той со звездой. Все права защищены.</p>
       </div>
     </div>
   </footer>

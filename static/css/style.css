@@ -501,42 +501,93 @@ body {
     background: #f8f9fa;
 }
 
-/* ===== ФУТЕР - БАЗОВЫЕ СТИЛИ ===== */
+/* Footer Styles */
 .footer {
     background: white;
     border-top: 1px solid var(--gray-200);
-    padding: 16px 0;
-    margin-top: 48px;
 }
 
 .footer-content {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 40px;
+    padding: 40px 0;
+}
+
+.footer-section h3 {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: var(--gray-900);
+    margin-bottom: 16px;
+}
+
+.footer-section p {
+    color: var(--gray-600);
+    line-height: 1.6;
+    margin-bottom: 8px;
+}
+
+.social-links {
     display: flex;
-    justify-content: space-between;
-    align-items: center;
-    flex-wrap: wrap;
     gap: 16px;
+    margin-top: 16px;
 }
 
-.footer-links {
-    display: flex;
-    gap: 24px;
-    flex-wrap: wrap;
-}
-
-.footer-links a {
-    color: #666;
-    text-decoration: none;
-    font-size: 0.9rem;
-    transition: color 0.2s;
-}
-
-.footer-links a:hover {
+.social-links a {
     color: var(--primary-color);
+    font-size: 24px;
+    transition: all 0.2s;
+    background: none !important;
+    width: auto !important;
+    height: auto !important;
+    border-radius: 0 !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
-.footer-copyright {
-    color: #666;
+.social-links a:hover {
+    color: var(--primary-dark);
+    transform: translateY(-2px);
+    background: none !important;
+}
+
+.social-links i {
+    font-size: inherit;
+}
+
+.footer-bottom {
+    border-top: 1px solid var(--gray-200);
+    padding: 20px 0;
+    text-align: center;
+    color: var(--gray-600);
     font-size: 0.9rem;
+}
+
+@media (max-width: 768px) {
+    .footer-content {
+        gap: 32px;
+        padding: 32px 0;
+    }
+}
+
+@media (max-width: 480px) {
+    .footer-content {
+        gap: 24px;
+        padding: 24px 0;
+    }
+
+    .footer-section h3 {
+        font-size: 1.1rem;
+    }
+
+    .social-links {
+        gap: 24px;
+    }
+
+    .social-links a {
+        font-size: 28px;
+    }
 }
 
 /* Форма футер для модалок */
@@ -763,18 +814,21 @@ body {
 
     /* Футер для мобильных */
     .footer {
-        padding: var(--spacing-lg) 0;
+        padding: 30px 0 20px;
     }
 
     .footer-content {
-        flex-direction: column;
-        gap: var(--spacing-md);
+        grid-template-columns: 1fr;
+        gap: 25px;
         text-align: center;
     }
 
-    .footer-links {
+    .footer-section {
+        align-items: center;
+    }
+
+    .social-links {
         justify-content: center;
-        gap: var(--spacing-lg);
     }
 }
 
@@ -3480,6 +3534,8 @@ select.form-input {
   color: #dc2626;
   cursor: not-allowed;
   position: relative;
+  font-size: 0.8rem;
+  padding: 4px;
 }
 
 .calendar-day-busy::after {
@@ -3488,8 +3544,8 @@ select.form-input {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: 2px;
-  height: 2px;
+  width: 1px;
+  height: 1px;
   background: #dc2626;
   border-radius: 50%;
 }
@@ -3499,6 +3555,39 @@ select.form-input {
   border: 1px solid var(--gray-200);
   color: var(--text-tertiary);
   cursor: not-allowed;
+}
+
+/* Calendar Grid Layout */
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(60px, 1fr));
+  gap: 8px;
+  max-width: 100%;
+}
+
+/* Ensure minimum 4 and maximum 8 calendar-day busy per row */
+@media (min-width: 320px) {
+  .calendar-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+@media (min-width: 480px) {
+  .calendar-grid {
+    grid-template-columns: repeat(6, 1fr);
+  }
+}
+
+@media (min-width: 768px) {
+  .calendar-grid {
+    grid-template-columns: repeat(8, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .calendar-grid {
+    grid-template-columns: repeat(8, 1fr);
+  }
 }
 
 /* Адаптивность для календаря */
